@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   turbopack: { root: process.cwd() },
+  outputFileTracingIncludes: { "/*": ["./supabase/certs/*.crt"] },
   async headers() {
     return [
       { source: "/:path*", headers: [

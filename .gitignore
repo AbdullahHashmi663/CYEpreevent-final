@@ -46,3 +46,6 @@ next-env.d.ts
 test-results/
 ADMIN-ACCESS.local.txt
 !.env.example
+
+.vercel
+.env*

@@ -1,0 +1,9 @@
+.git
+.agents
+.codex
+.env*
+!.env.example
+ADMIN-ACCESS.local.txt
+node_modules
+.next
+test-results
