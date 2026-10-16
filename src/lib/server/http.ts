@@ -43,6 +43,10 @@ export async function handle(work: () => Promise<Response>): Promise<Response> {
     if (error instanceof ApiError) return response({ error: error.message }, error.status);
     const code = (error as { code?: string })?.code;
     if (code === "23505") return response({ error: "This record already exists. Please check your earlier submission." }, 409);
+    // Log only a bounded error code; driver messages can contain private connection details.
+    const diagnostic = error instanceof Error ? error.message.toLowerCase() : "";
+    const category = /tenant or user not found/.test(diagnostic) ? "DATABASE_IDENTITY" : /max.*client|too many.*connection/.test(diagnostic) ? "DATABASE_CONNECTION_LIMIT" : /password|authentication/.test(diagnostic) ? "DATABASE_AUTHENTICATION" : "UNCLASSIFIED";
+    console.error("CYE service error", typeof code === "string" && /^[A-Z0-9_]{2,70}$/.test(code) ? code : "UNEXPECTED_ERROR", category);
     return response({ error: "The service is temporarily unavailable. Please try again shortly." }, 503);
   }
 }
