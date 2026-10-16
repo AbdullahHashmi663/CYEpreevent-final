@@ -1,0 +1,75 @@
+# Capital Youth Expo
+
+An orange-and-blue event website and organizer portal built with Next.js 16.3.8, React 19, and Supabase PostgreSQL. The public website covers the home page, conferences and speakers, competitions, team, ambassadors, venue, contact, and registration. The organizer workspace is at `/admin`.
+
+The interface includes responsive layouts, animated section reveals, a photo gallery, animated statistics, and reduced-motion support. Its visual direction follows [Capital Youth Expo](https://www.capitalyouthexpo.com/).
+
+## Local setup
+
+Use Node.js 20.9 or later (this workspace uses Node 24).
+
+```sh
+git clone https://github.com/AbdullahHashmi663/CYEpreevent-final.git
+cd CYEpreevent-final
+npm ci
+```
+
+Copy `.env.example` to `.env.local` and fill in your database connection and bootstrap account. Keep `.env.local` private. Percent-encode special characters in the database password. The app connects to Supabase from its server; no database password is included in browser code.
+
+The supplied Supabase CA certificate is at `supabase/certs/prod-ca-2021.crt`. TLS verifies the database certificate and hostname. If your project uses a different CA, download it from Supabase Database Settings and update `DATABASE_CA_FILE`.
+
+```sh
+npm run db:setup
+npm run db:check
+npm run dev
+```
+
+Open `http://localhost:3000` and `http://localhost:3000/admin`. The database setup creates only new `cye_*` tables and preserves existing content/settings/admin passwords when repeated. Bootstrap passwords must be changed after the first sign-in. The sign-in screen accepts a username or email. No working administrator credentials are included in this repository.
+
+## Organizer workflow
+
+- Add/edit conferences, assign speakers, upload photographs, publish drafts, and control display order.
+- Maintain team profiles, partners, contests, rules, fees, capacity, and minimum/maximum team sizes.
+- Edit event name, headline, imagery, copy, date, venue, contacts, social links, and registration availability in Site settings.
+- Search applications and contact messages, inspect team rosters, approve, reject with a reason, return to pending, and export CSV.
+- Archive content and applications without deleting them permanently. Restore records from Trash & restore.
+- Review the activity log and change your account password.
+
+The original event date, 1 October 2026, is retained. Registration starts closed. To accept entries for a future edition, update the site date **and each relevant conference/contest date**, then enable registration. Pending and approved participants reserve capacity; rejected and archived applications do not. A restore/reapproval that would exceed capacity is refused.
+
+Public forms save to the database and return a reference. Confirmation means receipt, not approval. Email, WhatsApp, payment processing, and automatic gate-pass delivery are not configured. Contact messages remain available when event registration is closed.
+
+## Production
+
+Deploy to a Node.js host that supports server-side PostgreSQL connections, such as a container, VM, or compatible Next.js hosting. A static export cannot run the database and admin API.
+
+```sh
+npm run build
+npm start
+```
+
+Set `DATABASE_URL`, `DATABASE_CA_FILE`, and `APP_ORIGIN` in the hosting environment; `APP_ORIGIN` must be the exact HTTPS website origin. Copy the CA certificate into the deployment. Use the transaction pooler connection from Supabase's Connect dialog if your host uses many short-lived server instances; do not invent its hostname. This workspace uses the provided session pooler.
+
+Use HTTPS so production admin cookies can be sent securely. Set `TRUST_PROXY=true` only when your host strips and supplies trusted `x-forwarded-for` headers. Otherwise rate limits use the site-wide bucket plus per-email/account limits. Remove bootstrap password settings after the owner has changed their password; repeated setup does not reset it.
+
+Pushing this repository to GitHub publishes the source code. To serve the website publicly, connect this repository to a compatible Next.js host, add the private environment variables from `.env.example`, set the production `APP_ORIGIN`, and run the build/start commands above. Keep database credentials in the host's secret settings.
+
+## Administrator recovery
+
+`npm run admin:replace` intentionally replaces **all** administrator accounts with a single username or email and revokes their sessions. Use only for an authorized administrator reset. Supply `ADMIN_REPLACEMENT_USERNAME` and `ADMIN_REPLACEMENT_PASSWORD` through your local environment; the password must contain at least 12 characters. This command preserves site content, applications, and uploaded images. Never put these credentials in a committed file.
+
+## Verification
+
+```sh
+npm run lint
+npm run build
+npm run db:check
+```
+
+With the local app running, `npm run test:integration` exercises the database/API workflows using isolated test records. Run it while no organizer is editing settings; it temporarily changes registration settings and restores them in its cleanup. The latest run passed 130 live integration assertions covering authentication, password rotation, all five content types, speaker assignments, uploads, settings, registration limits, moderation, archives, restores, exports, and audit logging. Cleanup verifies that real administrator credentials and original settings are preserved.
+
+The source uses server-only database access, parameterized queries, scrypt password hashes, hashed expiring sessions, origin checks, first-sign-in password changes, bounded validated uploads, recoverable archives, audit records, and CSV formula escaping. Supabase Data API roles cannot access the app's tables. No separate API server is needed.
+
+Browser checks covered signed-in navigation, content editors, search, visibility and application filters, account settings, mobile navigation, and sign-out. Multi-page application pagination has not yet been verified.
+
+Known findings from the latest browser checks: dashboard loading temporarily returned a service error twice before recovering on retry; content search and visibility filters carry between content sections and may show an empty list until cleared. These findings remain open.
