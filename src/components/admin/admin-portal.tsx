@@ -919,7 +919,25 @@ function PasswordForm({
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [challengeId, setChallengeId] = useState("");
+  const [codeMessage, setCodeMessage] = useState("");
+  const [sendingCode, setSendingCode] = useState(false);
   const ref = useRef<HTMLFormElement>(null);
+  async function requestCode() {
+    setError("");
+    setSendingCode(true);
+    try {
+      const fields = new FormData(ref.current!);
+      const result = await api<{ challenge_id: string; message: string }>("/api/admin/password/code", {
+        method: "POST", body: JSON.stringify({ current_password: fields.get("current_password") })
+      });
+      setChallengeId(result.challenge_id);
+      setCodeMessage(result.message);
+      const codeInput = ref.current?.elements.namedItem("code") as HTMLInputElement | null;
+      if (codeInput) codeInput.value = "";
+    } catch (caught) { setError(message(caught)); }
+    finally { setSendingCode(false); }
+  }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -934,10 +952,14 @@ function PasswordForm({
         method: "PATCH",
         body: JSON.stringify({
           current_password: fields.get("current_password"),
-          new_password: fields.get("new_password")
+          new_password: fields.get("new_password"),
+          code: fields.get("code"),
+          challenge_id: challengeId
         })
       });
       ref.current?.reset();
+      setChallengeId("");
+      setCodeMessage("");
       await onSuccess();
     } catch (caught) {
       setError(message(caught));
@@ -945,5 +967,5 @@ function PasswordForm({
       setBusy(false);
     }
   }
-  return <form ref={ref} className="admin-password-form" onSubmit={submit}>{!required && <h2>Change your password</h2>}<label className="admin-field">{required ? "Temporary password" : "Current password"}<input name="current_password" type="password" required autoComplete="current-password" /></label><label className="admin-field">New password<input name="new_password" type="password" minLength={12} maxLength={128} required autoComplete="new-password" /><span>Use at least 12 characters.</span></label><label className="admin-field">Confirm new password<input name="confirm_password" type="password" minLength={12} maxLength={128} required autoComplete="new-password" /></label><ErrorText error={error} /><button className="admin-button" disabled={busy}>{busy ? <LoaderCircle size={18} className="admin-spin" /> : <ShieldCheck size={18} />}{busy ? "Updating…" : required ? "Set password & continue" : "Update password"}</button></form>;
+  return <form ref={ref} className="admin-password-form" onSubmit={submit}>{!required && <h2>Change your password</h2>}<p>Confirm this change with a code sent to the website owner’s security email.</p><label className="admin-field">{required ? "Temporary password" : "Current password"}<input name="current_password" type="password" required autoComplete="current-password" /></label><button type="button" className="admin-button admin-button-secondary" disabled={busy || sendingCode} onClick={requestCode}>{sendingCode ? "Sending code…" : challengeId ? "Resend email code" : "Send email code"}</button>{codeMessage && <p role="status">{codeMessage}</p>}<label className="admin-field">Email verification code<input name="code" type="text" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" minLength={6} maxLength={6} required placeholder="6-digit code" /></label><label className="admin-field">New password<input name="new_password" type="password" minLength={12} maxLength={128} required autoComplete="new-password" /><span>Use at least 12 characters.</span></label><label className="admin-field">Confirm new password<input name="confirm_password" type="password" minLength={12} maxLength={128} required autoComplete="new-password" /></label><ErrorText error={error} /><button className="admin-button" disabled={busy || sendingCode || !challengeId}>{busy ? <LoaderCircle size={18} className="admin-spin" /> : <ShieldCheck size={18} />}{busy ? "Updating…" : required ? "Verify code & continue" : "Verify code & update password"}</button></form>;
 }

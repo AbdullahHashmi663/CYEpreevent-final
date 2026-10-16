@@ -56,6 +56,8 @@ Pushing this repository to GitHub publishes the source code. To serve the websit
 
 ## Administrator recovery
 
+Password changes in the admin portal require the current password plus a six-digit code emailed to the owner. Set `ADMIN_SECURITY_EMAIL`, `RESEND_API_KEY`, and `EMAIL_FROM` in the hosting environment; `EMAIL_FROM` must be an authorized sender for your Resend account. The owner security address is configured privately and cannot be changed by the password form. Run the database migrations before deploying this feature. Codes expire after 10 minutes, permit five incorrect attempts, and are consumed atomically with the password change. Requesting a replacement code invalidates the previous code; requests have a 60-second cooldown and a per-account rate limit. Delivery is unavailable until the email provider is configured; the portal does not bypass verification when delivery fails.
+
 `npm run admin:replace` intentionally replaces **all** administrator accounts with a single username or email and revokes their sessions. Use only for an authorized administrator reset. Supply `ADMIN_REPLACEMENT_USERNAME` and `ADMIN_REPLACEMENT_PASSWORD` through your local environment; the password must contain at least 12 characters. This command preserves site content, applications, and uploaded images. Never put these credentials in a committed file.
 
 ## Verification

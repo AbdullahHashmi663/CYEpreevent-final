@@ -29,6 +29,8 @@ const adminId = randomUUID();
 const adminEmail = `${tag}@example.test`;
 const password = randomBytes(24).toString("base64url");
 const newPassword = randomBytes(24).toString("base64url");
+const verificationCode = "472901";
+const challengeId = randomUUID();
 const trackedContent = [];
 const trackedEmails = new Set([adminEmail]);
 const trackedBuckets = new Set();
@@ -39,6 +41,7 @@ function ensure(condition, label) { if (!condition) throw new Error(label); pass
 function hashPassword(value) { const salt = randomBytes(16).toString("hex"); return `scrypt:${salt}:${scryptSync(value,salt,64).toString("hex")}`; }
 function recordBucket(scope, identity) { const clientIdentity=process.env.TRUST_PROXY === "true" ? "unknown" : "site";trackedBuckets.add(createHash("sha256").update(`${scope}:${clientIdentity}:${identity}`).digest("hex")); }
 async function request(path, { method = "GET", body, authenticated = true, customCookie, requestOrigin = origin, form } = {}) {
+  if (path === "/api/admin/password" && body) body = { code: verificationCode, challenge_id: challengeId, ...body };
   const headers = {};
   if (requestOrigin !== null && method !== "GET") headers.Origin = requestOrigin;
   const token = customCookie ?? (authenticated ? cookie : "");
@@ -95,6 +98,7 @@ try {
   fixturesCreated = true;
   recordBucket("login-identity",adminEmail);
   recordBucket("password-change",adminId);
+  recordBucket("password-code",adminId);
   console.log("Integration fixtures created; credentials remain private.");
 
   await status("/api/admin/data", { authenticated: false }, 401, "Admin data requires authentication");
@@ -109,11 +113,23 @@ try {
   await status("/api/admin/content", { method: "POST", body: blank("team") }, 428, "Temporary password blocks content writes");
   await status("/api/admin/settings", { method: "PUT", body: originalSettings.data }, 428, "Temporary password blocks settings writes");
   await status("/api/admin/export", {}, 428, "Temporary password blocks CSV export");
+  await status("/api/admin/password", { method:"PATCH",body:{current_password:password,new_password:newPassword,code:"",challenge_id:""} },400,"Password change requires emailed code");
+  await client.query("insert into public.cye_password_codes(admin_id,challenge_id,code_hash,password_hash_at_issue,expires_at) select id,$2,$3,password_hash,now()-interval '1 minute' from public.cye_admin_users where id=$1",[adminId,challengeId,hashPassword(verificationCode)]);
+  await status("/api/admin/password", {method:"PATCH",body:{current_password:password,new_password:newPassword}},400,"Expired verification code rejected");
+  await client.query("update public.cye_password_codes set expires_at=now()+interval '10 minutes' where admin_id=$1",[adminId]);
+  await status("/api/admin/password", {method:"PATCH",body:{current_password:password,new_password:newPassword,challenge_id:randomUUID()}},400,"Superseded verification request rejected");
+  for(let attempt=0;attempt<5;attempt++) await status("/api/admin/password",{method:"PATCH",body:{current_password:password,new_password:newPassword,code:"000000"}},400,`Incorrect email code rejected ${attempt+1}`);
+  ensure((await client.query("select attempts from public.cye_password_codes where admin_id=$1",[adminId])).rows[0].attempts===5,"Wrong code attempts persist across requests");
+  await client.query("update public.cye_rate_limits set count=0 where bucket=$1",[createHash("sha256").update(`password-change:${process.env.TRUST_PROXY === "true" ? "unknown" : "site"}:${adminId}`).digest("hex")]);
+  await status("/api/admin/password",{method:"PATCH",body:{current_password:password,new_password:newPassword}},400,"Correct code blocked after five wrong attempts");
+  await client.query("update public.cye_password_codes set attempts=0 where admin_id=$1",[adminId]);
   await status("/api/admin/password", { method: "PATCH", body: { current_password: "wrong-qa-password", new_password: newPassword } }, 401, "Password change verifies current password");
   await status("/api/admin/password", { method: "PATCH", body: { current_password: password,new_password: "short" } }, 400, "Short replacement password rejected");
   const staleCookie = cookie;
   const changed = await status("/api/admin/password", { method: "PATCH", body: { current_password: password,new_password: newPassword } }, 200, "QA password changed");
   ensure(changed.data.user.must_change_password === false && cookie !== staleCookie, "Password change clears gate and rotates session");
+  ensure((await client.query("select 1 from public.cye_password_codes where admin_id=$1",[adminId])).rowCount===0,"Used verification code removed atomically");
+  await status("/api/admin/password",{method:"PATCH",body:{current_password:newPassword,new_password:password}},400,"Verification code cannot be reused");
   await status("/api/admin/data", { customCookie: staleCookie }, 401, "Old session invalidated after password rotation");
   await status("/api/admin/content", { method: "POST", body: blank("team"), requestOrigin: "https://untrusted.example" }, 403, "Authenticated cross-origin write rejected");
   await status("/api/admin/content", { method: "POST", body: blank("contests", { min_members:3,max_members:2 }) }, 400, "Invalid team-size range rejected");
@@ -241,6 +257,7 @@ try {
       await client.query("delete from public.cye_applications where payload->>'email'=any($1::text[])",[[...trackedEmails]]);
       await client.query("delete from public.cye_content where id=any($1::text[]) or data->>'title' like $2",[trackedContent,`${tag} %`]);
       await client.query("delete from public.cye_media where admin_id=$1",[adminId]);
+      await client.query("delete from public.cye_password_codes where admin_id=$1",[adminId]);
       await client.query("delete from public.cye_admin_sessions where admin_id=$1",[adminId]);
       await client.query("delete from public.cye_audit where admin_email=$1",[adminEmail]);
       await client.query("delete from public.cye_admin_users where id=$1 and email=$2",[adminId,adminEmail]);
