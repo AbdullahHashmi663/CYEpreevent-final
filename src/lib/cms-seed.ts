@@ -20,7 +20,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
 };
 
 export function blankRecord(kind: ContentKind): ContentRecord {
-  return { id: "", kind, title: "", subtitle: "", description: "", image_url: "", category: "", date: "2026-10-01", time: "", location: "Bahria University, Islamabad", fee: 0, min_members: 1, max_members: 1, capacity: 0, rules: "", speaker_ids: [], featured: false, published: true, sort_order: 0, deleted_at: null };
+  return { id: "", kind, title: "", subtitle: "", description: "", image_url: "", category: kind === "contests" ? "Tech Nexus" : kind === "conferences" ? "Talk" : "", date: "2026-10-01", time: "", location: "Bahria University, Islamabad", fee: 0, min_members: 1, max_members: 1, capacity: 0, rules: "", speaker_ids: [], featured: false, published: true, sort_order: 0, deleted_at: null };
 }
 function entry(kind: ContentKind, id: string, data: Partial<ContentRecord>): ContentRecord {
   return { ...blankRecord(kind), id, ...data };
@@ -34,18 +34,16 @@ const portraits = [
   "/images/members/WhatsApp Image 2026-08-24 at 12.10.45 PM.jpeg",
 ];
 export const SEED_CONTENT: ContentRecord[] = [
-  entry("conferences", "cye-nexus", { title: "CYE Nexus", subtitle: "Ideas that move us forward.", description: "A day of fresh perspectives on AI, entrepreneurship, design, and the future of work. Join conversations that go beyond the stage.", category: "Conference", time: "10:00 – 16:00", image_url: "/images/auditorium.webp", capacity: 300, featured: true }),
-  entry("conferences", "career-pro", { title: "Career Pro Talks", subtitle: "Your next chapter starts here.", description: "Connect with professionals, ask the questions that matter, and discover new pathways from campus to career.", category: "Career & leadership", time: "11:30 – 14:00", image_url: "/images/recap3.webp", capacity: 150, sort_order: 1 }),
+  entry("conferences", "career-pro", { title: "Career Pro Workshop", subtitle: "Your next chapter starts here.", description: "Build practical career skills, connect with professionals, and explore your next step from campus to career.", category: "Career Pro", time: "Schedule to be announced", image_url: "/images/recap3.webp", capacity: 150, featured: true }),
+  entry("conferences", "cye-nexus", { title: "Talk", subtitle: "Ideas that move us forward.", description: "Join a conversation that brings fresh perspectives and new possibilities. The topic and speaker will be announced by the organizers.", category: "Talk", time: "Schedule to be announced", image_url: "/images/auditorium.webp", capacity: 300, sort_order: 1 }),
   ...[
-    ["Speed Programming", "Technology", "Think fast. Code faster.", "Solve algorithmic challenges against the clock. Put your problem-solving skills to the test.", 2, "2.5 hours", "C++, Python 3, Java, and C# permitted.\nOriginal submissions only.\nEvaluation considers correctness, efficiency, and submission time."],
-    ["Mini Hackathon", "Technology", "Make something that matters.", "Turn a real-world problem into a working prototype and pitch your idea to the judges.", 4, "6 hours", "Teams of 2–4 participants.\nBuild an original prototype during the event.\nPresent your solution and its impact to the judges."],
-    ["Counter-Strike 2", "Esports", "Bring your A-game.", "Form your squad and step into the arena for a competitive LAN tournament.", 5, "Tournament", "Five participants per team.\nBring your own permitted peripherals.\nFair play and organizer tournament rules apply."],
-    ["Speech Competition", "Literary arts", "A voice worth hearing.", "Take the stage in English or Urdu. Make your argument. Leave your mark.", 1, "5 minutes", "Individual entries in English or Urdu.\nOriginal speeches only.\nRespect the five-minute time limit."],
-    ["Seerah Quiz", "Literary arts", "Knowledge with purpose.", "Explore the life and teachings of the Prophet (PBUH) in a thoughtful quiz challenge.", 3, "Quiz rounds", "Teams of up to three.\nNo external reference material during rounds.\nQuizmaster decisions are final."],
-    ["Essay Writing", "Literary arts", "Words can change things.", "Share a fresh perspective through thoughtful, original writing.", 1, "90 minutes", "Individual entries only.\nTopic announced at the event.\nOriginal writing is required."],
-    ["Short Story Writing", "Literary arts", "Build a world in words.", "Let your imagination lead and create a story that stays with the reader.", 1, "90 minutes", "Individual entries only.\nWrite an original short story within the time limit.\nJudging considers originality, structure, and language."],
-    ["Painting & Visual Arts", "Creative arts", "See things differently.", "Translate your perspective into a visual piece that tells its own story.", 1, "2 hours", "Individual entries only.\nBring your own art supplies.\nArtwork must be created at the event."],
-  ].map((c, i) => entry("contests", `contest-${i + 1}`, { title: c[0] as string, category: c[1] as string, subtitle: c[2] as string, description: c[3] as string, min_members: i===1?2:i===2?5:1, max_members: c[4] as number, time: c[5] as string, rules: c[6] as string, featured: i < 3, sort_order: i })),
+    ["contest-1", "Speed Programming", "Tech Nexus", "Think fast. Code faster.", "Solve algorithmic challenges against the clock. Put your problem-solving skills to the test.", 2, "2.5 hours", "Original submissions only.\nEvaluation considers correctness, efficiency, and submission time."],
+    ["contest-2", "Hackathon", "Tech Nexus", "Make something that matters.", "Turn a real-world problem into a working prototype and present your solution.", 4, "6 hours", "Teams of 2–4 participants.\nBuild an original prototype during the event."],
+    ["pitch-your-idea", "Pitch Your Idea", "Venture X", "Big ideas start with you.", "Share an original venture idea and explain the problem it solves.", 1, "To be announced", ""],
+    ["reel-competition", "Reel Competition", "Spectrum", "Tell a story in a moment.", "Bring your perspective to life through a creative short-form video.", 1, "To be announced", ""],
+    ["graphic-design", "Graphic Design", "Spectrum", "Make your ideas visible.", "Use visual storytelling and thoughtful design to make your mark.", 1, "To be announced", ""],
+    ["contest-4", "Speech", "Literary", "A voice worth hearing.", "Take the stage and share a perspective that stays with your audience.", 1, "5 minutes", "Original speeches only.\nRespect the announced time limit."],
+  ].map((c, i) => entry("contests", c[0] as string, { title: c[1] as string, category: c[2] as string, subtitle: c[3] as string, description: c[4] as string, min_members: i === 1 ? 2 : 1, max_members: c[5] as number, time: c[6] as string, rules: c[7] as string, featured: i < 3, sort_order: i })),
   ...[
     ["Mamoon Ahmed Ali", "Event Head", "Overall event strategy and executive supervision."],
     ["Hamid Sultan", "Deputy Event Head", "Connecting our teams and bringing the event to life."],

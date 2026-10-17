@@ -4,6 +4,10 @@ An orange-and-blue event website and organizer portal built with Next.js 16.3.8,
 
 The interface includes responsive layouts, animated section reveals, a photo gallery, animated statistics, and reduced-motion support. Its visual direction follows [Capital Youth Expo](https://www.capitalyouthexpo.com/).
 
+The competition programme is organized into **Tech Nexus** (Speed Programming, Hackathon), **Venture X** (Pitch Your Idea), **Spectrum** (Reel Competition, Graphic Design), and **Literary** (Speech). Conferences include one **Career Pro Workshop** and one **Talk**. These sections also appear in the admin editor and registration selector. Older competitions are unpublished and remain available to organizers. Configure fees, wallet details, team sizes, and rules in admin before accepting paid entries.
+
+For an existing installation, `node scripts/update-programme.mjs` previews the poster lineup update; `--apply` saves a private backup and applies it while preserving existing payment settings and applications. This is a one-time content migration, not a routine deployment step.
+
 ## Local setup
 
 Use Node.js 20.9 or later (this workspace uses Node 24).

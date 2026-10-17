@@ -1,4 +1,5 @@
 "use client";
+import { programmeGroups } from "@/lib/programme";
 
 import { useRef, useState, type FormEvent } from "react";
 import { ArrowUpRight, Check, LoaderCircle, Plus, X } from "lucide-react";
@@ -147,7 +148,7 @@ export default function ApplicationForm({ data, mode, defaultKind = "contest", d
               <span className="eyebrow">01 / Choose your experience</span>
               <div className="form-grid">
                 <label className="form-field"><span>Application type <span aria-hidden="true">*</span></span><select name="kind" value={kind} onChange={event => { setKind(event.target.value as ApplicationKind); setEntryId(""); setMemberCount(1); setError(""); }}><option value="contest">Competition</option><option value="conference">Conference</option></select></label>
-                <label className="form-field"><span>{kind === "contest" ? "Competition" : "Conference"} <span aria-hidden="true">*</span></span><select name="entry_id" required value={entryId} onChange={event => { setEntryId(event.target.value); const entry = entries.find(item => item.id === event.target.value); setMemberCount(kind === "contest" ? Math.max(1, Math.min(20, entry?.min_members || 1)) : 1); setError(""); }}><option value="">Choose an experience</option>{entries.map(entry => <option key={entry.id} value={entry.id}>{entry.title}</option>)}</select></label>
+                <label className="form-field"><span>{kind === "contest" ? "Competition" : "Conference"} <span aria-hidden="true">*</span></span><select name="entry_id" required value={entryId} onChange={event => { setEntryId(event.target.value); const entry = entries.find(item => item.id === event.target.value); setMemberCount(kind === "contest" ? Math.max(1, Math.min(20, entry?.min_members || 1)) : 1); setError(""); }}><option value="">Choose an experience</option>{programmeGroups(entries, kind === "contest" ? "contests" : "conferences").filter(group => group.entries.length).map(group => <optgroup label={group.name} key={group.name}>{group.entries.map(entry => <option key={entry.id} value={entry.id}>{entry.title}</option>)}</optgroup>)}</select></label>
               </div>
               {selected && <div className="selected-entry-info"><span>{selected.fee > 0 ? `PKR ${selected.fee.toLocaleString()}${competitionPayment ? " per registration" : ""}` : competitionPayment ? "Fee to be announced — registration unavailable" : "No entry fee listed"}</span><span>{maxMembers === 1 ? "Individual entry" : minMembers === maxMembers ? `${maxMembers} participants, including you` : `${minMembers}–${maxMembers} participants, including you`}</span>{selected.time && <span>{selected.time}</span>}</div>}
               {competitionPayment && selected && <div className="form-block" style={{ marginTop: 24 }}>

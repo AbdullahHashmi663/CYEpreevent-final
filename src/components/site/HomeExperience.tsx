@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { ArrowUpRight, ArrowDown, ArrowRight, Code2, Gamepad2, Mic, Palette, MapPin, CalendarDays, Sparkles, Users, Ticket, Clock3 } from "lucide-react";
+import { ArrowUpRight, ArrowDown, ArrowRight, Code2, Lightbulb, Mic, Palette, MapPin, CalendarDays, Sparkles, Users, Ticket, Clock3 } from "lucide-react";
 import type { PublicContent } from "@/lib/cms-types";
 import SiteShell, { ContentImage } from "./SiteShell";
 
@@ -30,10 +30,10 @@ function CountUp({ value }: { value: number }) {
 }
 
 const disciplines = [
-  { name: "Technology", label: "BUILD WHAT COMES NEXT", description: "Turn a spark of an idea into something real. Code, create, and put your problem-solving skills to the test.", icon: Code2, className: "discipline-blue", href: "/competitions" },
-  { name: "Esports", label: "BRING YOUR COMPETITIVE SPIRIT", description: "Find your squad, think on your feet, and step into a gaming arena built for teamwork and talent.", icon: Gamepad2, className: "discipline-orange", href: "/competitions" },
-  { name: "Arts & words", label: "MAKE YOUR PERSPECTIVE HEARD", description: "From the stage to the canvas, express the ideas that matter to you through speech, stories, and visual arts.", icon: Palette, className: "discipline-blue", href: "/competitions" },
-  { name: "Conversations", label: "CONNECT WITH POSSIBILITY", description: "Fresh perspectives, practical advice, and meaningful conversations about your next chapter.", icon: Mic, className: "discipline-orange", href: "/conferences" },
+  { name: "Tech Nexus", label: "CODE. BUILD. SOLVE.", description: "Speed Programming and Hackathon. Bring your problem-solving skills and build something that matters.", icon: Code2, className: "discipline-blue", href: "/competitions#tech-nexus" },
+  { name: "Venture X", label: "PITCH YOUR IDEA", description: "A stage for your next big idea. Share your vision and show the potential of your venture.", icon: Lightbulb, className: "discipline-orange", href: "/competitions#venture-x" },
+  { name: "Spectrum", label: "CREATE YOUR OWN PERSPECTIVE", description: "Reel Competition and Graphic Design. Turn your creativity into something people remember.", icon: Palette, className: "discipline-blue", href: "/competitions#spectrum" },
+  { name: "Literary", label: "MAKE YOUR VOICE HEARD", description: "Step up to the microphone for Speech. Bring a fresh perspective and make every word count.", icon: Mic, className: "discipline-orange", href: "/competitions#literary" },
 ];
 const gallery = ["/images/recap1.webp", "/images/recap3.webp", "/images/recap2.webp", "/images/recap4.jpg", "/images/recap5.jpg"];
 

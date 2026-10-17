@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowUpRight, CalendarDays, Clock3, MapPin, Search, Users, Check, Mail, Phone, Sparkles, Code2, Gamepad2, Mic2, Palette, Plus, Minus } from "lucide-react";
+import { ArrowDown, ArrowUpRight, CalendarDays, Clock3, MapPin, Search, Users, Check, Mail, Phone, Sparkles, Code2, Lightbulb, Mic2, Palette, Plus, Minus } from "lucide-react";
 import type { ContentRecord, PublicContent } from "@/lib/cms-types";
+import { COMPETITION_SECTIONS, programmeGroups, programmeSection } from "@/lib/programme";
 import SiteShell, { ContentImage, PageIntro } from "./SiteShell";
 import ApplicationForm, { RegistrationNotice, registrationsAvailable } from "./ApplicationForm";
 import "./explore.css";
@@ -23,18 +24,18 @@ function RegistrationLink({ data, entry, kind }: { data: PublicContent; entry: C
 
 function Conferences({ data }: { data: PublicContent }) {
   return <>
-    <PageIntro eyebrow="01 / Conferences & conversations" title="BIG IDEAS." accent="BIGGER POSSIBILITIES." description="Find a fresh perspective. Ask a better question. Meet the people shaping what comes next." />
-    <section className="container explore-section"><RegistrationNotice data={data} /><div className="conference-list">{data.conferences.length ? data.conferences.map((conference, index) => {
+    <PageIntro eyebrow="01 / Workshop & talk" title="BIG IDEAS." accent="BIGGER POSSIBILITIES." description="One Career Pro workshop. One talk. Practical skills for your next chapter and fresh perspectives to move you forward." />
+    <section className="container explore-section"><RegistrationNotice data={data} /><nav className="programme-jump-links" aria-label="Conference sections">{programmeGroups(data.conferences, "conferences").map(group => <a href={`#${group.slug}`} key={group.name}><span>{group.name === "Career Pro" ? "Workshop" : "Conversation"}</span><strong>{group.name}</strong><ArrowDown size={19} aria-hidden="true" /></a>)}</nav><div className="conference-list">{data.conferences.length ? programmeGroups(data.conferences, "conferences").map(group => <section className="programme-section" id={group.slug} key={group.name} aria-labelledby={`heading-${group.slug}`}><header className="programme-section-heading"><span className="eyebrow">{group.name === "Career Pro" ? "The workshop" : "The conversation"}</span><h2 id={`heading-${group.slug}`}>{group.name}</h2><p>{group.description}</p></header>{group.entries.map((conference, index) => {
       const speakers = data.speakers.filter(speaker => conference.speaker_ids.includes(speaker.id));
       return <article className={`conference-feature ${index % 2 ? "conference-feature-reverse" : ""}`} key={conference.id} id={conference.id}>
         <div className="conference-visual"><ContentImage src={conference.image_url || "/images/auditorium.webp"} alt={conference.title} /><span className="image-number">0{index + 1}</span><span className="image-tag">{conference.category || "Conference"}</span></div>
-        <div className="conference-copy"><span className="eyebrow">{conference.subtitle || "A conversation worth having"}</span><h2>{conference.title}</h2><p>{conference.description}</p><div className="event-detail-lines">
+        <div className="conference-copy"><span className="eyebrow">{conference.subtitle || "A conversation worth having"}</span><h3>{conference.title}</h3><p>{conference.description}</p><div className="event-detail-lines">
           <span><CalendarDays size={17} aria-hidden="true" />{conference.date || data.settings.date_label}</span>
           <span><Clock3 size={17} aria-hidden="true" />{conference.time || "Schedule to be announced"}</span>
           <span><MapPin size={17} aria-hidden="true" />{conference.location || data.settings.venue}</span>
         </div>{speakers.length > 0 && <div className="conference-speakers"><span className="eyebrow">In conversation with</span>{speakers.map(speaker => <a href={`#speaker-${speaker.id}`} key={speaker.id}>{speaker.title}<ArrowUpRight size={14} aria-hidden="true" /></a>)}</div>}<RegistrationLink data={data} entry={conference} kind="conference" /></div>
       </article>;
-    }) : <div className="explore-empty"><Mic2 size={36} aria-hidden="true" /><h2>The next conversation is taking shape.</h2><p>Conference details will appear here when the organizing team publishes the program.</p></div>}</div></section>
+    })}{!group.entries.length && <p className="muted">Details will appear here when the organizers publish this session.</p>}</section>) : <div className="explore-empty"><Mic2 size={36} aria-hidden="true" /><h2>The next conversation is taking shape.</h2><p>Conference details will appear here when the organizing team publishes the program.</p></div>}</div></section>
     <section className="explore-dark-section"><div className="container"><SectionHeading number="02" eyebrow="The program" title="A day to open your mind." description="Explore the published conference schedule. Times and locations are managed by the organizing team." />
       <div className="schedule-list">{data.conferences.map((entry, index) => <a className="schedule-row" href={`#${entry.id}`} key={entry.id}><span className="schedule-index">0{index + 1}</span><span className="schedule-time">{entry.time || "To be announced"}</span><div><h3>{entry.title}</h3><p>{entry.category} · {entry.location || data.settings.venue}</p></div><ArrowUpRight size={27} aria-hidden="true" /></a>)}{data.conferences.length === 0 && <p className="muted">The program has not been announced yet.</p>}</div>
     </div></section>
@@ -48,8 +49,8 @@ function Conferences({ data }: { data: PublicContent }) {
 function ContestIcon({ category }: { category: string }) {
   const props = { size: 27, strokeWidth: 1.6, "aria-hidden": true as const };
   if (/tech/i.test(category)) return <Code2 {...props} />;
-  if (/esport|gaming/i.test(category)) return <Gamepad2 {...props} />;
-  if (/creative|art/i.test(category)) return <Palette {...props} />;
+  if (/venture/i.test(category)) return <Lightbulb {...props} />;
+  if (/spectrum|creative|art/i.test(category)) return <Palette {...props} />;
   return <Mic2 {...props} />;
 }
 
@@ -57,26 +58,28 @@ function Competitions({ data }: { data: PublicContent }) {
   const [category, setCategory] = useState("All disciplines");
   const [query, setQuery] = useState("");
   const [expanded, setExpanded] = useState<string[]>([]);
-  const categories = ["All disciplines", ...Array.from(new Set(data.contests.map(entry => entry.category).filter(Boolean)))];
-  const filtered = data.contests.filter(entry => (category === "All disciplines" || entry.category === category) && `${entry.title} ${entry.subtitle} ${entry.description}`.toLowerCase().includes(query.toLowerCase().trim()));
+  const groups = programmeGroups(data.contests, "contests");
+  const categories = ["All disciplines", ...groups.filter(group => group.entries.length).map(group => group.name)];
+  const filtered = data.contests.filter(entry => (category === "All disciplines" || programmeSection(entry) === category) && `${entry.title} ${programmeSection(entry)} ${entry.subtitle} ${entry.description}`.toLowerCase().includes(query.toLowerCase().trim()));
   return <>
-    <PageIntro eyebrow="02 / The competitive spirit" title="SHOW UP." accent="STAND OUT." description="For the coders, the creators, the storytellers, and the ones who play to win. Find your arena." />
+    <PageIntro eyebrow="02 / Four sections. Your next challenge." title="SHOW UP." accent="STAND OUT." description="Tech Nexus. Venture X. Spectrum. Literary. Find your people, choose your challenge, and bring your best." />
     <section className="container explore-section"><RegistrationNotice data={data} />
+      <nav className="programme-jump-links competition-sections" aria-label="Competition sections">{COMPETITION_SECTIONS.map(section => <a href={`#${section.slug}`} key={section.name} onClick={() => { setCategory("All disciplines"); setQuery(""); }}><span className="programme-section-icon"><ContestIcon category={section.name} /></span><strong>{section.name}</strong><span>{section.events}</span><ArrowDown size={18} aria-hidden="true" /></a>)}</nav>
       <div className="contest-toolbar"><div className="filter-chips" role="group" aria-label="Filter competitions by discipline">{categories.map(item => <button key={item} aria-pressed={category === item} className={`filter-chip ${category === item ? "is-active" : ""}`} onClick={() => setCategory(item)}>{item}</button>)}</div><label className="competition-search"><Search size={18} aria-hidden="true" /><span className="visually-hidden">Search competitions</span><input type="search" placeholder="Find your competition" value={query} onChange={event => setQuery(event.target.value)} /></label></div>
       <div className="results-count" aria-live="polite">{filtered.length} {filtered.length === 1 ? "competition" : "competitions"}{category !== "All disciplines" ? ` in ${category}` : " to explore"}</div>
-      <div className="contest-grid">{filtered.map((contest, index) => {
+      {programmeGroups(filtered, "contests").filter(group => group.entries.length || (!query.trim() && category === "All disciplines")).map(group => <section className="programme-section" id={group.slug} key={group.name} aria-labelledby={`heading-${group.slug}`}><header className="programme-section-heading"><span className="eyebrow">{String(groups.findIndex(item => item.name === group.name) + 1).padStart(2, "0")} / Competition section</span><h2 id={`heading-${group.slug}`}>{group.name}</h2><p>{group.description}</p></header><div className="contest-grid">{group.entries.map((contest, index) => {
         const isExpanded = expanded.includes(contest.id);
         const max = Math.max(1, Math.min(20, contest.max_members));
         const min = Math.max(1, Math.min(max, contest.min_members || 1));
         return <article key={contest.id} className={`contest-card contest-color-${index % 4}`} id={contest.id}>
-          <div className="contest-card-top"><span className="eyebrow">{contest.category || "Competition"}</span><span className="contest-icon"><ContestIcon category={contest.category} /></span></div>
-          <h2>{contest.title}</h2><p className="contest-subtitle">{contest.subtitle}</p><p className="contest-description">{contest.description}</p>
+          <div className="contest-card-top"><span className="eyebrow">{group.name}</span><span className="contest-icon"><ContestIcon category={group.name} /></span></div>
+          <h3>{contest.title}</h3><p className="contest-subtitle">{contest.subtitle}</p><p className="contest-description">{contest.description}</p>
           <div className="contest-meta"><span><Users size={15} aria-hidden="true" />{max === 1 ? "Individual" : min === max ? `${max} per team` : `${min}–${max} per team`}</span><span><Clock3 size={15} aria-hidden="true" />{contest.time || "Time TBA"}</span><span>{contest.fee > 0 ? `PKR ${contest.fee.toLocaleString()} per registration` : "Fee to be announced"}</span></div>
           <button className="contest-rules-toggle" type="button" aria-expanded={isExpanded} aria-controls={`rules-${contest.id}`} onClick={() => setExpanded(current => isExpanded ? current.filter(id => id !== contest.id) : [...current, contest.id])}>The rules & details{isExpanded ? <Minus size={18} aria-hidden="true" /> : <Plus size={18} aria-hidden="true" />}</button>
           <div id={`rules-${contest.id}`} hidden={!isExpanded} className="contest-rules">{contest.rules ? <ul>{contest.rules.split(/\n+/).filter(Boolean).map((rule, ruleIndex) => <li key={ruleIndex}>{rule}</li>)}</ul> : <p>The organizing team will publish detailed rules here. <Link href="/contact">Contact us</Link> for guidance.</p>}{contest.location && <p className="muted">Location: {contest.location}</p>}{contest.date && <p className="muted">Date: {contest.date}</p>}</div>
           <RegistrationLink data={data} entry={contest} kind="contest" />
         </article>;
-      })}</div>
+      })}</div>{!group.entries.length && <p className="programme-coming-soon">This section’s competition details will be published soon.</p>}</section>)}
       {filtered.length === 0 && <div className="explore-empty"><Search size={32} aria-hidden="true" /><h2>No matches just yet.</h2><p>{data.contests.length ? "Try another search or explore all disciplines." : "The next competition lineup will appear here when it’s published."}</p>{data.contests.length > 0 && <button className="button button-outline" onClick={() => { setCategory("All disciplines"); setQuery(""); }}>Reset filters<ArrowUpRight size={17} aria-hidden="true" /></button>}</div>}
     </section>
     <section className="explore-dark-section"><div className="container"><SectionHeading number="03" eyebrow="From idea to arena" title="Your move. Three steps." /><div className="three-step-grid">{[["01", "Find your challenge.", "Explore the disciplines and read the rules. Choose the experience that fits your strengths."], ["02", "Make your application.", "When registration opens, enter your details and add your teammates where needed."], ["03", "Await your approval.", "The organizers review your application. Keep your reference handy when contacting the team."]].map(([number, title, description]) => <article key={number}><span>{number}</span><h3>{title}</h3><p>{description}</p></article>)}</div></div></section>

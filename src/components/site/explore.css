@@ -17,7 +17,7 @@
 .conference-visual::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 50%, #111b217a); pointer-events: none; }
 .image-number { position: absolute; top: 24px; left: 28px; color: #fff; font-family: var(--font-display), sans-serif; font-size: 84px; letter-spacing: -.08em; line-height: 1; z-index: 1; }
 .image-tag { position: absolute; bottom: 24px; left: 28px; z-index: 1; background: #d9ff65; color: #111b21; padding: 9px 16px; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; border-radius: 30px; }
-.conference-copy h2 { font-family: var(--font-display), sans-serif; font-size: clamp(37px, 4vw, 62px); line-height: 1.06; letter-spacing: -.055em; font-weight: 700; margin: 18px 0 20px; }
+.conference-copy h3 { font-family: var(--font-display), sans-serif; font-size: clamp(37px, 4vw, 62px); line-height: 1.06; letter-spacing: -.055em; font-weight: 700; margin: 18px 0 20px; }
 .conference-copy > p { color: #656b6c; line-height: 1.8; font-size: 16px; max-width: 500px; }
 .event-detail-lines { display: grid; gap: 14px; margin: 28px 0; }
 .event-detail-lines > span { display: flex; align-items: flex-start; gap: 12px; font-size: 13px; }
@@ -68,7 +68,7 @@
 .contest-color-2 .contest-icon { background: #c5b6d9; }
 .contest-color-3 { background: #e7e9dc; }
 .contest-color-3 .contest-icon { background: #c1cc9d; }
-.contest-card h2 { font-family: var(--font-display), sans-serif; font-size: clamp(25px, 2.7vw, 37px); letter-spacing: -.05em; line-height: 1.08; font-weight: 650; margin: 0 0 15px; }
+.contest-card h3 { font-family: var(--font-display), sans-serif; font-size: clamp(25px, 2.7vw, 37px); letter-spacing: -.05em; line-height: 1.08; font-weight: 650; margin: 0 0 15px; }
 .contest-subtitle { font-size: 13px; font-weight: 650; margin: 0 0 12px; }
 .contest-description { font-size: 13px; line-height: 1.7; color: #656b6c; margin: 0 0 24px; min-height: 65px; }
 .contest-meta { display: flex; flex-wrap: wrap; gap: 11px 20px; margin-bottom: 24px; }
@@ -267,7 +267,7 @@
   .conference-visual { aspect-ratio: 1.2; }
   .image-number { font-size: 65px; top: 20px; left: 20px; }
   .image-tag { bottom: 20px; left: 20px; }
-  .conference-copy h2 { font-size: 38px; }
+  .conference-copy h3 { font-size: 38px; }
   .conference-copy > p { font-size: 14px; }
   .schedule-row { grid-template-columns: 1fr 24px; gap: 14px; padding: 24px 0; }
   .schedule-index { display: none; }
@@ -292,7 +292,7 @@
   .contest-grid { grid-template-columns: 1fr; gap: 17px; }
   .contest-card { padding: 25px; min-height: auto; }
   .contest-card-top { margin-bottom: 30px; }
-  .contest-card h2 { font-size: 34px; }
+  .contest-card h3 { font-size: 34px; }
   .contest-description { min-height: 0; }
   .three-step-grid { grid-template-columns: 1fr; gap: 32px; }
   .three-step-grid article { padding-top: 20px; }
@@ -362,4 +362,38 @@
 .registration-steps > div > span { border-color: #bed0e8; color: var(--blue); }
 .explore-page :is(button,a,input,select,textarea):focus-visible { outline-color: var(--orange); }
 .explore-dark-section :is(button,a):focus-visible { outline-color: #ffb19e; }
+
+/* Programme sections follow the organizer's four-part competition lineup. */
+.programme-jump-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 52px; }
+.programme-jump-links.competition-sections { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.programme-jump-links a { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; padding: 28px; border: 1px solid #d5e2f4; border-radius: 16px; background: #f2f6fe; color: var(--blue); transition: transform .2s, border-color .2s; }
+.programme-jump-links a:nth-child(even) { background: #fff4ef; border-color: #f6d6c7; }
+.programme-jump-links a:hover { transform: translateY(-4px); border-color: var(--orange); }
+.programme-jump-links strong { font-family: var(--font-display), sans-serif; font-size: clamp(23px, 2.3vw, 32px); line-height: 1.1; letter-spacing: -.04em; }
+.programme-jump-links a > span { font-size: 12px; line-height: 1.7; }
+.programme-jump-links a > svg { margin-top: auto; color: var(--orange); }
+.programme-section-icon { display: grid; place-items: center; background: var(--orange); color: #fff; width: 50px; height: 50px; border-radius: 50%; }
+.programme-section { scroll-margin-top: 110px; margin-top: 64px; }
+.conference-list > .programme-section { margin-top: 0; }
+.programme-section-heading { border-top: 2px solid var(--blue); padding-top: 24px; margin-bottom: 30px; }
+.programme-section-heading h2 { font-family: var(--font-display), sans-serif; font-size: clamp(34px, 4vw, 56px); line-height: 1.1; letter-spacing: -.045em; margin: 12px 0; color: var(--blue); }
+.programme-section-heading p { margin: 0; color: #656b6c; line-height: 1.7; }
+.programme-section-heading .eyebrow { color: var(--orange); }
+.programme-section .contest-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.programme-coming-soon { border: 1px dashed #cbd9ec; border-radius: 12px; padding: 28px; color: #656b6c; }
+.programme-section .conference-feature + .conference-feature { margin-top: 64px; }
+@media (max-width: 900px) {
+  .programme-jump-links.competition-sections { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .programme-jump-links a { padding: 20px; }
+  .programme-jump-links { gap: 10px; margin-bottom: 34px; }
+  .programme-jump-links strong { font-size: 23px; }
+  .programme-section { margin-top: 44px; }
+  .programme-section .contest-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .programme-jump-links a { transition: none; }
+  .programme-jump-links a:hover { transform: none; }
+}
 
