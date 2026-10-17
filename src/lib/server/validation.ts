@@ -1,6 +1,7 @@
 import "server-only";
 import { CONTENT_KINDS, type ApplicationKind, type ApplicationPayload, type ContentRecord, type SiteSettings } from "@/lib/cms-types";
 import { fail } from "./http";
+import { requiresPayment } from "@/lib/programme";
 
 export function text(value: unknown, label: string, max = 1000, required = false): string {
   if (value === undefined || value === null) { if (required) fail(400, `${label} is required.`); return ""; }
@@ -45,15 +46,19 @@ export function validateContent(input: Record<string, unknown>, existing?: Conte
   if (!Array.isArray(data.speaker_ids) || data.speaker_ids.length > 30 || data.speaker_ids.some(v => typeof v !== "string" || !/^[a-zA-Z0-9_-]{1,100}$/.test(v))) fail(400, "Invalid speaker selection.");
   if (typeof data.fee !== "number" || !Number.isFinite(data.fee) || data.fee < 0 || data.fee > 1000000) fail(400, "Fee must be between 0 and 1,000,000.");
   if (kind === "contests" && data.fee < 0.01) fail(400, "Set a competition entry fee greater than zero.");
+  const category = text(data.category, "Category", 100);
+  const title = text(data.title, "Title", 160, true);
+  if (kind === "conferences" && requiresPayment({ kind, category, title }) && data.fee < 0.01) fail(400, "Set a Career Pro workshop fee greater than zero.");
+  if (kind === "conferences" && !requiresPayment({ kind, category, title }) && data.fee !== 0) fail(400, "The Talk is free. Set its entry fee to zero.");
   const minimum = integer(data.min_members ?? 1, "Minimum team size", 1, 20);
   const maximum = integer(data.max_members, "Maximum team size", 1, 20);
   if (minimum > maximum) fail(400, "Minimum team size cannot be greater than maximum team size.");
   return {
     id, kind, title: text(data.title, "Title", 160, true), subtitle: text(data.subtitle, "Subtitle", 220),
     description: text(data.description, "Description", 10000), image_url: url(data.image_url, "Image", true),
-    category: text(data.category, "Category", 100), date: date(data.date, "Date"),
+    category, date: date(data.date, "Date"),
     time: text(data.time, "Time", 100), location: text(data.location, "Location", 240),
-    fee: data.fee, payment_instructions: text(data.payment_instructions, "Payment instructions", 3000), min_members: minimum, max_members: maximum,
+    fee: data.fee, payment_instructions: text(data.payment_instructions, "Payment instructions", 3000), min_members: kind === "conferences" ? 1 : minimum, max_members: kind === "conferences" ? 1 : maximum,
     payment_method: text(data.payment_method, "Payment method", 100),
     payment_account_name: text(data.payment_account_name, "Account holder name", 160),
     payment_account_number: text(data.payment_account_number, "Payment account number", 100),

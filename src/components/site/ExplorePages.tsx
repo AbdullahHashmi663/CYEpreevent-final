@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowDown, ArrowUpRight, CalendarDays, Clock3, MapPin, Search, Users, Check, Mail, Phone, Sparkles, Code2, Lightbulb, Mic2, Palette, Plus, Minus } from "lucide-react";
 import type { ContentRecord, PublicContent } from "@/lib/cms-types";
-import { COMPETITION_SECTIONS, programmeGroups, programmeSection } from "@/lib/programme";
+import { COMPETITION_SECTIONS, programmeGroups, programmeSection, requiresPayment } from "@/lib/programme";
 import SiteShell, { ContentImage, PageIntro } from "./SiteShell";
 import ApplicationForm, { RegistrationNotice, registrationsAvailable } from "./ApplicationForm";
 import "./explore.css";
@@ -33,7 +33,7 @@ function Conferences({ data }: { data: PublicContent }) {
           <span><CalendarDays size={17} aria-hidden="true" />{conference.date || data.settings.date_label}</span>
           <span><Clock3 size={17} aria-hidden="true" />{conference.time || "Schedule to be announced"}</span>
           <span><MapPin size={17} aria-hidden="true" />{conference.location || data.settings.venue}</span>
-        </div>{speakers.length > 0 && <div className="conference-speakers"><span className="eyebrow">In conversation with</span>{speakers.map(speaker => <a href={`#speaker-${speaker.id}`} key={speaker.id}>{speaker.title}<ArrowUpRight size={14} aria-hidden="true" /></a>)}</div>}<RegistrationLink data={data} entry={conference} kind="conference" /></div>
+        </div><p className="session-registration-note">{requiresPayment(conference) ? conference.fee > 0 ? `Paid workshop · PKR ${conference.fee.toLocaleString()} per person · receipt required` : "Paid workshop · fee to be announced" : "Free Talk · registration required"}<br />One participant per registration.</p>{speakers.length > 0 && <div className="conference-speakers"><span className="eyebrow">In conversation with</span>{speakers.map(speaker => <a href={`#speaker-${speaker.id}`} key={speaker.id}>{speaker.title}<ArrowUpRight size={14} aria-hidden="true" /></a>)}</div>}<RegistrationLink data={data} entry={conference} kind="conference" /></div>
       </article>;
     })}{!group.entries.length && <p className="muted">Details will appear here when the organizers publish this session.</p>}</section>) : <div className="explore-empty"><Mic2 size={36} aria-hidden="true" /><h2>The next conversation is taking shape.</h2><p>Conference details will appear here when the organizing team publishes the program.</p></div>}</div></section>
     <section className="explore-dark-section"><div className="container"><SectionHeading number="02" eyebrow="The program" title="A day to open your mind." description="Explore the published conference schedule. Times and locations are managed by the organizing team." />

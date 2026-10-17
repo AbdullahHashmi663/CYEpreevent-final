@@ -6,6 +6,8 @@ The interface includes responsive layouts, animated section reveals, a photo gal
 
 The competition programme is organized into **Tech Nexus** (Speed Programming, Hackathon), **Venture X** (Pitch Your Idea), **Spectrum** (Reel Competition, Graphic Design), and **Literary** (Speech). Conferences include one **Career Pro Workshop** and one **Talk**. These sections also appear in the admin editor and registration selector. Older competitions are unpublished and remain available to organizers. Configure fees, wallet details, team sizes, and rules in admin before accepting paid entries.
 
+**Career Pro is paid:** organizers set the fee and payment instructions; participants must upload a receipt. **The Talk is free, with mandatory registration.** Both accept exactly one participant per registration. A workshop without an admin-set positive fee cannot accept registrations. Workshop receipts use the same private storage, fee snapshot, and approval workflow as competitions.
+
 For an existing installation, `node scripts/update-programme.mjs` previews the poster lineup update; `--apply` saves a private backup and applies it while preserving existing payment settings and applications. This is a one-time content migration, not a routine deployment step.
 
 ## Local setup

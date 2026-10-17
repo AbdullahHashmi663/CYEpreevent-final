@@ -11,9 +11,10 @@ export const CONFERENCE_SECTIONS = [
   { name: "Talk", slug: "talk", description: "Fresh perspectives and a conversation worth having.", events: "Talk" },
 ] as const;
 
-export function programmeSection(entry: ContentRecord): string {
+export function programmeSection(entry: Pick<ContentRecord, "kind" | "category" | "title">): string {
   const category = entry.category.trim();
   if (entry.kind === "conferences") {
+    if (category === "Career Pro" || category === "Talk") return category;
     if (/career|workshop/i.test(`${category} ${entry.title}`)) return "Career Pro";
     return "Talk";
   }
@@ -23,6 +24,10 @@ export function programmeSection(entry: ContentRecord): string {
   if (/reel|graphic/i.test(entry.title) || /creative|art/i.test(category) && !/literary/i.test(category)) return "Spectrum";
   if (/speech|literary/i.test(`${entry.title} ${category}`)) return "Literary";
   return category || "More competitions";
+}
+
+export function requiresPayment(entry: Pick<ContentRecord, "kind" | "category" | "title">): boolean {
+  return entry.kind === "contests" || (entry.kind === "conferences" && programmeSection(entry) === "Career Pro");
 }
 
 export function programmeGroups(entries: ContentRecord[], kind: "contests" | "conferences") {
