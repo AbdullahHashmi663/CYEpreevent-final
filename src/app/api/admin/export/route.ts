@@ -16,8 +16,8 @@ export async function GET() {
       await audit(client, user, "applications.exported", "all", { count: result.rows.length });
       return result.rows;
     });
-    const columns = ["Reference","Type","Event","Status","Name","Email","Phone","University","Message","Department","Semester","Additional team members","Rejection reason","Submitted at","Archived at"];
-    const lines = rows.map(row => [row.reference,row.kind,row.entry_title,row.status,row.payload.name,row.payload.email,row.payload.phone,row.payload.university,row.payload.message,row.payload.department,row.payload.semester,JSON.stringify(row.payload.team_members || []),row.rejection_reason,new Date(row.created_at).toISOString(),row.deleted_at ? new Date(row.deleted_at).toISOString() : ""].map(cell).join(","));
+    const columns = ["Reference","Type","Event","Status","Name","Email","Phone","University","Message","Department","Semester","Additional team members","Rejection reason","Submitted at","Archived at","Fee at registration (PKR)","Payment receipt (admin sign-in required)"];
+    const lines = rows.map(row => [row.reference,row.kind,row.entry_title,row.status,row.payload.name,row.payload.email,row.payload.phone,row.payload.university,row.payload.message,row.payload.department,row.payload.semester,JSON.stringify(row.payload.team_members || []),row.rejection_reason,new Date(row.created_at).toISOString(),row.deleted_at ? new Date(row.deleted_at).toISOString() : "",row.payload.payment_amount ?? "",row.payload.payment_receipt_url || ""].map(cell).join(","));
     return new Response("\uFEFF" + columns.map(cell).join(",") + "\r\n" + lines.join("\r\n"), { headers: { "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": `attachment; filename="cye-applications-${new Date().toISOString().slice(0,10)}.csv"`, "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } });
   });
 }

@@ -44,13 +44,15 @@ export default function ApplicationForm({ data, mode, defaultKind = "contest", d
   const minMembers = mode === "registration" && kind === "contest" && selected ? Math.max(1, Math.min(maxMembers, selected.min_members || 1)) : 1;
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Karachi" }).format(new Date());
   const entryEnded = Boolean(selected?.date && selected.date < today);
+  const competitionPayment = mode === "registration" && kind === "contest";
+  const feeMissing = competitionPayment && Boolean(selected) && !(selected!.fee > 0);
   const available = mode === "contact" || registrationsAvailable(data);
   const disabled = !data.databaseAvailable || !available;
   const heading = mode === "contact" ? "Tell us what’s on your mind." : mode === "ambassador" ? "Make your introduction." : "Make your next move.";
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (disabled || busy || (mode === "registration" && entryEnded)) return;
+    if (disabled || busy || feeMissing || (mode === "registration" && entryEnded)) return;
     const form = event.currentTarget;
     if (!form.reportValidity()) return;
     setError("");
@@ -91,8 +93,18 @@ export default function ApplicationForm({ data, mode, defaultKind = "contest", d
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 25000);
     try {
+      let requestBody: FormData | string = JSON.stringify(payload);
+      if (competitionPayment) {
+        const receipt = fields.get("receipt");
+        if (!(receipt instanceof File) || !receipt.size) throw new Error("Upload your payment receipt before submitting.");
+        if (receipt.size > 2097152) throw new Error("Payment receipts must be 2 MB or smaller.");
+        const multipart = new FormData();
+        multipart.set("payload", JSON.stringify({ ...payload, expected_fee: selected!.fee }));
+        multipart.set("receipt", receipt);
+        requestBody = multipart;
+      }
       const response = await fetch("/api/applications", {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), signal: controller.signal,
+        method: "POST", headers: typeof requestBody === "string" ? { "Content-Type": "application/json" } : undefined, body: requestBody, signal: controller.signal,
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error || "Your submission could not be saved. Please try again.");
@@ -137,7 +149,17 @@ export default function ApplicationForm({ data, mode, defaultKind = "contest", d
                 <label className="form-field"><span>Application type <span aria-hidden="true">*</span></span><select name="kind" value={kind} onChange={event => { setKind(event.target.value as ApplicationKind); setEntryId(""); setMemberCount(1); setError(""); }}><option value="contest">Competition</option><option value="conference">Conference</option></select></label>
                 <label className="form-field"><span>{kind === "contest" ? "Competition" : "Conference"} <span aria-hidden="true">*</span></span><select name="entry_id" required value={entryId} onChange={event => { setEntryId(event.target.value); const entry = entries.find(item => item.id === event.target.value); setMemberCount(kind === "contest" ? Math.max(1, Math.min(20, entry?.min_members || 1)) : 1); setError(""); }}><option value="">Choose an experience</option>{entries.map(entry => <option key={entry.id} value={entry.id}>{entry.title}</option>)}</select></label>
               </div>
-              {selected && <div className="selected-entry-info"><span>{selected.fee > 0 ? `PKR ${selected.fee.toLocaleString()}` : "No entry fee listed"}</span><span>{maxMembers === 1 ? "Individual entry" : minMembers === maxMembers ? `${maxMembers} participants, including you` : `${minMembers}–${maxMembers} participants, including you`}</span>{selected.time && <span>{selected.time}</span>}</div>}
+              {selected && <div className="selected-entry-info"><span>{selected.fee > 0 ? `PKR ${selected.fee.toLocaleString()}${competitionPayment ? " per registration" : ""}` : competitionPayment ? "Fee to be announced — registration unavailable" : "No entry fee listed"}</span><span>{maxMembers === 1 ? "Individual entry" : minMembers === maxMembers ? `${maxMembers} participants, including you` : `${minMembers}–${maxMembers} participants, including you`}</span>{selected.time && <span>{selected.time}</span>}</div>}
+              {competitionPayment && selected && <div className="form-block" style={{ marginTop: 24 }}>
+                <span className="eyebrow">Payment & receipt</span>
+                <p>{selected.fee > 0 ? `Pay PKR ${selected.fee.toLocaleString()} for this ${maxMembers > 1 ? "team" : "individual"} registration, then attach your receipt.` : "The organizers must set a price before you can register."}</p>
+                {selected.payment_method && <p><strong>Pay with:</strong> {selected.payment_method}</p>}
+                {selected.payment_account_name && <p><strong>Account holder:</strong> {selected.payment_account_name}</p>}
+                {selected.payment_account_number && <p style={{ overflowWrap: "anywhere" }}><strong>Account / wallet number:</strong> {selected.payment_account_number}</p>}
+                {selected.payment_instructions && <p style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{selected.payment_instructions}</p>}
+                {!selected.payment_instructions && !selected.payment_account_number && <p>Contact the organizers at <a href={`mailto:${data.settings.contact_email}`}>{data.settings.contact_email}</a> for payment account details before paying.</p>}
+                <label className="form-field"><span>Payment receipt *</span><input key={entryId} name="receipt" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" required disabled={feeMissing} /><span>JPG, PNG, WebP or PDF · up to 2 MB. Only organizers can access your receipt. Payment is verified during application review.</span></label>
+              </div>}
               {entries.length === 0 && <p className="muted">No {kind === "contest" ? "competitions" : "conferences"} are currently published. Please contact the organizers.</p>}
             </div>}
             <div className="form-block">
@@ -173,7 +195,7 @@ export default function ApplicationForm({ data, mode, defaultKind = "contest", d
             </div>
             <div className="honeypot" aria-hidden="true"><label>Leave this field empty<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
             <label className="consent-field"><input type="checkbox" name="consent" required /><span>I confirm these details are correct and agree that the organizing team may use them to process and respond to this {mode === "contact" ? "message" : "application"}.</span></label>
-            <div className="form-submit-row"><button className="button button-primary" type="submit" disabled={disabled || busy || (mode === "registration" && (!entries.length || entryEnded))}>{busy ? <><LoaderCircle size={18} className="form-spinner" aria-hidden="true" /> Saving your details…</> : <>{mode === "contact" ? "Send your message" : "Submit application"}<ArrowUpRight size={19} aria-hidden="true" /></>}</button><span className="muted">{disabled || entryEnded ? "Submissions are currently unavailable." : mode === "contact" ? "Saved directly for the organizing team." : "Subject to organizer approval."}</span></div>
+            <div className="form-submit-row"><button className="button button-primary" type="submit" disabled={disabled || busy || feeMissing || (mode === "registration" && (!entries.length || entryEnded))}>{busy ? <><LoaderCircle size={18} className="form-spinner" aria-hidden="true" /> Saving your details…</> : <>{mode === "contact" ? "Send your message" : "Submit application"}<ArrowUpRight size={19} aria-hidden="true" /></>}</button><span className="muted">{disabled || entryEnded ? "Submissions are currently unavailable." : mode === "contact" ? "Saved directly for the organizing team." : "Subject to organizer approval."}</span></div>
           </fieldset>
         </form>
       )}

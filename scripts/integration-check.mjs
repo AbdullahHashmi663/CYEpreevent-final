@@ -40,13 +40,18 @@ const checksum = value => createHash("sha256").update(JSON.stringify(value)).dig
 function ensure(condition, label) { if (!condition) throw new Error(label); passed++; console.log(`PASS ${label}`); }
 function hashPassword(value) { const salt = randomBytes(16).toString("hex"); return `scrypt:${salt}:${scryptSync(value,salt,64).toString("hex")}`; }
 function recordBucket(scope, identity) { const clientIdentity=process.env.TRUST_PROXY === "true" ? "unknown" : "site";trackedBuckets.add(createHash("sha256").update(`${scope}:${clientIdentity}:${identity}`).digest("hex")); }
-async function request(path, { method = "GET", body, authenticated = true, customCookie, requestOrigin = origin, form } = {}) {
+async function request(path, { method = "GET", body, authenticated = true, customCookie, requestOrigin = origin, form, withReceipt = true } = {}) {
   if (path === "/api/admin/password" && body) body = { code: verificationCode, challenge_id: challengeId, ...body };
+  if (path === "/api/applications" && body?.kind === "contest" && withReceipt && !form) {
+    form = new FormData();
+    form.set("payload", JSON.stringify({ expected_fee:100, ...body }));
+    form.set("receipt",new Blob([Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lK0AAAAASUVORK5CYII=","base64")],{type:"image/png"}),"receipt.png");
+  }
   const headers = {};
   if (requestOrigin !== null && method !== "GET") headers.Origin = requestOrigin;
   const token = customCookie ?? (authenticated ? cookie : "");
   if (token) headers.Cookie = token;
-  if (body !== undefined) headers["Content-Type"] = "application/json";
+  if (body !== undefined && !form) headers["Content-Type"] = "application/json";
   const result = await fetch(`${origin}${path}`, { method, headers, body: form || (body === undefined ? undefined : JSON.stringify(body)), signal: AbortSignal.timeout(60000) });
   const setCookies = result.headers.getSetCookie();
   const session = setCookies.find(value => value.startsWith("cye_admin_session="));
@@ -61,7 +66,7 @@ async function status(path, options, expected, label) {
   return result;
 }
 function blank(kind, extra = {}) {
-  return { id: "", kind, title: `${tag} ${kind}`, subtitle: "QA fixture", description: "Integration test fixture", image_url: "", category: "QA", date: "2099-10-01", time: "10:00", location: "QA venue", fee: 0, min_members: 1, max_members: 1, capacity: 0, rules: "QA rules", speaker_ids: [], featured: false, published: false, sort_order: 99999, deleted_at: null, ...extra };
+  return { id: "", kind, title: `${tag} ${kind}`, subtitle: "QA fixture", description: "Integration test fixture", image_url: "", category: "QA", date: "2099-10-01", time: "10:00", location: "QA venue", fee: kind === "contests" ? 100 : 0, min_members: 1, max_members: 1, capacity: 0, rules: "QA rules", speaker_ids: [], featured: false, published: false, sort_order: 99999, deleted_at: null, ...extra };
 }
 async function addContent(kind, extra = {}) {
   const result = await status("/api/admin/content", { method: "POST", body: blank(kind,extra) }, 201, `${kind} content creation`);
@@ -143,6 +148,8 @@ try {
   const speaker = await addContent("speakers");
   const conference = await addContent("conferences", { speaker_ids:[speaker.id], published:true, capacity:1 });
   const contest = await addContent("contests", { min_members:2,max_members:2,capacity:2,published:true });
+  await status(`/api/admin/content/${contest.id}`,{method:"PATCH",body:{fee:0}},400,"Competition cannot be configured as free");
+  await status(`/api/admin/content/${contest.id}`,{method:"PATCH",body:{payment_instructions:"QA wallet instructions",payment_method:"QA JazzCash",payment_account_name:"QA account",payment_account_number:"00000000000"}},200,"Competition wallet details and payment instructions saved");
   const team = await addContent("team", { image_url:"/images/members/WhatsApp Image 2026-08-24 at 12.10.44 PM (1).jpeg" });
   const sponsor = await addContent("sponsors");
   for (const record of [speaker, conference, contest, team, sponsor]) {
@@ -178,6 +185,22 @@ try {
   const teamApplication = await submit(contest,"team",{team_members:[member]});
   ensure(teamApplication.result.data.status === "pending" && /^CYE-[A-F0-9]{10}$/.test(teamApplication.result.data.reference), "Submission returns stored pending reference");
   const teamId = await applicationId(teamApplication.result.data.reference);
+  const paymentSnapshot=(await client.query("select payload from public.cye_applications where id=$1",[teamId])).rows[0].payload;
+  ensure(paymentSnapshot.payment_amount===100,"Application stores authoritative competition price");
+  const receiptUrl=`/api/admin/receipts/${teamId}`;
+  await status(receiptUrl,{authenticated:false},401,"Payment receipt is private");
+  const receiptDownload=await fetch(`${origin}${receiptUrl}`,{headers:{Cookie:cookie}});
+  ensure(receiptDownload.status===200&&receiptDownload.headers.get("content-type")==="image/png"&&Buffer.from(await receiptDownload.arrayBuffer()).equals(image),"Admin downloads intact payment receipt");
+  ensure(receiptDownload.headers.get("cache-control").includes("no-store")&&receiptDownload.headers.get("content-disposition").includes("attachment"),"Receipt download prevents caching and active inline content");
+  await status(`/api/admin/content/${contest.id}`,{method:"PATCH",body:{fee:150}},200,"Admin can change competition fee");
+  ensure((await client.query("select payload->>'payment_amount' amount from public.cye_applications where id=$1",[teamId])).rows[0].amount==="100","Historical payment amount survives price change");
+  await status(`/api/admin/content/${contest.id}`,{method:"PATCH",body:{fee:100}},200,"Competition test fee restored");
+  await status("/api/applications",{method:"POST",authenticated:false,withReceipt:false,body:application(contest,"no-receipt",{expected_fee:100})},400,"Competition requires receipt server-side");
+  await status("/api/applications",{method:"POST",authenticated:false,body:application(contest,"stale-price",{expected_fee:1})},409,"Changed or forged fee rejected");
+  const invalidReceipt=new FormData();invalidReceipt.set("payload",JSON.stringify(application(contest,"forged-receipt")));invalidReceipt.set("receipt",new Blob(["<script>bad</script>"],{type:"image/png"}),"forged.png");
+  await status("/api/applications",{method:"POST",authenticated:false,form:invalidReceipt},400,"Forged payment receipt rejected");
+  const oversizedReceipt=new FormData();oversizedReceipt.set("payload",JSON.stringify(application(contest,"large-receipt")));oversizedReceipt.set("receipt",new Blob([Buffer.alloc(2097153)],{type:"application/pdf"}),"large.pdf");
+  await status("/api/applications",{method:"POST",authenticated:false,form:oversizedReceipt},413,"Oversized payment receipt rejected");
   const firstConference = await submit(conference,"conference-a");
   const conferenceId = await applicationId(firstConference.result.data.reference);
   await submit(conference,"conference-b",{},409,"Pending participants reserve conference capacity");
@@ -240,6 +263,7 @@ try {
   ensure(csv.headers.get("content-type").includes("text/csv") && csv.data.includes('"\'=1+1"'),"CSV neutralizes spreadsheet formula injection");
   const adminData = await status("/api/admin/data",{},200,"Admin data refresh succeeds");
   ensure(adminData.data.applications.some(row=>row.id===replacementId && row.status==="approved" && row.deleted_at===null),"Admin refresh shows persisted approval and restore");
+  ensure(adminData.data.applications.some(row=>row.id===teamId&&row.payment_receipt_url===receiptUrl&&row.payment_amount===100),"Admin review exposes private receipt link and captured fee");
   ensure(adminData.data.audit.some(row=>row.admin_email===adminEmail && row.action==="applications.exported"),"Admin audit records writes and exports");
   await status("/api/admin/auth",{method:"DELETE"},200,"Admin sign-out succeeds");
   await status("/api/admin/data",{},401,"Signed-out admin loses access");

@@ -1,13 +1,15 @@
 import "server-only";
 import { randomBytes, randomUUID } from "node:crypto";
-import type { SiteSettings } from "@/lib/cms-types";
+import type { ApplicationRecord, SiteSettings } from "@/lib/cms-types";
+import type { PaymentReceipt } from "./receipts";
 import { transaction } from "./admin";
 import { fail, rateLimit } from "./http";
 import { validateApplication } from "./validation";
 
 function localDate() { return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Karachi", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date()); }
-export async function submitApplication(request: Request, input: Record<string, unknown>) {
-  const payload = validateApplication(input);
+export async function submitApplication(request: Request, input: Record<string, unknown>, receipt?: PaymentReceipt) {
+  const payload: ReturnType<typeof validateApplication> & Pick<ApplicationRecord, "payment_amount" | "payment_receipt_url"> = validateApplication(input);
+  if (receipt && payload.kind !== "contest") fail(400, "Payment receipts are only accepted for competition registrations.");
   await rateLimit(request, "applications-email", 5, 900, payload.email);
   await rateLimit(request, "applications", process.env.TRUST_PROXY === "true" ? 20 : 250, 900);
   return transaction(async client => {
@@ -24,6 +26,12 @@ export async function submitApplication(request: Request, input: Record<string, 
       const expectedKind = payload.kind === "contest" ? "contests" : "conferences";
       if (!entry || entry.kind !== expectedKind || entry.deleted_at || !entry.data.published) fail(404, "This event is no longer available for registration.");
       if ((entry.data.date || settings.event_date) < localDate()) fail(409, "Registration for this event has ended.");
+      if (payload.kind === "contest") {
+        if (!Number.isFinite(entry.data.fee) || entry.data.fee <= 0) fail(409, "The organizers have not set this competition’s entry fee yet.");
+        if (input.expected_fee !== entry.data.fee) fail(409, "The entry fee has changed. Refresh the page and confirm the current fee before submitting payment.");
+        if (!receipt) fail(400, "Upload your payment receipt to register for this competition.");
+        payload.payment_amount = entry.data.fee;
+      }
       const teamSize = 1 + (payload.team_members || []).length;
       const minimum = payload.kind === "contest" ? entry.data.min_members ?? 1 : 1;
       if (teamSize < minimum) fail(400, `This event requires at least ${minimum} participant(s) per registration.`);
@@ -34,7 +42,10 @@ export async function submitApplication(request: Request, input: Record<string, 
       }
     }
     const reference = `CYE-${randomBytes(5).toString("hex").toUpperCase()}`;
-    await client.query("insert into public.cye_applications(id,reference,kind,entry_id,payload) values($1,$2,$3,$4,$5::jsonb)", [randomUUID(), reference, payload.kind, payload.entry_id || null, JSON.stringify(payload)]);
+    const applicationId = randomUUID();
+    if (receipt) payload.payment_receipt_url = `/api/admin/receipts/${applicationId}`;
+    await client.query("insert into public.cye_applications(id,reference,kind,entry_id,payload) values($1,$2,$3,$4,$5::jsonb)", [applicationId, reference, payload.kind, payload.entry_id || null, JSON.stringify(payload)]);
+    if (receipt) await client.query("insert into public.cye_payment_receipts(application_id,mime_type,bytes) values($1,$2,$3)", [applicationId, receipt.mime, receipt.bytes]);
     return { reference, status: "pending" as const, message: payload.kind === "contact" ? "Your message has been received. The organizing team will review it." : "Your application has been received and is awaiting organizer approval." };
   });
 }

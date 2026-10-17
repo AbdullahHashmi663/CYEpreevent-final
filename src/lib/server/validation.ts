@@ -44,6 +44,7 @@ export function validateContent(input: Record<string, unknown>, existing?: Conte
   if (existing && (id !== existing.id || kind !== existing.kind)) fail(400, "The content type and record ID cannot be changed.");
   if (!Array.isArray(data.speaker_ids) || data.speaker_ids.length > 30 || data.speaker_ids.some(v => typeof v !== "string" || !/^[a-zA-Z0-9_-]{1,100}$/.test(v))) fail(400, "Invalid speaker selection.");
   if (typeof data.fee !== "number" || !Number.isFinite(data.fee) || data.fee < 0 || data.fee > 1000000) fail(400, "Fee must be between 0 and 1,000,000.");
+  if (kind === "contests" && data.fee < 0.01) fail(400, "Set a competition entry fee greater than zero.");
   const minimum = integer(data.min_members ?? 1, "Minimum team size", 1, 20);
   const maximum = integer(data.max_members, "Maximum team size", 1, 20);
   if (minimum > maximum) fail(400, "Minimum team size cannot be greater than maximum team size.");
@@ -52,7 +53,10 @@ export function validateContent(input: Record<string, unknown>, existing?: Conte
     description: text(data.description, "Description", 10000), image_url: url(data.image_url, "Image", true),
     category: text(data.category, "Category", 100), date: date(data.date, "Date"),
     time: text(data.time, "Time", 100), location: text(data.location, "Location", 240),
-    fee: data.fee, min_members: minimum, max_members: maximum,
+    fee: data.fee, payment_instructions: text(data.payment_instructions, "Payment instructions", 3000), min_members: minimum, max_members: maximum,
+    payment_method: text(data.payment_method, "Payment method", 100),
+    payment_account_name: text(data.payment_account_name, "Account holder name", 160),
+    payment_account_number: text(data.payment_account_number, "Payment account number", 100),
     capacity: integer(data.capacity, "Capacity", 0, 100000), rules: text(data.rules, "Rules", 15000),
     speaker_ids: [...new Set(data.speaker_ids as string[])], featured: boolean(data.featured, "Featured"),
     published: boolean(data.published, "Published"), sort_order: integer(data.sort_order, "Display order", 0, 100000),

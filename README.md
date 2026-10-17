@@ -37,7 +37,7 @@ Open `http://localhost:3000` and `http://localhost:3000/admin`. The database set
 
 The original event date, 1 October 2026, is retained. Registration starts closed. To accept entries for a future edition, update the site date **and each relevant conference/contest date**, then enable registration. Pending and approved participants reserve capacity; rejected and archived applications do not. A restore/reapproval that would exceed capacity is refused.
 
-Public forms save to the database and return a reference. Confirmation means receipt, not approval. Email, WhatsApp, payment processing, and automatic gate-pass delivery are not configured. Contact messages remain available when event registration is closed.
+Public forms save to the database and return a reference. Confirmation means receipt, not approval. Competitions require a positive admin-set entry fee and a payment receipt (JPEG, PNG, WebP or PDF, up to 2 MB). The listed fee covers one individual/team registration. Organizers can edit payment account instructions per competition. Entries with no configured fee cannot accept registrations. The fee is captured at submission, so later price changes do not alter earlier applications. Receipts are stored atomically with applications in a private database table and downloaded only through an authenticated admin endpoint. Organizers review the receipt against their payment account before approving. Receipt submission does not automatically verify a payment; an online payment gateway is not configured. Contact messages remain available when event registration is closed.
 
 ## Production
 

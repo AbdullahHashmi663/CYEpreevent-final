@@ -12,6 +12,10 @@ export interface ContentRecord {
   time: string;
   location: string;
   fee: number;
+  payment_instructions?: string;
+  payment_method?: string;
+  payment_account_name?: string;
+  payment_account_number?: string;
   max_members: number;
   min_members: number;
   capacity: number;
@@ -65,6 +69,8 @@ export interface ApplicationPayload {
   website?: string;
 }
 export interface ApplicationRecord extends ApplicationPayload {
+  payment_amount?: number;
+  payment_receipt_url?: string;
   id: string;
   reference: string;
   entry_title: string;
