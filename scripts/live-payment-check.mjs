@@ -73,6 +73,32 @@ try{
  ensure(workshopReceipt.data.equals(receiptImage),"Workshop receipt bytes preserved");
  await status(`/api/admin/applications/${workshopApp.id}`,{method:"PATCH",body:{status:"approved"}},200,"Admin approves paid workshop registration");
  await status(`/api/admin/applications/${talkApp.id}`,{method:"PATCH",body:{status:"approved"}},200,"Admin approves free Talk registration");
+ const workshopInvalidEmail=`${tag}-workshop-invalid@example.test`,workshopPdfEmail=`${tag}-workshop-pdf@example.test`;
+ trackedEmails.push(workshopInvalidEmail,workshopPdfEmail);
+ await status("/api/applications",{method:"POST",authenticated:false,form:multipart({...workshopBody,email:workshopInvalidEmail},Buffer.from("<script>invalid receipt</script>"))},400,"Workshop rejects a disguised invalid receipt");
+ await status("/api/applications",{method:"POST",authenticated:false,form:multipart({...workshopBody,email:workshopInvalidEmail},Buffer.alloc(2097153))},413,"Workshop rejects receipts larger than 2 MB");
+ await status("/api/applications",{method:"POST",authenticated:false,form:multipart(workshopBody)},409,"Duplicate workshop registration blocked");
+ await status("/api/applications",{method:"POST",authenticated:false,body:talkBody},409,"Duplicate Talk registration blocked");
+ const pdfWorkshop=await status("/api/applications",{method:"POST",authenticated:false,form:multipart({...workshopBody,email:workshopPdfEmail},pdf,"application/pdf")},201,"Workshop accepts a PDF receipt");
+ let sessions=(await request("/api/admin/data")).data;
+ const pdfWorkshopApp=sessions.applications.find(app=>app.reference===pdfWorkshop.data.reference);
+ const pdfWorkshopReceipt=await status(pdfWorkshopApp.payment_receipt_url,{},200,"Admin downloads workshop PDF receipt");
+ ensure(pdfWorkshopReceipt.data.equals(pdf)&&pdfWorkshopReceipt.headers.get("content-type")==="application/pdf","Workshop PDF content and type preserved");
+ ensure(sessions.applications.find(app=>app.id===workshopApp.id).status==="approved"&&sessions.applications.find(app=>app.id===talkApp.id).status==="approved","Both approvals persist after reloading the live dashboard");
+ for(const sessionApp of [workshopApp,talkApp]){
+  const label=sessionApp.id===workshopApp.id?"Workshop":"Talk";
+  await status(`/api/admin/applications/${sessionApp.id}`,{method:"PATCH",body:{status:"rejected",rejection_reason:"Temporary QA rejection"}},200,`${label} rejection works`);
+  await status(`/api/admin/applications/${sessionApp.id}`,{method:"PATCH",body:{status:"pending"}},200,`${label} returns to pending`);
+  await status(`/api/admin/applications/${sessionApp.id}`,{method:"PATCH",body:{deleted:true}},200,`${label} moves to trash`);
+  await status(`/api/admin/applications/${sessionApp.id}`,{method:"PATCH",body:{restore:true}},200,`${label} restores from trash`);
+  await status(`/api/admin/applications/${sessionApp.id}`,{method:"PATCH",body:{status:"approved"}},200,`${label} can be approved again`);
+ }
+ await status(`/api/admin/content/${workshop.id}`,{method:"PATCH",body:{fee:750}},200,"Admin changes workshop fee");
+ sessions=(await request("/api/admin/data")).data;
+ ensure(sessions.applications.find(app=>app.id===workshopApp.id).payment_amount===500,"Workshop keeps original paid amount after a price change");
+ ensure(sessions.applications.find(app=>app.id===talkApp.id).payment_amount===0,"Talk remains free after moderation");
+ const sessionCsv=await status("/api/admin/export",{},200,"Export workshop and Talk registrations");
+ ensure(sessionCsv.data.toString().includes(workshopApp.reference)&&sessionCsv.data.toString().includes(talkApp.reference)&&sessionCsv.data.toString().includes(workshopApp.payment_receipt_url),"Export includes both sessions and workshop receipt link");
  mkdirSync("test-results",{recursive:true});writeFileSync("test-results/live-payment-receipt.png",receiptImage);
  writeFileSync("test-results/live-payment-state.json",JSON.stringify({origin,tag,email,password,participantEmail,teamId:team.id,individualId:individual.id,registrationUrl:`${origin}/register?kind=contest&entry=${team.id}`},null,2));
  if(process.argv.includes("--api-only")){
