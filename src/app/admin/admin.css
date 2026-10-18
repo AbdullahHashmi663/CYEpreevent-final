@@ -254,3 +254,13 @@
 .admin-notice{background:#eaf1ff;border-color:#c8daf7;color:#1b4694}
 .admin-secure svg{color:#1b4694}
 .admin-event-summary>.admin-badge{background:#ffddd2;color:#a43b24}
+/* Email-code sign-in and account recovery. */
+.admin-login-methods { display: flex; gap: 8px; margin: 24px 0; }
+.admin-login-methods button { flex: 1; min-height: 44px; border: 1px solid #b9cbea; border-radius: 8px; background: #fff; color: #17458c; font: inherit; cursor: pointer; }
+.admin-login-methods button[aria-pressed="true"] { background: #17458c; border-color: #17458c; color: #fff; }
+.admin-login-fields { border: 0; padding: 0; margin: 0; display: grid; gap: 20px; min-width: 0; }
+.admin-login-code-actions { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.admin-forgot-password { justify-self: end; }
+.admin-login-feedback { padding: 14px; background: #edf4ff; color: #17458c; border-radius: 8px; font-size: 13px; line-height: 1.6; margin: 0; }
+.admin-login-methods button:disabled { opacity: .6; cursor: wait; }
+.admin-login-form > .admin-text-button { margin-top: 22px; }

@@ -32,6 +32,10 @@ npm run dev
 
 Open `http://localhost:3000` and `http://localhost:3000/admin`. The database setup creates only new `cye_*` tables and preserves existing content/settings/admin passwords when repeated. Bootstrap passwords must be changed after the first sign-in. The sign-in screen accepts a username or email. No working administrator credentials are included in this repository.
 
+The admin login includes **Email passkey** (a six-digit email sign-in code) and **Forgot password?**. Codes go only to `ADMIN_SECURITY_EMAIL` through the existing `RESEND_API_KEY` / `EMAIL_FROM` configuration. They expire after 10 minutes, permit five incorrect attempts, are stored as salted hashes, and are single-use and bound to their purpose and account. Code requests and verification are rate limited. Password recovery requires a new password of at least 12 characters, revokes all sessions and outstanding codes for that admin, and returns the user to password sign-in. Unknown accounts receive the same public request message. No WebAuthn/device passkey is used.
+
+Apply `supabase/migrations/202610180001_admin_access_codes.sql` when updating an existing installation. `node scripts/access-code-check.mjs --skip-email` verifies an isolated local server at port 3100 with seeded QA codes; the local server needs dummy email configuration for unknown-account checks. Production verification uses `CYE_ACCESS_TEST_ORIGIN=https://cyepreevent-final.vercel.app` and no skip flag, sends sign-in and reset verification emails to the configured owner, and removes its disposable QA account and sessions afterward.
+
 ## Organizer workflow
 
 - Add/edit conferences, assign speakers, upload photographs, publish drafts, and control display order.

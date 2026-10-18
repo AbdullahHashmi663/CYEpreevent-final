@@ -11,14 +11,16 @@ export function passwordEmailConfiguration() {
   return { recipient, key, from };
 }
 
-export async function sendPasswordCode(code: string, challengeId: string) {
+export async function sendPasswordCode(code: string, challengeId: string, purpose: "change" | "login" | "reset" = "change") {
   const { recipient, key, from } = passwordEmailConfiguration();
+  const action = purpose === "login" ? "sign in to the admin portal" : purpose === "reset" ? "reset your admin password" : "confirm the password change";
+  const subject = purpose === "login" ? "CYE admin sign-in code" : purpose === "reset" ? "CYE admin password reset code" : "CYE admin password verification code";
   let delivered = false;
   try {
     const result = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", "Idempotency-Key": `password-code-${challengeId}` },
-      body: JSON.stringify({ from, to: [recipient], subject: "CYE admin password verification code", text: `Your Capital Youth Expo admin password verification code is: ${code}\n\nThis code expires in 10 minutes and can be used once. Enter it in the admin portal to confirm the password change. If you did not request this, do not share this code.` }),
+      body: JSON.stringify({ from, to: [recipient], subject, text: `Your Capital Youth Expo admin verification code is: ${code}\n\nThis code expires in 10 minutes and can be used once. Enter it in the admin portal to ${action}. If you did not request this, do not share this code.` }),
       signal: AbortSignal.timeout(10000),
     });
     delivered = result.ok;

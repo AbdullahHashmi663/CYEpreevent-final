@@ -532,29 +532,72 @@ function Login({
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [method, setMethod] = useState<"password" | "login" | "reset">("password");
+  const [address, setAddress] = useState("");
+  const [challenge, setChallenge] = useState("");
+  const [feedback, setFeedback] = useState("");
+  const [resendWait, setResendWait] = useState(0);
+  useEffect(() => {
+    if (!resendWait) return;
+    const timer = setTimeout(() => setResendWait(value => value - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendWait]);
+  function chooseMethod(next: "password" | "login" | "reset") {
+    setMethod(next); setChallenge(""); setFeedback(""); setError("");
+  }
+  async function sendCode() {
+    setBusy(true); setError("");
+    try {
+      const result = await api<{ challenge_id: string; message: string }>("/api/admin/access/code", { method: "POST", body: JSON.stringify({ email: address, purpose: method }) });
+      setChallenge(result.challenge_id); setFeedback(result.message); setResendWait(60);
+    } catch (caught) { setError(message(caught)); }
+    finally { setBusy(false); }
+  }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy) return;
+    if (method !== "password" && !challenge) { await sendCode(); return; }
     setBusy(true);
     setError("");
     const form = new FormData(event.currentTarget);
     try {
-      const result = await api<{
-        user: AdminUser;
-      }>("/api/admin/auth", {
+      if (method === "reset" && form.get("new_password") !== form.get("confirm_password")) throw new Error("The new passwords do not match.");
+      const result = await api<{ user?: AdminUser; message?: string }>(method === "password" ? "/api/admin/auth" : "/api/admin/access/verify", {
         method: "POST",
         body: JSON.stringify({
-          email: form.get("email"),
-          password: form.get("password")
+          email: address,
+          ...(method === "password" ? { password: form.get("password") } : { purpose: method, challenge_id: challenge, code: form.get("code"), ...(method === "reset" ? { new_password: form.get("new_password") } : {}) })
         })
       });
-      await onSignIn(result.user);
+      if (result.user) await onSignIn(result.user);
+      else if (method === "reset") { chooseMethod("password"); setFeedback(result.message || "Password reset. Sign in with your new password."); }
+      else throw new Error("Sign-in could not be confirmed. Please try again.");
     } catch (caught) {
       setError(message(caught));
     } finally {
       setBusy(false);
     }
   }
-  return <main className="admin-root admin-login"><div className="admin-login-art"><Brand /><div><p className="admin-eyebrow">BEHIND EVERY GREAT EVENT.</p><h1>Good people.<br />Big possibilities<span>↗</span></h1><p>Your ideas. Your community. One place to bring it all together.</p></div><span className="admin-login-art-footer">CAPITAL YOUTH EXPO / ORGANIZER WORKSPACE</span></div><div className="admin-login-main"><Link href="/" className="admin-back-link"><ArrowLeft size={17} aria-hidden="true" /> Back to the website</Link><div className="admin-login-form"><p className="admin-eyebrow">WELCOME BACK</p><h2>Let’s make<br />things happen.</h2><p>Sign in to manage your event and community.</p><form onSubmit={submit}><label className="admin-field">Username or email<input type="text" name="email" autoComplete="username" required autoFocus placeholder="Your admin username" /></label><label className="admin-field">Password<input type="password" name="password" autoComplete="current-password" required placeholder="Enter your password" /></label><ErrorText error={error || notice?.text || ""} /><button className="admin-button admin-login-submit" disabled={busy}>{busy ? <>Signing in <LoaderCircle className="admin-spin" size={18} /></> : <>Open admin studio <ArrowUpRight size={19} /></>}</button></form><p className="admin-login-security"><ShieldCheck size={15} aria-hidden="true" /> Authorized organizers only.</p></div><span className="admin-login-footer">Capital Youth Expo · Made for what comes next.</span></div></main>;
+  return <main className="admin-root admin-login"><div className="admin-login-art"><Brand /><div><p className="admin-eyebrow">BEHIND EVERY GREAT EVENT.</p><h1>Good people.<br />Big possibilities<span>↗</span></h1><p>Your ideas. Your community. One place to bring it all together.</p></div><span className="admin-login-art-footer">CAPITAL YOUTH EXPO / ORGANIZER WORKSPACE</span></div><div className="admin-login-main"><Link href="/" className="admin-back-link"><ArrowLeft size={17} aria-hidden="true" /> Back to the website</Link><div className="admin-login-form">
+    <p className="admin-eyebrow">{method === "reset" ? "RECOVER YOUR ACCOUNT" : "WELCOME BACK"}</p><h2>{method === "reset" ? <>A fresh start.<br />Same possibilities.</> : <>Let’s make<br />things happen.</>}</h2>
+    <p>{method === "reset" ? "Verify the code sent to the owner's email, then choose a new password." : method === "login" ? "Sign in with a one-time email passkey. No password needed." : "Sign in to manage your event and community."}</p>
+    {method !== "reset" && <div className="admin-login-methods" role="group" aria-label="Sign-in method"><button type="button" disabled={busy} aria-pressed={method === "password"} onClick={() => chooseMethod("password")}>Password</button><button type="button" disabled={busy} aria-pressed={method === "login"} onClick={() => chooseMethod("login")}>Email passkey</button></div>}
+    <form onSubmit={submit}>
+      <fieldset disabled={busy} className="admin-login-fields">
+        <legend className="admin-sr-only">{method === "reset" ? "Reset admin password" : "Admin sign-in"}</legend>
+        <label className="admin-field">Username or email<input type="text" name="email" autoComplete="username" required maxLength={100} autoFocus value={address} readOnly={Boolean(challenge)} onChange={event => setAddress(event.target.value)} placeholder="Your admin username" /></label>
+        {method === "password" && <><label className="admin-field">Password<input type="password" name="password" autoComplete="current-password" required maxLength={256} placeholder="Enter your password" /></label><button type="button" className="admin-text-button admin-forgot-password" onClick={() => chooseMethod("reset")}>Forgot password?</button></>}
+        {method !== "password" && challenge && <><label className="admin-field">Email passkey<input key={challenge} name="code" type="text" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" minLength={6} maxLength={6} required autoFocus placeholder="Six-digit email code" /><span>Valid for 10 minutes. Each code works once.</span></label>
+          {method === "reset" && <><label className="admin-field">New password<input type="password" name="new_password" autoComplete="new-password" required minLength={12} maxLength={256} /><span>Use at least 12 characters.</span></label><label className="admin-field">Confirm new password<input type="password" name="confirm_password" autoComplete="new-password" required minLength={12} maxLength={256} /></label></>}
+          <div className="admin-login-code-actions"><button type="button" className="admin-text-button" disabled={resendWait > 0} onClick={sendCode}>{resendWait ? `Resend in ${resendWait}s` : "Send a new code"}</button><button type="button" className="admin-text-button" onClick={() => { setChallenge(""); setError(""); setFeedback(""); }}>Change username</button></div></>}
+        {feedback && <p className="admin-login-feedback" role="status">{feedback}</p>}
+        <ErrorText error={error || (notice?.error ? notice.text : "")} />
+        <button className="admin-button admin-login-submit" disabled={busy}>{busy ? <>Please wait <LoaderCircle className="admin-spin" size={18} /></> : <>{method === "password" ? "Open admin studio" : !challenge ? "Send email passkey" : method === "reset" ? "Reset password" : "Sign in with passkey"}<ArrowUpRight size={19} /></>}</button>
+      </fieldset>
+    </form>
+    {method === "reset" && <button type="button" className="admin-text-button" disabled={busy} onClick={() => chooseMethod("password")}><ArrowLeft size={16} aria-hidden="true" /> Back to sign in</button>}
+    <p className="admin-login-security"><ShieldCheck size={15} aria-hidden="true" /> Authorized organizers only. Codes go to the owner’s configured email.</p>
+    </div><span className="admin-login-footer">Capital Youth Expo · Made for what comes next.</span></div></main>;
 }
 function PageHeader({
   eyebrow,
