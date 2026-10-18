@@ -7,6 +7,7 @@ import type { ContentRecord, PublicContent } from "@/lib/cms-types";
 import { COMPETITION_SECTIONS, programmeGroups, programmeSection, requiresPayment } from "@/lib/programme";
 import SiteShell, { ContentImage, PageIntro } from "./SiteShell";
 import ApplicationForm, { RegistrationNotice, registrationsAvailable } from "./ApplicationForm";
+import TeamMarquee from "./TeamMarquee";
 import "./explore.css";
 
 export type ExploreView = "conferences" | "competitions" | "team" | "ambassadors" | "venue" | "contact" | "register";
@@ -95,6 +96,7 @@ function Team({ data }: { data: PublicContent }) {
       <div className="people-grid team-grid">{data.team.map((person, index) => <article className="person-card" key={person.id}><div className={`person-image person-tint-${index % 3}`}><ContentImage src={person.image_url} alt={person.title} /><span className="person-count">{String(index + 1).padStart(2, "0")}</span></div><h3>{person.title}</h3><p className="person-role">{person.subtitle}</p><p className="person-bio">{person.description}</p></article>)}</div>
       {!data.team.length && <div className="explore-empty"><Users size={36} aria-hidden="true" /><h3>Meet our people soon.</h3><p>The organizing team’s profiles will appear here when they’re published.</p></div>}
     </section>
+    <TeamMarquee members={data.team} />
     {data.sponsors.length > 0 && <section className="explore-partners"><div className="container"><SectionHeading number="02" eyebrow="Stronger together" title="The people backing our purpose." /><div className="partner-grid">{data.sponsors.map(partner => <article key={partner.id}><ContentImage src={partner.image_url} alt={partner.title} /><div><h3>{partner.title}</h3><p>{partner.subtitle}</p></div></article>)}</div></div></section>}
     <BottomBanner eyebrow="A bigger circle" title="BRING YOUR CAMPUS WITH YOU." href="/ambassadors" label="Become an ambassador" />
   </>;

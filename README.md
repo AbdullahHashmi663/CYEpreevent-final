@@ -42,6 +42,7 @@ Apply `supabase/migrations/202610180001_admin_access_codes.sql` when updating an
 
 - Add/edit conferences, assign speakers, upload photographs, publish drafts, and control display order.
 - Maintain team profiles, partners, contests, rules, fees, capacity, and minimum/maximum team sizes.
+- The team page includes a scrolling photo marquee after the lead cards. Team member name, Position, Department, and portrait are edited in admin; published profiles appear automatically. Empty departments show “To be announced.” The marquee pauses on hover/focus, has a Pause/Resume control, and becomes a manually scrollable gallery for reduced-motion preferences.
 - Edit event name, headline, imagery, copy, date, venue, contacts, social links, and registration availability in Site settings.
 - Search applications and contact messages, inspect team rosters, approve, reject with a reason, return to pending, and export CSV.
 - Archive content and applications without deleting them permanently. Restore records from Trash & restore.
