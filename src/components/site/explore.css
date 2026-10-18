@@ -405,6 +405,11 @@
 .team-marquee-heading h2 span { color: var(--orange); }
 .team-marquee-heading p { font-size: 14px; line-height: 1.7; color: #627089; max-width: 510px; margin: 0; }
 .team-marquee-control { flex-shrink: 0; min-width: 116px; justify-content: center; }
+.team-marquee-control > span { display: flex; align-items: center; gap: 10px; }
+.team-marquee-control > .team-marquee-resume-label { display: none; }
+.team-marquee-toggle:checked ~ .team-marquee-heading .team-marquee-pause-label { display: none; }
+.team-marquee-toggle:checked ~ .team-marquee-heading .team-marquee-resume-label { display: flex; }
+.team-marquee-toggle:focus-visible ~ .team-marquee-heading .team-marquee-control { outline: 3px solid var(--orange); outline-offset: 4px; }
 .team-marquee-viewport { overflow-x: auto; scrollbar-width: thin; scrollbar-color: #a8bfe2 transparent; padding: 8px 0 20px; }
 .team-marquee-track { display: flex; width: max-content; animation: team-marquee-travel var(--team-marquee-duration, 42s) linear infinite; }
 .team-marquee-copy { display: flex; gap: 22px; padding-right: 22px; flex-shrink: 0; }
@@ -419,7 +424,7 @@
 .team-marquee-department { border-top: 1px solid #e2e8f3; padding-top: 14px; margin: 15px 0 0; color: var(--blue); font-size: 12px; line-height: 1.5; }
 .team-marquee-department > span { display: block; color: #9f3a19; text-transform: uppercase; letter-spacing: .1em; font-size: 9px; font-weight: 700; margin-bottom: 4px; }
 .team-marquee-hint { color: #627089; font-size: 11px; margin-top: 16px; }
-.team-marquee-viewport:hover .team-marquee-track, .team-marquee-viewport:focus-within .team-marquee-track, .team-marquee-viewport.is-paused .team-marquee-track { animation-play-state: paused; }
+.team-marquee-viewport:hover .team-marquee-track, .team-marquee-viewport:focus-within .team-marquee-track, .team-marquee-toggle:checked ~ .team-marquee-viewport .team-marquee-track { animation-play-state: paused; }
 @keyframes team-marquee-travel { to { transform: translateX(-50%); } }
 @media (max-width: 600px) {
   .team-marquee-section { padding: 46px 0 32px; }
@@ -433,5 +438,5 @@
 @media (prefers-reduced-motion: reduce) {
   .team-marquee-track { animation: none; }
   .team-marquee-copy[aria-hidden="true"] { display: none; }
-  .team-marquee-control { display: none; }
+  .team-marquee-control, .team-marquee-toggle { display: none; }
 }

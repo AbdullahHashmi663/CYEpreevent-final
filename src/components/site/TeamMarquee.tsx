@@ -1,19 +1,19 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import type { CSSProperties } from "react";
 import { Pause, Play, ArrowRight } from "lucide-react";
 import type { ContentRecord } from "@/lib/cms-types";
 import { ContentImage } from "./SiteShell";
 
 export default function TeamMarquee({ members }: { members: ContentRecord[] }) {
-  const [paused, setPaused] = useState(false);
   if (!members.length) return null;
   return <section className="team-marquee-section" aria-labelledby="team-marquee-heading">
+    <input type="checkbox" id="team-marquee-pause" className="visually-hidden team-marquee-toggle" aria-label="Pause automatic team scrolling" />
     <div className="container team-marquee-heading">
       <div><span className="eyebrow">The people. The energy.</span><h2 id="team-marquee-heading">Meet the team<br /><span>behind every moment.</span></h2><p>Different talents. One shared vision. Get to know the people bringing CYE to life.</p></div>
-      <button type="button" className="button button-outline team-marquee-control" aria-pressed={paused} onClick={() => setPaused(value => !value)} aria-label={paused ? "Resume team marquee" : "Pause team marquee"}>{paused ? <Play size={17} aria-hidden="true" /> : <Pause size={17} aria-hidden="true" />}{paused ? "Resume" : "Pause"}</button>
+      <label htmlFor="team-marquee-pause" className="button button-outline team-marquee-control"><span className="team-marquee-pause-label"><Pause size={17} aria-hidden="true" />Pause</span><span className="team-marquee-resume-label"><Play size={17} aria-hidden="true" />Resume</span></label>
     </div>
-    <div className={`team-marquee-viewport ${paused ? "is-paused" : ""}`} tabIndex={0} role="region" aria-label="Team member gallery. Scroll horizontally to explore names, positions and departments.">
+    <div className="team-marquee-viewport" tabIndex={0} role="region" aria-label="Team member gallery. Scroll horizontally to explore names, positions and departments.">
       <div className="team-marquee-track" style={{ "--team-marquee-duration": `${Math.max(32, members.length * 7)}s` } as CSSProperties}>
         {[false, true].map(duplicate => <div className="team-marquee-copy" aria-hidden={duplicate || undefined} key={String(duplicate)}>
           {members.map(person => <article className="team-marquee-card" key={person.id}>
