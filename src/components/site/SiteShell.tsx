@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSiteMotion } from "./useSiteMotion";
 import { ArrowUpRight, Menu, X, ArrowRight } from "lucide-react";
 import type { SiteSettings } from "@/lib/cms-types";
-const navigation = [["Conferences", "/conferences"], ["Competitions", "/competitions"], ["Our team", "/team-about"], ["Venue", "/venue"], ["Contact", "/contact"]];
+const navigation = [["Home", "/"], ["Conferences", "/conferences"], ["Competitions", "/competitions"], ["Our team", "/team-about"], ["Venue", "/venue"], ["Contact", "/contact"]];
 export function ContentImage({ src, alt, className = "", priority = false }: { src: string; alt: string; className?: string; priority?: boolean }) {
   const [failedSource, setFailedSource] = useState<string | null>(null);
   if (!src || failedSource === src) return <div className={`image-placeholder ${className}`} role="img" aria-label={alt}><span>{alt.split(" ").map(p=>p[0]).slice(0,2).join("")}</span></div>;
