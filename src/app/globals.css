@@ -107,9 +107,9 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset
 .orbit-art-hero { right: -340px; top: -290px; animation: orbit-float 15s ease-in-out infinite alternate; }
 .partner-strip { display: flex; justify-content: center; align-items: center; gap: 48px; padding-top: 30px; padding-bottom: 30px; border-bottom: 1px solid var(--line); }
 .partner-strip > .eyebrow { font-size: 9px; color: var(--muted); letter-spacing: 1.5px; max-width: 205px; }
-.partner-strip > div { display: flex; gap: 40px; align-items: center; }
-.partner { display: flex; align-items: center; gap: 11px; }
-.partner img { width: 70px; height: 44px; object-fit: contain; }
+.partner-strip > div { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px 32px; align-items: center; min-width: 0; }
+.partner { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.partner img { width: 70px; height: 60px; object-fit: contain; flex-shrink: 0; }
 .partner > span { font-size: 13px; font-weight: 850; color: var(--blue); line-height: 1.4; }
 .partner small { display: block; font-size: 9px; font-weight: 500; color: var(--muted); }
 
@@ -305,8 +305,9 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset
   .orbit-art-hero { width: 400px; top: -245px; right: -285px; }
   .partner-strip { padding-top: 23px; padding-bottom: 25px; gap: 21px; flex-direction: column; }
   .partner-strip > .eyebrow { max-width: none; font-size: 7px; letter-spacing: 1.2px; }
-  .partner-strip > div { gap: 31px; }
-  .partner img { width: 47px; height: 34px; }
+  .partner-strip > div { display: grid; grid-template-columns: 1fr; gap: 22px; width: 100%; max-width: 320px; }
+  .partner { display: grid; grid-template-columns: 64px 1fr; gap: 16px; }
+  .partner img { width: 64px; height: 54px; }
   .partner > span { font-size: 11px; }
   .partner small { font-size: 8px; }
   .centered-heading { margin-bottom: 33px; }

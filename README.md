@@ -4,6 +4,8 @@ An orange-and-blue event website and organizer portal built with Next.js 16.3.8,
 
 The interface includes responsive layouts, animated section reveals, a photo gallery, animated statistics, and reduced-motion support. Its visual direction follows [Capital Youth Expo](https://www.capitalyouthexpo.com/).
 
+Al Nakhla and **Student Support Centre, Bahria University Islamabad** are separate organizer entries. The SSC image at `public/images/bahria-ssc-logo.jpg` was downloaded from the [official SSC BUIC Facebook page](https://www.facebook.com/OfficialSSC.BUIC/) linked by the organizer. `node scripts/update-organizers.mjs --apply` corrects the original combined attribution on existing installations; it preserves registrations and payment settings and saves a private backup first.
+
 The competition programme is organized into **Tech Nexus** (Speed Programming, Hackathon), **Venture X** (Pitch Your Idea), **Spectrum** (Reel Competition, Graphic Design), and **Literary** (Speech). Conferences include one **Career Pro Workshop** and one **Talk**. These sections also appear in the admin editor and registration selector. Older competitions are unpublished and remain available to organizers. Configure fees, wallet details, team sizes, and rules in admin before accepting paid entries.
 
 **Career Pro is paid:** organizers set the fee and payment instructions; participants must upload a receipt. **The Talk is free, with mandatory registration.** Both accept exactly one participant per registration. A workshop without an admin-set positive fee cannot accept registrations. Workshop receipts use the same private storage, fee snapshot, and approval workflow as competitions.

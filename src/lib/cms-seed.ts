@@ -10,7 +10,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   hero_accent: "IS OURS.",
   hero_description: "Big ideas. Real connections. A generation ready to build what comes next. Meet your people at Capital Youth Expo.",
   hero_image: "/images/recap1.webp",
-  about_description: "Capital Youth Expo brings together Pakistan’s next generation of thinkers, makers, and changemakers. Organized by Al Nakhla Student Support Centre and Youth Insight Pakistan, our Bahria University pre-event connects ambitious young people through technology, creativity, competition, and conversation.",
+  about_description: "Capital Youth Expo brings together Pakistan’s next generation of thinkers, makers, and changemakers. Organized by Al Nakhla, the Student Support Centre at Bahria University Islamabad, and Youth Insight Pakistan, our Bahria University pre-event connects ambitious young people through technology, creativity, competition, and conversation.",
   contact_email: "cye.buic@gmail.com",
   contact_phone: "",
   registration_open: false,
@@ -52,8 +52,9 @@ export const SEED_CONTENT: ContentRecord[] = [
     ["Zaid Ahmed", "Esports Management Lead", "Tournament operations and gaming arena coordination."],
     ["Maham Tariq", "Communications & Media Lead", "Delegate services, photography, and event communications."],
   ].map((t, i) => entry("team", `team-${i + 1}`, { title: t[0], subtitle: t[1], description: t[2], image_url: portraits[i], sort_order: i, featured: i < 3 })),
-  entry("sponsors", "al-nakhla", { title: "Al Nakhla", subtitle: "Student Support Centre", image_url: "/images/al-nakhla-logo.png" }),
-  entry("sponsors", "youth-insight", { title: "Youth Insight", subtitle: "Pakistan", image_url: "/images/youth-insight.png", sort_order: 1 }),
+  entry("sponsors", "al-nakhla", { title: "Al Nakhla", subtitle: "", image_url: "/images/al-nakhla-logo.png" }),
+  entry("sponsors", "bahria-ssc", { title: "Student Support Centre", subtitle: "Bahria University, Islamabad", image_url: "/images/bahria-ssc-logo.jpg", sort_order: 1 }),
+  entry("sponsors", "youth-insight", { title: "Youth Insight", subtitle: "Pakistan", image_url: "/images/youth-insight.png", sort_order: 2 }),
 ];
 // Retain the supplied event date. Past events stay closed until an admin updates the date and opens registration.
 // Existing speaker names were paired with unrelated team portraits, so speakers are published by the admin after verification.
