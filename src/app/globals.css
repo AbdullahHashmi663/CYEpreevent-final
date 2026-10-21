@@ -108,13 +108,11 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset
 .partner-strip { padding-top: 30px; padding-bottom: 30px; border-bottom: 1px solid var(--line); }
 .society-marquee-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
 .society-marquee-heading .eyebrow { font-size: 9px; color: var(--muted); letter-spacing: 1.5px; }
-.society-marquee-control { flex-shrink: 0; border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; background: white; color: var(--blue); font: inherit; font-size: 11px; cursor: pointer; }
-.society-marquee-control:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
 .society-marquee-window { overflow: hidden; padding-block: 8px; }
 .society-marquee-track { display: flex; width: max-content; animation: society-travel 42s linear infinite; }
 .society-marquee-group { display: flex; align-items: flex-start; gap: 32px; padding-right: 32px; flex-shrink: 0; }
 .society-marquee-group .partner { width: 300px; flex: 0 0 300px; }
-.society-marquee-window:hover .society-marquee-track, .society-marquee-track[data-paused="true"] { animation-play-state: paused; }
+.society-marquee-window:hover .society-marquee-track { animation-play-state: paused; }
 @keyframes society-travel { to { transform: translateX(-50%); } }
 .partner { display: flex; align-items: center; gap: 11px; min-width: 0; }
 .partner img { width: 70px; height: 60px; object-fit: contain; flex-shrink: 0; }
@@ -393,7 +391,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset
   .society-marquee-track { width: 100%; }
   .society-marquee-group { width: 100%; flex-wrap: wrap; padding-right: 0; gap: 24px; }
   .society-marquee-group .partner { width: auto; flex: 1 1 270px; }
-  .society-marquee-group[aria-hidden="true"], .society-marquee-control { display: none; }
+  .society-marquee-group[aria-hidden="true"] { display: none; }
   html { scroll-behavior: auto; }
   *,*::before,*::after { animation: none !important; transition: none !important; }
   [data-motion-ready="true"] [data-reveal] { opacity: 1; transform: none; }
