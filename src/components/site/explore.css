@@ -329,6 +329,16 @@
 .event-detail-lines svg, .person-role, .announcement-mark, .explore-empty > svg, .contact-details > a > svg, .contact-details > div > svg, .venue-facts svg { color: var(--blue); }
 .conference-speakers, .team-about-block, .explore-partners, .form-sidebar-note, .form-entry-block, .roster-member, .contact-details > a, .contact-details > div, .faq-section { border-color: var(--line); }
 .explore-dark-section { background: linear-gradient(135deg, #102b61, #1b4694); color: #fff; }
+.explore-page .explore-dark-section :is(h2, h3) { color: #fff; }
+.explore-page .explore-dark-section .explore-section-heading > p,
+.explore-page .explore-dark-section .three-step-grid p,
+.explore-page .explore-dark-section .schedule-row p { color: #e5edff; }
+.explore-page .explore-dark-section .schedule-row { color: #fff; border-color: #ffffff59; }
+.explore-page .explore-dark-section .schedule-row:hover { background: #ffffff0d; }
+.explore-page .explore-dark-section .schedule-row:hover h3 { color: #ffb19e; }
+.explore-page .explore-dark-section .schedule-time { color: #fff; font-weight: 750; }
+.explore-page .explore-dark-section .three-step-grid article { border-color: #ffffff59; }
+.explore-page .explore-dark-section .three-step-grid article > span { display: inline-flex; align-items: center; justify-content: center; min-width: 38px; min-height: 38px; border: 1px solid #ffb19e80; border-radius: 50%; color: #ffb19e; font-weight: 750; }
 .explore-dark-section .muted, .schedule-index, .schedule-row p, .three-step-grid p { color: #d8e5ff; }
 .explore-dark-section .eyebrow, .schedule-row:hover, .three-step-grid article > span, .three-step-grid article > svg, .venue-image-caption .eyebrow { color: #ffb19e; }
 .schedule-list, .schedule-row, .three-step-grid article { border-color: #ffffff38; }
