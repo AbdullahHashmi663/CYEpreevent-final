@@ -59,7 +59,7 @@ export const SEED_CONTENT: ContentRecord[] = [
   entry("sponsors", "al-nakhla", { title: "Al Nakhla", subtitle: "", description: "Overall management of the pre-event.", image_url: "/images/al-nakhla-logo.png" }),
   entry("sponsors", "bahria-ssc", { title: "Student Support Centre", subtitle: "Bahria University, Islamabad", description: "Support partner.", image_url: "/images/bahria-ssc-logo.jpg", sort_order: 1 }),
   entry("sponsors", "youth-insight", { title: "Youth Insight", subtitle: "Pakistan", description: "Community outreach and promotions.", image_url: "/images/youth-insight.png", sort_order: 2 }),
-  entry("sponsors", "yota", { title: "YOTA", subtitle: "Youth Organization for Technical Advancements", description: "Overall coordination of the expo’s technical modules.", image_url: "/images/yota-logo.png", sort_order: 3 }),
+  entry("sponsors", "yota", { title: "YOTA", subtitle: "Youth Organization for Technical Advancements", description: "Tech Partner", image_url: "/images/yota-logo.png", sort_order: 3 }),
 ];
 // Retain the supplied event date. Past events stay closed until an admin updates the date and opens registration.
 // Existing speaker names were paired with unrelated team portraits, so speakers are published by the admin after verification.
