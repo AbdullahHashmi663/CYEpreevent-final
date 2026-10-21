@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+.brand .brand-prefix { display: block; font-size: 8px; line-height: 1.2; letter-spacing: 1.4px; color: var(--orange); margin-bottom: 3px; }
+
 @theme inline { --font-sans: var(--font-sans); --font-display: var(--font-display); }
 :root {
   --paper: #ffffff;

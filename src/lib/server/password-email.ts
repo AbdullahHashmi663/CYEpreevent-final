@@ -20,7 +20,7 @@ export async function sendPasswordCode(code: string, challengeId: string, purpos
     const result = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", "Idempotency-Key": `password-code-${challengeId}` },
-      body: JSON.stringify({ from, to: [recipient], subject, text: `Your Capital Youth Expo admin verification code is: ${code}\n\nThis code expires in 10 minutes and can be used once. Enter it in the admin portal to ${action}. If you did not request this, do not share this code.` }),
+      body: JSON.stringify({ from, to: [recipient], subject, text: `Your Pre-event Capital Youth Expo admin verification code is: ${code}\n\nThis code expires in 10 minutes and can be used once. Enter it in the admin portal to ${action}. If you did not request this, do not share this code.` }),
       signal: AbortSignal.timeout(10000),
     });
     delivered = result.ok;
