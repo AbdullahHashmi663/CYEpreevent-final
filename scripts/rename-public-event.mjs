@@ -4,7 +4,7 @@ import nextEnv from "@next/env";
 import pg from "pg";
 nextEnv.loadEnvConfig(process.cwd(), false, { info() {}, error() {} });
 function rename(value) {
-  if (typeof value === "string") return value.replace(/(?<!pre-event )capital youth expo/gi, match => match === match.toUpperCase() ? "PRE-EVENT CAPITAL YOUTH EXPO" : "Pre-event Capital Youth Expo");
+  if (typeof value === "string") return value.replace(/(?:pre-event\s+)?capital youth expo(?:\s+pre-event)?/gi, match => match === match.toUpperCase() ? "CAPITAL YOUTH EXPO PRE-EVENT" : "Capital Youth Expo pre-event");
   if (Array.isArray(value)) return value.map(rename);
   if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, rename(item)]));
   return value;

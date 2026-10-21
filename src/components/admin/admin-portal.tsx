@@ -507,7 +507,7 @@ export default function AdminPortal() {
                 }
               }} /></div></>}
       </>}
-    </main><footer className="admin-footer"><span>Pre-event Capital Youth Expo · Admin studio</span><span>Built for the people behind the event.</span></footer></div>
+    </main><footer className="admin-footer"><span>Capital Youth Expo pre-event · Admin studio</span><span>Built for the people behind the event.</span></footer></div>
     {editor && <ContentEditor record={editor} speakers={data?.content.filter(item => item.kind === "speakers") || []} onSave={saveContent} onClose={() => setEditor(null)} />}
     {review && <ApplicationReview record={review} onUpdate={values => updateApplication(review.id, values)} onClose={() => setReview(null)} onArchive={() => {
       setArchiveError("");
@@ -521,7 +521,7 @@ export default function AdminPortal() {
   </div>;
 }
 function Brand() {
-  return <Link href="/" className="admin-brand" aria-label="Pre-event Capital Youth Expo home"><span className="admin-brand-mark">CYE<span>↗</span></span><span>PRE-EVENT CAPITAL<br />YOUTH EXPO<span className="admin-brand-sub">ADMIN STUDIO</span></span></Link>;
+  return <Link href="/" className="admin-brand" aria-label="Capital Youth Expo pre-event home"><span className="admin-brand-mark">CYE<span>↗</span></span><span>CAPITAL YOUTH<br />EXPO PRE-EVENT<span className="admin-brand-sub">ADMIN STUDIO</span></span></Link>;
 }
 function Login({
   onSignIn,
@@ -578,7 +578,7 @@ function Login({
       setBusy(false);
     }
   }
-  return <main className="admin-root admin-login"><div className="admin-login-art"><Brand /><div><p className="admin-eyebrow">BEHIND EVERY GREAT EVENT.</p><h1>Good people.<br />Big possibilities<span>↗</span></h1><p>Your ideas. Your community. One place to bring it all together.</p></div><span className="admin-login-art-footer">PRE-EVENT CAPITAL YOUTH EXPO / ORGANIZER WORKSPACE</span></div><div className="admin-login-main"><Link href="/" className="admin-back-link"><ArrowLeft size={17} aria-hidden="true" /> Back to the website</Link><div className="admin-login-form">
+  return <main className="admin-root admin-login"><div className="admin-login-art"><Brand /><div><p className="admin-eyebrow">BEHIND EVERY GREAT EVENT.</p><h1>Good people.<br />Big possibilities<span>↗</span></h1><p>Your ideas. Your community. One place to bring it all together.</p></div><span className="admin-login-art-footer">CAPITAL YOUTH EXPO PRE-EVENT / ORGANIZER WORKSPACE</span></div><div className="admin-login-main"><Link href="/" className="admin-back-link"><ArrowLeft size={17} aria-hidden="true" /> Back to the website</Link><div className="admin-login-form">
     <p className="admin-eyebrow">{method === "reset" ? "RECOVER YOUR ACCOUNT" : "WELCOME BACK"}</p><h2>{method === "reset" ? <>A fresh start.<br />Same possibilities.</> : <>Let’s make<br />things happen.</>}</h2>
     <p>{method === "reset" ? "Verify the code sent to the owner's email, then choose a new password." : method === "login" ? "Sign in with a one-time email passkey. No password needed." : "Sign in to manage your event and community."}</p>
     {method !== "reset" && <div className="admin-login-methods" role="group" aria-label="Sign-in method"><button type="button" disabled={busy} aria-pressed={method === "password"} onClick={() => chooseMethod("password")}>Password</button><button type="button" disabled={busy} aria-pressed={method === "login"} onClick={() => chooseMethod("login")}>Email passkey</button></div>}
@@ -597,7 +597,7 @@ function Login({
     </form>
     {method === "reset" && <button type="button" className="admin-text-button" disabled={busy} onClick={() => chooseMethod("password")}><ArrowLeft size={16} aria-hidden="true" /> Back to sign in</button>}
     <p className="admin-login-security"><ShieldCheck size={15} aria-hidden="true" /> Authorized organizers only. Codes go to the owner’s configured email.</p>
-    </div><span className="admin-login-footer">Pre-event Capital Youth Expo · Made for what comes next.</span></div></main>;
+    </div><span className="admin-login-footer">Capital Youth Expo pre-event · Made for what comes next.</span></div></main>;
 }
 function PageHeader({
   eyebrow,

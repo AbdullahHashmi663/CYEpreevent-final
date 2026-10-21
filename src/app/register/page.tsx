@@ -3,7 +3,7 @@ import ExplorePages from "@/components/site/ExplorePages";
 import { getPublicContent } from "@/lib/server/content";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Apply to Join", description: "Apply for a Pre-event Capital Youth Expo conference or competition. Register an individual or team entry when applications are open." };
+export const metadata: Metadata = { title: "Apply to Join", description: "Apply for a Capital Youth Expo pre-event conference or competition. Register an individual or team entry when applications are open." };
 
 export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ kind?: string | string[]; entry?: string | string[] }> }) {
   const [data, query] = await Promise.all([getPublicContent(), searchParams]);

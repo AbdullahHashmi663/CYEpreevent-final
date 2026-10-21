@@ -3,7 +3,7 @@ import ExplorePages from "@/components/site/ExplorePages";
 import { getPublicContent } from "@/lib/server/content";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Our People", description: "Meet the student organizers, makers, and community partners behind Pre-event Capital Youth Expo." };
+export const metadata: Metadata = { title: "Our People", description: "Meet the student organizers, makers, and community partners behind Capital Youth Expo pre-event." };
 
 export default async function Page() {
   return <ExplorePages view="team" data={await getPublicContent()} />;
