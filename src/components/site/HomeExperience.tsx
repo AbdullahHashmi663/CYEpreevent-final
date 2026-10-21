@@ -36,7 +36,19 @@ const disciplines = [
   { name: "Spectrum", label: "CREATE YOUR OWN PERSPECTIVE", description: "Reel Competition and Graphic Design. Turn your creativity into something people remember.", icon: Palette, className: "discipline-blue", href: "/competitions#spectrum" },
   { name: "Literary", label: "MAKE YOUR VOICE HEARD", description: "Step up to the microphone for Speech. Bring a fresh perspective and make every word count.", icon: Mic, className: "discipline-orange", href: "/competitions#literary" },
 ];
-const gallery = ["/images/recap1.webp", "/images/recap3.webp", "/images/recap2.webp", "/images/recap4.jpg", "/images/recap5.jpg"];
+const gallery = [
+  "WhatsApp Image 2026-10-21 at 12.48.29 PM.jpeg",
+  "WhatsApp Image 2026-10-21 at 12.48.30 PM.jpeg",
+  "WhatsApp Image 2026-10-21 at 12.48.31 PM.jpeg",
+  "WhatsApp Image 2026-10-21 at 12.48.32 PM.jpeg",
+  "WhatsApp Image 2026-10-21 at 12.48.33 PM.jpeg",
+  "WhatsApp Image 2026-10-21 at 12.48.34 PM.jpeg",
+  "WhatsApp Image 2026-10-21 at 12.48.35 PM.jpeg",
+  "WhatsApp Image 2026-10-21 at 12.48.36 PM (1).jpeg",
+  "WhatsApp Image 2026-10-21 at 12.48.36 PM.jpeg",
+  "WhatsApp Image 2026-10-21 at 12.48.37 PM (1).jpeg",
+  "WhatsApp Image 2026-10-21 at 12.48.37 PM.jpeg",
+].map(filename => `/images/Events_Images2023/${encodeURIComponent(filename)}`);
 
 export default function HomeExperience({ data }: { data: PublicContent }) {
   const { settings } = data;

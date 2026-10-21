@@ -186,7 +186,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset
 .conference-number { position: absolute; right: 27px; bottom: 27px; font-size: 10px; font-weight: 850; color: #a9b6ca; }
 .recap-section { padding: 90px 0 75px; }
 .gallery-window { overflow: hidden; padding: 10px 0 30px; }
-.gallery-track { width: max-content; display: flex; animation: gallery-travel 55s linear infinite; }
+.gallery-track { width: max-content; display: flex; animation: gallery-travel 121s linear infinite; }
 .gallery-window:hover .gallery-track,.gallery-window:focus-within .gallery-track { animation-play-state: paused; }
 .gallery-group { display: flex; gap: 20px; padding-right: 20px; }
 .gallery-group figure { margin: 0; width: 330px; background: var(--mist); border-radius: 18px; overflow: hidden; }
