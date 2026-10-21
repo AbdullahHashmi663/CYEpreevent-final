@@ -321,6 +321,9 @@
 .explore-notice { background: #fff4ef; border-color: #f5c9bd; }
 .notice-dot { background: var(--orange); }
 .conference-visual { background: #e8eef9; }
+.conference-visual:has(> img[src="/images/purpose-of-life-talk.png"]) { aspect-ratio: 16 / 9; }
+.conference-visual > img[src="/images/purpose-of-life-talk.png"] { object-fit: contain; }
+.conference-visual:has(> img[src="/images/purpose-of-life-talk.png"])::after, .conference-visual:has(> img[src="/images/purpose-of-life-talk.png"]) > .image-number, .conference-visual:has(> img[src="/images/purpose-of-life-talk.png"]) > .image-tag { display: none; }
 .conference-visual::after, .venue-wide-image::after { background: linear-gradient(transparent 46%, #10244fcc); }
 .image-tag, .person-image > span, .success-icon { background: var(--orange); color: #fff; }
 .event-detail-lines svg, .person-role, .announcement-mark, .explore-empty > svg, .contact-details > a > svg, .contact-details > div > svg, .venue-facts svg { color: var(--blue); }
