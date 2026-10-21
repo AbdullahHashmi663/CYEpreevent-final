@@ -97,7 +97,7 @@ function Team({ data }: { data: PublicContent }) {
       {!data.team.length && <div className="explore-empty"><Users size={36} aria-hidden="true" /><h3>Meet our people soon.</h3><p>The organizing team’s profiles will appear here when they’re published.</p></div>}
     </section>
     <TeamMarquee members={data.team} />
-    {data.sponsors.length > 0 && <section className="explore-partners"><div className="container"><SectionHeading number="02" eyebrow="Stronger together" title="The people backing our purpose." /><div className="partner-grid">{data.sponsors.map(partner => <article key={partner.id}><ContentImage src={partner.image_url} alt={partner.title} /><div><h3>{partner.title}</h3><p>{partner.subtitle}</p></div></article>)}</div></div></section>}
+    {data.sponsors.length > 0 && <section className="explore-partners"><div className="container"><SectionHeading number="02" eyebrow="Stronger together" title="The people backing our purpose." /><div className="partner-grid">{data.sponsors.map(partner => <article key={partner.id}><ContentImage src={partner.image_url} alt={partner.title} /><div><h3>{partner.title}</h3><p>{partner.subtitle}</p>{partner.description && <p className="partner-responsibility">{partner.description}</p>}</div></article>)}</div></div></section>}
     <BottomBanner eyebrow="Find your next challenge" title="TAKE YOUR PLACE." href="/register" label="Explore registration" />
   </>;
 }

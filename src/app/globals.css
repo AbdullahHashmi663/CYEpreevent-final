@@ -110,7 +110,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset
 .partner-strip > div { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px 32px; align-items: center; min-width: 0; }
 .partner { display: flex; align-items: center; gap: 11px; min-width: 0; }
 .partner img { width: 70px; height: 60px; object-fit: contain; flex-shrink: 0; }
-.partner > span { font-size: 13px; font-weight: 850; color: var(--blue); line-height: 1.4; }
+.partner > span { font-size: 13px; font-weight: 850; color: var(--blue); line-height: 1.4; max-width: 230px; overflow-wrap: anywhere; }
 .partner small { display: block; font-size: 9px; font-weight: 500; color: var(--muted); }
 
 /* Discovery, programme, and community. */

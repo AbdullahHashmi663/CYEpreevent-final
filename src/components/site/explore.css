@@ -108,6 +108,9 @@
 .partner-grid img { width: 100px; height: 75px; object-fit: contain; }
 .partner-grid h3 { font-size: 18px; margin: 0 0 6px; letter-spacing: -.025em; }
 .partner-grid p { color: #656b6c; font-size: 12px; margin: 0; }
+.partner-grid article > div { min-width: 0; overflow-wrap: anywhere; }
+.partner-grid img { flex-shrink: 0; max-width: 35%; }
+.partner-grid .partner-responsibility { margin-top: 10px; color: var(--blue); line-height: 1.6; }
 .form-layout { display: grid; grid-template-columns: .85fr 1.55fr; gap: 90px; align-items: start; }
 .form-sidebar h2 { font-family: var(--font-display), sans-serif; font-size: clamp(36px, 3.7vw, 57px); font-weight: 700; line-height: 1.08; letter-spacing: -.055em; margin: 20px 0 24px; }
 .form-sidebar > p { color: #656b6c; font-size: 15px; line-height: 1.8; }
