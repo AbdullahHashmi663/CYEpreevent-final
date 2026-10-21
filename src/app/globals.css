@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-.brand .brand-prefix { display: inline; font-size: 10px; line-height: 1.2; letter-spacing: .5px; color: var(--orange); font-weight: 900; }
+.brand .brand-prefix { display: block; margin-top: 4px; font-size: 10px; line-height: 1.2; letter-spacing: 1.2px; color: var(--orange); font-weight: 900; }
 
 @theme inline { --font-sans: var(--font-sans); --font-display: var(--font-display); }
 :root {
@@ -64,7 +64,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset
 .brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .brand img { width: 47px; height: auto; }
 .brand > span { font-size: 10px; letter-spacing: 1.4px; line-height: 1.4; font-weight: 900; color: var(--blue); }
-.brand .brand-title { display: block; font-family: var(--font-display), sans-serif; font-weight: 800; letter-spacing: .8px; }
+.brand .brand-title { display: block; font-family: var(--font-display), sans-serif; font-weight: 800; font-size: 12px; letter-spacing: .4px; white-space: nowrap; }
 .brand strong { font-size: 22px; letter-spacing: -.5px; line-height: 1; display: block; color: var(--orange); font-weight: 900; white-space: nowrap; }
 .site-navigation { display: flex; align-items: center; gap: 27px; margin-left: auto; }
 .site-navigation a { font-size: 12px; font-weight: 700; padding: 9px 0; white-space: nowrap; position: relative; color: #364861; }
