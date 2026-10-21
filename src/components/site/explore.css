@@ -419,7 +419,7 @@
 .team-marquee-department { border-top: 1px solid #e2e8f3; padding-top: 14px; margin: 15px 0 0; color: var(--blue); font-size: 12px; line-height: 1.5; }
 .team-marquee-department > span { display: block; color: #9f3a19; text-transform: uppercase; letter-spacing: .1em; font-size: 9px; font-weight: 700; margin-bottom: 4px; }
 .team-marquee-hint { color: #627089; font-size: 11px; margin-top: 16px; }
-.team-marquee-viewport:hover .team-marquee-track, .team-marquee-viewport:focus-within .team-marquee-track, .team-marquee-toggle:checked ~ .team-marquee-viewport .team-marquee-track { animation-play-state: paused; }
+.team-marquee-viewport:focus-within .team-marquee-track, .team-marquee-toggle:checked ~ .team-marquee-viewport .team-marquee-track { animation-play-state: paused; }
 @keyframes team-marquee-travel { to { transform: translateX(-50%); } }
 @media (max-width: 600px) {
   .team-marquee-section { padding: 46px 0 32px; }

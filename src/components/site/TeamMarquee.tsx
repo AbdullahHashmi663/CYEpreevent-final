@@ -23,6 +23,6 @@ export default function TeamMarquee({ members }: { members: ContentRecord[] }) {
         </div>)}
       </div>
     </div>
-    <p className="container team-marquee-hint">Hover or focus to pause. You can also scroll to explore.</p>
+    <p className="container team-marquee-hint">Use the pause control or keyboard focus to pause. You can also scroll to explore.</p>
   </section>;
 }
