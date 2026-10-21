@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, CalendarDays, Clock3, MapPin, Search, Users, Mail, Phone, Code2, Lightbulb, Mic2, Palette, Plus, Minus } from "lucide-react";
+import { ArrowDown, ArrowUpRight, CalendarDays, Clock3, MapPin, Search, Users, Mail, Phone, Code2, Lightbulb, Mic2, Palette, Plus, Minus } from "lucide-react";
 import type { ContentRecord, PublicContent } from "@/lib/cms-types";
 import { COMPETITION_SECTIONS, programmeGroups, programmeSection, requiresPayment } from "@/lib/programme";
 import SiteShell, { ContentImage, PageIntro } from "./SiteShell";
