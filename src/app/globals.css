@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-.brand .brand-prefix { display: block; font-size: 8px; line-height: 1.2; letter-spacing: 1.4px; color: var(--orange); margin-bottom: 3px; }
+.brand .brand-prefix { display: inline; font-size: 10px; line-height: 1.2; letter-spacing: .5px; color: var(--orange); font-weight: 900; }
 
 @theme inline { --font-sans: var(--font-sans); --font-display: var(--font-display); }
 :root {
@@ -63,8 +63,8 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset
 .site-header::after { content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg,var(--orange),var(--orange-light)); transform-origin: left; transform: scaleX(var(--scroll-progress,0)); }
 .brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .brand img { width: 47px; height: auto; }
-.brand > span { font-size: 10px; letter-spacing: 1.4px; line-height: 1.4; font-weight: 850; color: var(--blue); }
-.brand strong { font-size: 22px; letter-spacing: -.5px; line-height: 1; display: block; color: var(--orange); }
+.brand > span { font-size: 10px; letter-spacing: 1.4px; line-height: 1.4; font-weight: 900; color: var(--blue); }
+.brand strong { font-size: 22px; letter-spacing: -.5px; line-height: 1; display: block; color: var(--orange); font-weight: 900; white-space: nowrap; }
 .site-navigation { display: flex; align-items: center; gap: 27px; margin-left: auto; }
 .site-navigation a { font-size: 12px; font-weight: 700; padding: 9px 0; white-space: nowrap; position: relative; color: #364861; }
 .site-navigation a:hover,.site-navigation a.active { color: var(--orange); }
