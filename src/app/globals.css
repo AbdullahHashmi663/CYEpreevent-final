@@ -303,6 +303,8 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset
   .has-scrolled .site-header { height: 70px; }
   .brand img { width: 38px; }
   .brand > span { font-size: 7px; letter-spacing: 1px; }
+  .brand .brand-title { font-size: 9px; letter-spacing: .2px; }
+  .brand .brand-prefix { font-size: 8px; }
   .brand strong { font-size: 18px; }
   .header-cta { gap: 7px; font-size: 8px; padding: 11px 14px; }
   .header-cta svg { width: 13px; }
