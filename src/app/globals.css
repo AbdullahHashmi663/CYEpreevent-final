@@ -178,6 +178,11 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset
 .home-conference-copy h3 { display: flex; justify-content: space-between; gap: 20px; font-size: 29px; letter-spacing: -1px; margin: 16px 0 10px; }
 .home-conference-copy h3 svg { color: var(--orange); flex-shrink: 0; }
 .home-conference-copy > p:not(.eyebrow) { color: var(--muted); font-size: 12px; padding-right: 35px; }
+.home-conference-copy .programme-speakers { margin-top: 20px; padding-top: 16px; padding-right: 30px; border-top: 1px solid var(--line); font-size: 12px; line-height: 1.6; }
+.programme-speakers > strong { display: block; color: var(--orange); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+.programme-speakers > p { margin: 0 0 12px; }
+.programme-speakers b { color: var(--blue); font-weight: 750; }
+.programme-speakers span { display: block; color: var(--muted); }
 .conference-number { position: absolute; right: 27px; bottom: 27px; font-size: 10px; font-weight: 850; color: #a9b6ca; }
 .recap-section { padding: 90px 0 75px; }
 .gallery-window { overflow: hidden; padding: 10px 0 30px; }
