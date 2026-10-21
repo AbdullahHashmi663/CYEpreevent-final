@@ -53,6 +53,7 @@ export interface PublicContent {
   sponsors: ContentRecord[];
   databaseAvailable: boolean;
 }
+// Retain the legacy ambassador value only to read historical database records.
 export type ApplicationKind = "contest" | "conference" | "ambassador" | "contact";
 export interface TeamParticipant { name: string; email: string; phone: string; university: string }
 export interface ApplicationPayload {

@@ -1,6 +1,6 @@
 # Capital Youth Expo
 
-An orange-and-blue event website and organizer portal built with Next.js 16.3.8, React 19, and Supabase PostgreSQL. The public website covers the home page, conferences and speakers, competitions, team, ambassadors, venue, contact, and registration. The organizer workspace is at `/admin`.
+An orange-and-blue event website and organizer portal built with Next.js 16.3.8, React 19, and Supabase PostgreSQL. The public website covers the home page, conferences and speakers, competitions, team, venue, contact, and registration. The organizer workspace is at `/admin`.
 
 The interface includes responsive layouts, animated section reveals, a photo gallery, animated statistics, and reduced-motion support. Its visual direction follows [Capital Youth Expo](https://www.capitalyouthexpo.com/).
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowUpRight, CalendarDays, Clock3, MapPin, Search, Users, Check, Mail, Phone, Sparkles, Code2, Lightbulb, Mic2, Palette, Plus, Minus } from "lucide-react";
+import { ArrowUpRight, CalendarDays, Clock3, MapPin, Search, Users, Mail, Phone, Code2, Lightbulb, Mic2, Palette, Plus, Minus } from "lucide-react";
 import type { ContentRecord, PublicContent } from "@/lib/cms-types";
 import { COMPETITION_SECTIONS, programmeGroups, programmeSection, requiresPayment } from "@/lib/programme";
 import SiteShell, { ContentImage, PageIntro } from "./SiteShell";
@@ -10,7 +10,7 @@ import ApplicationForm, { RegistrationNotice, registrationsAvailable } from "./A
 import TeamMarquee from "./TeamMarquee";
 import "./explore.css";
 
-export type ExploreView = "conferences" | "competitions" | "team" | "ambassadors" | "venue" | "contact" | "register";
+export type ExploreView = "conferences" | "competitions" | "team" | "venue" | "contact" | "register";
 interface ExploreProps { data: PublicContent; view: ExploreView; defaultKind?: "contest" | "conference"; defaultEntry?: string }
 
 function SectionHeading({ number, eyebrow, title, description }: { number: string; eyebrow: string; title: string; description?: string }) {
@@ -91,23 +91,14 @@ function Competitions({ data }: { data: PublicContent }) {
 function Team({ data }: { data: PublicContent }) {
   return <>
     <PageIntro eyebrow="03 / The people behind the possibility" title="GOOD PEOPLE." accent="GREAT ENERGY." description="A collective of students, makers, and doers turning a shared vision into a day worth remembering." />
-    <section className="container explore-section team-about-block"><div><span className="eyebrow">Built by youth. For youth.</span><h2>We believe the future<br />starts with connection.</h2></div><div><p>{data.settings.about_description}</p><Link href="/ambassadors" className="text-link">Be part of the movement<ArrowUpRight size={20} aria-hidden="true" /></Link></div></section>
+    <section className="container explore-section team-about-block"><div><span className="eyebrow">Built by youth. For youth.</span><h2>We believe the future<br />starts with connection.</h2></div><div><p>{data.settings.about_description}</p><Link href="/register" className="text-link">Be part of the movement<ArrowUpRight size={20} aria-hidden="true" /></Link></div></section>
     <section className="container explore-section team-section"><SectionHeading number="01" eyebrow="Meet the organizing team" title="The minds making it happen." />
       <div className="people-grid team-grid">{data.team.map((person, index) => <article className="person-card" key={person.id}><div className={`person-image person-tint-${index % 3}`}><ContentImage src={person.image_url} alt={person.title} /><span className="person-count">{String(index + 1).padStart(2, "0")}</span></div><h3>{person.title}</h3><p className="person-role">{person.subtitle}</p><p className="person-bio">{person.description}</p></article>)}</div>
       {!data.team.length && <div className="explore-empty"><Users size={36} aria-hidden="true" /><h3>Meet our people soon.</h3><p>The organizing team’s profiles will appear here when they’re published.</p></div>}
     </section>
     <TeamMarquee members={data.team} />
     {data.sponsors.length > 0 && <section className="explore-partners"><div className="container"><SectionHeading number="02" eyebrow="Stronger together" title="The people backing our purpose." /><div className="partner-grid">{data.sponsors.map(partner => <article key={partner.id}><ContentImage src={partner.image_url} alt={partner.title} /><div><h3>{partner.title}</h3><p>{partner.subtitle}</p></div></article>)}</div></div></section>}
-    <BottomBanner eyebrow="A bigger circle" title="BRING YOUR CAMPUS WITH YOU." href="/ambassadors" label="Become an ambassador" />
-  </>;
-}
-
-function Ambassadors({ data }: { data: PublicContent }) {
-  return <>
-    <PageIntro eyebrow="04 / Campus ambassadors" title="BE THE" accent="CONNECTION." description="Bring the energy of Capital Youth Expo to your campus. Rally your people. Build something bigger together." />
-    <section className="container explore-section ambassador-story"><div className="ambassador-image"><ContentImage src="/images/cye-student-ambassador.jpg" alt="A student portrait representing the campus ambassador community" /><span className="ambassador-sticker">YOUR CAMPUS.<br />YOUR COMMUNITY.</span></div><div className="ambassador-copy"><span className="eyebrow">For the natural connectors</span><h2>A little initiative.<br />A lot of impact.</h2><p>Love bringing people together? Our campus ambassadors help students discover the expo, find their competition, and join the conversation.</p><p>You’ll work with the organizing team, share accurate event information, and be a helpful point of contact for your campus community.</p><a className="button button-primary" href="#ambassador-application">Make your introduction<ArrowDown size={18} aria-hidden="true" /></a></div></section>
-    <section className="explore-dark-section"><div className="container"><SectionHeading number="01" eyebrow="What you’ll bring" title="Good energy goes a long way." /><div className="three-step-grid"><article><Sparkles size={29} aria-hidden="true" /><h3>Start the conversation.</h3><p>Share the published event details and help students discover experiences that suit them.</p></article><article><Users size={29} aria-hidden="true" /><h3>Bring people together.</h3><p>Connect interested students with the team, and help them understand the application process.</p></article><article><Check size={29} aria-hidden="true" /><h3>Keep it thoughtful.</h3><p>Represent your campus respectfully and coordinate your activities with the organizers.</p></article></div></div></section>
-    <section id="ambassador-application" className="container explore-section form-layout"><div className="form-sidebar"><span className="eyebrow">02 / Join the circle</span><h2>Your campus<br />starts with you.</h2><p>We welcome students who care about their community and enjoy taking initiative. Tell us about your campus and why you’d like to get involved.</p><div className="form-sidebar-note"><span className="eyebrow">What happens next</span><p>Your application is saved for the organizing team to review. Keep your reference so you can follow up with us.</p></div></div><ApplicationForm data={data} mode="ambassador" /></section>
+    <BottomBanner eyebrow="Find your next challenge" title="TAKE YOUR PLACE." href="/register" label="Explore registration" />
   </>;
 }
 
@@ -126,7 +117,7 @@ function Contact({ data }: { data: PublicContent }) {
     ["Is registration currently open?", registrationsAvailable(data) ? "Registration is open for published conferences and competitions. Submit your details on the registration page; the organizing team reviews each application." : "Registration is currently closed. The website will reflect the next edition when the organizers update the event date and open applications."],
     ["Can I enter with a team?", "Yes, for team competitions. Each competition lists its maximum team size. The registration form includes the team lead and lets you add the remaining participants."],
     ["Does submitting an application confirm my place?", "Your application first goes to the organizing team for review. Save your submission reference and contact the team to check your approval before attending."],
-    ["How can my campus or organization collaborate?", "Use the form and choose Sponsorship & partnerships or Campus ambassadors. Tell us about your organization and your idea, and the organizing team can review it."],
+    ["How can my campus or organization collaborate?", "Use the form and choose Sponsorship & partnerships. Tell us about your organization and your idea, and the organizing team can review it."],
   ];
   return <>
     <PageIntro eyebrow="06 / Let’s connect" title="A QUESTION?" accent="AN IDEA? SAY HELLO." description="Big plans start with a simple conversation. Reach out to the people making Capital Youth Expo happen." />
@@ -147,6 +138,6 @@ function BottomBanner({ eyebrow, title, href, label }: { eyebrow: string; title:
 }
 
 export default function ExplorePages({ data, view, defaultKind, defaultEntry }: ExploreProps) {
-  return <SiteShell settings={data.settings}><div className={`explore-page explore-${view}`}>{view === "conferences" && <Conferences data={data} />}{view === "competitions" && <Competitions data={data} />}{view === "team" && <Team data={data} />}{view === "ambassadors" && <Ambassadors data={data} />}{view === "venue" && <Venue data={data} />}{view === "contact" && <Contact data={data} />}{view === "register" && <Register data={data} defaultKind={defaultKind} defaultEntry={defaultEntry} />}</div></SiteShell>;
+  return <SiteShell settings={data.settings}><div className={`explore-page explore-${view}`}>{view === "conferences" && <Conferences data={data} />}{view === "competitions" && <Competitions data={data} />}{view === "team" && <Team data={data} />}{view === "venue" && <Venue data={data} />}{view === "contact" && <Contact data={data} />}{view === "register" && <Register data={data} defaultKind={defaultKind} defaultEntry={defaultEntry} />}</div></SiteShell>;
 }
 

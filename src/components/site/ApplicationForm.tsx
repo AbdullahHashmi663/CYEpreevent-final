@@ -24,7 +24,7 @@ export function RegistrationNotice({ data }: { data: PublicContent }) {
 
 interface FormProps {
   data: PublicContent;
-  mode: "registration" | "ambassador" | "contact";
+  mode: "registration" | "contact";
   defaultKind?: "contest" | "conference";
   defaultEntry?: string;
 }
@@ -49,7 +49,7 @@ export default function ApplicationForm({ data, mode, defaultKind = "contest", d
   const feeMissing = competitionPayment && Boolean(selected) && !(selected!.fee > 0);
   const available = mode === "contact" || registrationsAvailable(data);
   const disabled = !data.databaseAvailable || !available;
-  const heading = mode === "contact" ? "Tell us what’s on your mind." : mode === "ambassador" ? "Make your introduction." : "Make your next move.";
+  const heading = mode === "contact" ? "Tell us what’s on your mind." : "Make your next move.";
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -170,11 +170,7 @@ export default function ApplicationForm({ data, mode, defaultKind = "contest", d
                 <label className="form-field"><span>Email address <span aria-hidden="true">*</span></span><input name="email" required type="email" maxLength={254} autoComplete="email" placeholder="you@example.com" /></label>
                 <label className="form-field"><span>Phone number {mode !== "contact" && <span aria-hidden="true">*</span>}</span><input name="phone" type="tel" required={mode !== "contact"} minLength={7} maxLength={25} autoComplete="tel" placeholder="+92 300 1234567" /></label>
                 {mode !== "contact" && <label className="form-field"><span>University / institution <span aria-hidden="true">*</span></span><input name="university" required maxLength={180} autoComplete="organization" placeholder="Where you study" /></label>}
-                {mode === "ambassador" && <>
-                  <label className="form-field"><span>Department <span aria-hidden="true">*</span></span><input name="department" required maxLength={120} placeholder="Your area of study" /></label>
-                  <label className="form-field"><span>Semester / year <span aria-hidden="true">*</span></span><input name="semester" required maxLength={40} placeholder="e.g. Semester 5" /></label>
-                </>}
-                {mode === "contact" && <label className="form-field"><span>What’s it about? <span aria-hidden="true">*</span></span><select name="subject" required defaultValue="General inquiry"><option>General inquiry</option><option>Competitions & registrations</option><option>Conferences & speakers</option><option>Campus ambassadors</option><option>Sponsorship & partnerships</option><option>Accessibility & venue</option></select></label>}
+                {mode === "contact" && <label className="form-field"><span>What’s it about? <span aria-hidden="true">*</span></span><select name="subject" required defaultValue="General inquiry"><option>General inquiry</option><option>Competitions & registrations</option><option>Conferences & speakers</option><option>Sponsorship & partnerships</option><option>Accessibility & venue</option></select></label>}
               </div>
             </div>
             {mode === "registration" && maxMembers > 1 && <div className="form-block team-roster">
@@ -192,7 +188,7 @@ export default function ApplicationForm({ data, mode, defaultKind = "contest", d
               {memberCount < maxMembers && <button type="button" className="button button-outline add-member" onClick={() => setMemberCount(count => count + 1)}><Plus size={17} aria-hidden="true" /> Add a teammate</button>}
             </div>}
             <div className="form-block">
-              <label className="form-field"><span>{mode === "contact" ? "Your message *" : mode === "ambassador" ? "Why would you like to be a campus ambassador? *" : "Anything we should know? (optional)"}</span><textarea name="message" required={mode !== "registration"} minLength={mode === "registration" ? undefined : 10} maxLength={mode === "contact" ? 4800 : 5000} rows={5} placeholder={mode === "ambassador" ? "Tell us about yourself, your campus, and how you’d bring people together." : mode === "contact" ? "Give us a little context so we can help." : "Accessibility needs, questions, or a note for the organizers."} /></label>
+              <label className="form-field"><span>{mode === "contact" ? "Your message *" : "Anything we should know? (optional)"}</span><textarea name="message" required={mode !== "registration"} minLength={mode === "registration" ? undefined : 10} maxLength={mode === "contact" ? 4800 : 5000} rows={5} placeholder={mode === "contact" ? "Give us a little context so we can help." : "Accessibility needs, questions, or a note for the organizers."} /></label>
             </div>
             <div className="honeypot" aria-hidden="true"><label>Leave this field empty<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
             <label className="consent-field"><input type="checkbox" name="consent" required /><span>I confirm these details are correct and agree that the organizing team may use them to process and respond to this {mode === "contact" ? "message" : "application"}.</span></label>

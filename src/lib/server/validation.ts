@@ -82,7 +82,7 @@ export function validateSettings(input: Record<string, unknown>): SiteSettings {
 }
 export function validateApplication(input: Record<string, unknown>): ApplicationPayload {
   const kind = input.kind as ApplicationKind;
-  if (!["contest", "conference", "ambassador", "contact"].includes(kind)) fail(400, "Please select a valid application type.");
+  if (!["contest", "conference", "contact"].includes(kind)) fail(400, "Please select a valid application type.");
   if (text(input.website, "Website", 200)) fail(400, "Unable to accept this submission.");
   const members = input.team_members === undefined ? [] : input.team_members;
   if (!Array.isArray(members) || members.length > 19) fail(400, "Invalid team member list.");
@@ -90,8 +90,7 @@ export function validateApplication(input: Record<string, unknown>): Application
   const payload: ApplicationPayload = {
     kind, name: text(input.name, "Full name", 120, true), email: email(input.email),
     phone: text(input.phone, "Phone", 50, kind !== "contact"), university: text(input.university, "University", 200, kind !== "contact"),
-    message: text(input.message, "Message", 5000, kind === "contact" || kind === "ambassador"),
-    department: text(input.department, "Department", 160, kind === "ambassador"), semester: text(input.semester, "Semester", 50, kind === "ambassador"),
+    message: text(input.message, "Message", 5000, kind === "contact"),
     team_members: members.map((member: unknown) => {
       if (!member || typeof member !== "object" || Array.isArray(member)) fail(400, "Invalid team member.");
       const record = member as Record<string, unknown>;

@@ -57,7 +57,7 @@ export default function HomeExperience({ data }: { data: PublicContent }) {
         <p className="hero-description">{settings.hero_description}</p>
         <div className="hero-event-details"><span><CalendarDays size={19}/>{settings.date_label}</span><i/><span><MapPin size={19}/>{settings.venue}</span></div>
         <div className="hero-actions"><Link className="button button-primary" href={open ? "/register" : "/competitions"}>{open ? "Register now" : "Discover the competitions"}<ArrowUpRight size={19}/></Link><Link className="button button-outline" href="/contact">Partner with the expo<ArrowUpRight size={19}/></Link></div>
-        <div className="hero-quick-links"><Link href="/conferences">The programme<ArrowUpRight size={14}/></Link><Link href="/ambassadors">Campus ambassadors<ArrowUpRight size={14}/></Link><Link href="/team-about">Meet the team<ArrowUpRight size={14}/></Link><Link href="/venue">Plan your visit<ArrowUpRight size={14}/></Link></div>
+        <div className="hero-quick-links"><Link href="/conferences">The programme<ArrowUpRight size={14}/></Link><Link href="/team-about">Meet the team<ArrowUpRight size={14}/></Link><Link href="/venue">Plan your visit<ArrowUpRight size={14}/></Link></div>
         <div className="hero-bottom"><span className={`event-state ${open ? "event-state-open" : ""}`}><span/>{open ? "Applications are open" : "Registration currently closed"}</span><a href="#about-expo" className="scroll-cue">Explore the experience<ArrowDown size={16}/></a></div>
       </div>
     </section>
