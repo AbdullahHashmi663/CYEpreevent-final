@@ -168,9 +168,9 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset
 .home-conference:hover { transform: translateY(-5px); box-shadow: 0 15px 35px #1b469417; }
 .home-conference-image { height: 236px; position: relative; overflow: hidden; }
 .home-conference-image > img { height: 100%; width: 100%; object-fit: cover; transition: transform .6s; }
-.home-conference-image:has(> img[src="/images/purpose-of-life-talk.png"]) { height: auto; aspect-ratio: 16 / 9; }
-.home-conference-image > img[src="/images/purpose-of-life-talk.png"] { object-fit: contain; }
-.home-conference-image:has(> img[src="/images/purpose-of-life-talk.png"]) > span { display: none; }
+.home-conference-image:has(> img:is([src="/images/purpose-of-life-talk.png"], [src="/images/career-pro-workshop.png"])) { height: auto; aspect-ratio: 16 / 9; }
+.home-conference-image > img:is([src="/images/purpose-of-life-talk.png"], [src="/images/career-pro-workshop.png"]) { object-fit: contain; }
+.home-conference-image:has(> img:is([src="/images/purpose-of-life-talk.png"], [src="/images/career-pro-workshop.png"])) > span { display: none; }
 .home-conference:hover img { transform: scale(1.04); }
 .home-conference-image > span { position: absolute; bottom: 19px; left: 22px; border-radius: 30px; padding: 6px 13px; font-size: 9px; font-weight: 800; background: white; color: var(--blue); }
 .home-conference-copy { padding: 28px; position: relative; }
