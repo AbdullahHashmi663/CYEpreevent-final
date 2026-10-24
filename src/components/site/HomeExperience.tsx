@@ -65,7 +65,7 @@ export default function HomeExperience({ data }: { data: PublicContent }) {
   const team = (data.team.some(member => member.featured) ? data.team.filter(member => member.featured) : data.team).slice(0, 3);
   const metrics = [
     { value: data.contests.length, label: "Competition experiences", icon: Ticket },
-    { value: data.conferences.length, label: "Conferences & conversations", icon: Mic },
+    { value: data.conferences.length, label: "Talks & workshops", icon: Mic },
     { value: data.team.length, label: "People making it happen", icon: Users },
   ];
   return <SiteShell settings={settings}>
