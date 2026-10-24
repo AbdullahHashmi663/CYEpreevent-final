@@ -23,7 +23,7 @@ export const getPublicContent = cache(async (): Promise<PublicContent> => {
       database().query("select id,kind,data,deleted_at from public.cye_content where deleted_at is null and data->>'published'='true' order by (data->>'sort_order')::integer,created_at"),
     ]);
     if (!results[0].rows[0]) throw new Error("Database setup is incomplete.");
-    const records = results[1].rows.map(contentRow);
+    const records = results[1].rows.map(contentRow).map(record => record.kind === "team" && record.use_avatar ? { ...record, image_url: "" } : record);
     const grouped = Object.fromEntries(CONTENT_KINDS.map(kind => [kind, records.filter(record => record.kind === kind)]));
     return { ...grouped, settings: results[0].rows[0].data, databaseAvailable: true } as PublicContent;
   } catch {

@@ -1,4 +1,5 @@
 "use client";
+import { teamPortrait, teamAvatar } from "@/lib/team-portraits";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -95,7 +96,7 @@ function Team({ data }: { data: PublicContent }) {
     <PageIntro eyebrow="03 / The people behind the possibility" title="GOOD PEOPLE." accent="GREAT ENERGY." description="A collective of students, makers, and doers turning a shared vision into a day worth remembering." />
     <section className="container explore-section team-about-block"><div><span className="eyebrow">Built by youth. For youth.</span><h2>We believe the future<br />starts with connection.</h2></div><div><p>{data.settings.about_description}</p><Link href="/register" className="text-link">Be part of the movement<ArrowUpRight size={20} aria-hidden="true" /></Link></div></section>
     <section className="container explore-section team-section"><SectionHeading number="01" eyebrow="Meet the organizing team" title="The minds making it happen." />
-      <div className="people-grid team-grid">{data.team.map((person, index) => <article className="person-card" key={person.id}><div className={`person-image person-tint-${index % 3}`}><ContentImage src={person.image_url} alt={person.title} /><span className="person-count">{String(index + 1).padStart(2, "0")}</span></div><h3>{person.title}</h3><p className="person-role">{person.subtitle}</p><p className="person-bio">{person.description}</p></article>)}</div>
+      <div className="people-grid team-grid">{data.team.map((person, index) => <article className="person-card" key={person.id}><div className={`person-image person-tint-${index % 3}`}><ContentImage src={teamPortrait(person)} fallbackSrc={teamAvatar(person)} alt={person.title} /><span className="person-count">{String(index + 1).padStart(2, "0")}</span></div><h3>{person.title}</h3><p className="person-role">{person.subtitle}</p><p className="person-bio">{person.description}</p></article>)}</div>
       {!data.team.length && <div className="explore-empty"><Users size={36} aria-hidden="true" /><h3>Meet our people soon.</h3><p>The organizing team’s profiles will appear here when they’re published.</p></div>}
     </section>
     <TeamMarquee members={data.team} />

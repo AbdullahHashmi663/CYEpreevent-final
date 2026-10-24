@@ -56,6 +56,10 @@ export function validateContent(input: Record<string, unknown>, existing?: Conte
   return {
     id, kind, title: text(data.title, "Title", 160, true), subtitle: text(data.subtitle, "Subtitle", 220),
     description: text(data.description, "Description", 10000), image_url: url(data.image_url, "Image", true),
+    ...(kind === "team" ? {
+      use_avatar: data.use_avatar === undefined ? false : boolean(data.use_avatar, "Use avatar"),
+      avatar_style: data.avatar_style === undefined ? "beard" as const : data.avatar_style === "scarf" || data.avatar_style === "beard" ? data.avatar_style : fail(400, "Choose the scarf or beard avatar."),
+    } : {}),
     category, date: date(data.date, "Date"),
     time: text(data.time, "Time", 100), location: text(data.location, "Location", 240),
     fee: data.fee, payment_instructions: text(data.payment_instructions, "Payment instructions", 3000), min_members: kind === "conferences" ? 1 : minimum, max_members: kind === "conferences" ? 1 : maximum,

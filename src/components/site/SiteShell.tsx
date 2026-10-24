@@ -7,12 +7,13 @@ import { useSiteMotion } from "./useSiteMotion";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import type { SiteSettings } from "@/lib/cms-types";
 const navigation = [["Home", "/"], ["Workshops & Talks", "/conferences"], ["Competitions", "/competitions"], ["Our team", "/team-about"], ["Venue", "/venue"], ["Contact", "/contact"]];
-export function ContentImage({ src, alt, className = "", priority = false }: { src: string; alt: string; className?: string; priority?: boolean }) {
-  const [failedSource, setFailedSource] = useState<string | null>(null);
-  if (!src || failedSource === src) return <div className={`image-placeholder ${className}`} role="img" aria-label={alt}><span>{alt.split(" ").map(p=>p[0]).slice(0,2).join("")}</span></div>;
+export function ContentImage({ src, alt, className = "", priority = false, fallbackSrc }: { src: string; alt: string; className?: string; priority?: boolean; fallbackSrc?: string }) {
+  const [failedSources, setFailedSources] = useState<string[]>([]);
+  const displayedSource = (!src || failedSources.includes(src)) && fallbackSrc ? fallbackSrc : src;
+  if (!displayedSource || failedSources.includes(displayedSource)) return <div className={`image-placeholder ${className}`} role="img" aria-label={alt}><span>{alt.split(" ").map(p=>p[0]).slice(0,2).join("")}</span></div>;
   // CMS media can be database-backed or an approved HTTPS source.
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={src} alt={alt} className={className} loading={priority?"eager":"lazy"} fetchPriority={priority?"high":"auto"} onError={()=>setFailedSource(src)} />;
+  return <img src={displayedSource} alt={alt} className={className} loading={priority?"eager":"lazy"} fetchPriority={priority?"high":"auto"} onError={()=>setFailedSources(current => [...current, displayedSource])} />;
 }
 export function PageIntro({ eyebrow, title, accent, description }: { eyebrow: string; title: string; accent?: string; description?: string }) {
   return <header className="page-intro container"><p className="eyebrow"><span className="tiny-cross">✳</span>{eyebrow}</p><h1>{title}{accent && <><br/><span>{accent}</span></>}</h1>{description && <p className="page-intro-description">{description}</p>}</header>;

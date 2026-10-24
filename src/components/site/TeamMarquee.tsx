@@ -1,4 +1,5 @@
 "use client";
+import { teamPortrait, teamAvatar } from "@/lib/team-portraits";
 
 import type { CSSProperties } from "react";
 import { Pause, Play, ArrowRight } from "lucide-react";
@@ -17,7 +18,7 @@ export default function TeamMarquee({ members }: { members: ContentRecord[] }) {
       <div className="team-marquee-track" style={{ "--team-marquee-duration": `${Math.max(32, members.length * 7)}s` } as CSSProperties}>
         {[false, true].map(duplicate => <div className="team-marquee-copy" aria-hidden={duplicate || undefined} key={String(duplicate)}>
           {members.map(person => <article className="team-marquee-card" key={person.id}>
-            <div className="team-marquee-portrait"><ContentImage src={person.image_url} alt={duplicate ? "" : person.title} /><span aria-hidden="true"><ArrowRight size={22} /></span></div>
+            <div className="team-marquee-portrait"><ContentImage src={teamPortrait(person)} fallbackSrc={teamAvatar(person)} alt={duplicate ? "" : person.title} /><span aria-hidden="true"><ArrowRight size={22} /></span></div>
             <div className="team-marquee-details"><h3>{person.title}</h3><p className="team-marquee-position">{person.subtitle || "Team member"}</p><p className="team-marquee-department"><span>Department</span>{person.category || "To be announced"}</p></div>
           </article>)}
         </div>)}

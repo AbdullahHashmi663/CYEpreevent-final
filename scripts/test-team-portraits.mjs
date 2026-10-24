@@ -1,0 +1,29 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import ts from "typescript";
+const url=s=>`data:text/javascript;base64,${Buffer.from(s).toString('base64')}`;
+const compile=p=>ts.transpileModule(readFileSync(p,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
+const types=url(compile('src/lib/cms-types.ts'));
+const programme=url(compile('src/lib/programme.ts'));
+const http=url(`export function fail(status,message){throw Object.assign(Error(message),{status})}`);
+const validation=compile('src/lib/server/validation.ts').replace('import "server-only";','').replace('"@/lib/cms-types"',JSON.stringify(types)).replace('"./http"',JSON.stringify(http)).replace('"@/lib/programme"',JSON.stringify(programme));
+const {validateContent}=await import(url(validation));
+const seed=compile('src/lib/cms-seed.ts');const {blankRecord}=await import(url(seed));
+const {teamAvatar,teamPortrait,TEAM_AVATARS}=await import(url(compile('src/lib/team-portraits.ts')));
+const original={...blankRecord('team'),id:'portrait-test',title:'Test member',image_url:'/images/real-person.png'};
+assert.equal(teamPortrait(original),original.image_url);
+for(const avatar_style of ['scarf','beard']){
+ const avatar=validateContent({...original,use_avatar:true,avatar_style});
+ assert.equal(avatar.use_avatar,true);assert.equal(avatar.avatar_style,avatar_style);
+ assert.equal(teamPortrait(avatar),TEAM_AVATARS[avatar_style]);
+ assert.equal(teamPortrait({...avatar,use_avatar:false,image_url:''}),TEAM_AVATARS[avatar_style]);
+ assert.equal(teamAvatar(avatar),TEAM_AVATARS[avatar_style]);
+ const restored=validateContent({...avatar,use_avatar:false});assert.equal(teamPortrait(restored),original.image_url);
+ assert.equal(readFileSync('public'+TEAM_AVATARS[avatar_style]).subarray(1,4).toString(),'PNG');
+}
+assert.throws(()=>validateContent({...original,avatar_style:'unknown'}));
+assert.throws(()=>validateContent({...original,use_avatar:'true'}));
+const db=url(`export function database(){return {query:async(sql)=>sql.includes('cye_site_settings')?{rows:[{data:{event_name:'Test'}}]}:{rows:[{id:'portrait-test',kind:'team',data:${JSON.stringify({...original,use_avatar:true,avatar_style:'scarf'})},deleted_at:null}]}}}`);
+let content=compile('src/lib/server/content.ts').replace('import "server-only";','').replace('"react"',JSON.stringify(url('export const cache=fn=>fn'))).replace('"@/lib/cms-types"',JSON.stringify(types)).replace('"@/lib/cms-seed"',JSON.stringify(url(seed))).replace('"./db"',JSON.stringify(db));
+const {getPublicContent}=await import(url(content));const data=await getPublicContent();assert.equal(data.databaseAvailable,true);assert.equal(data.team[0].image_url,'');assert.equal(teamPortrait(data.team[0]),TEAM_AVATARS.scarf);
+console.log('Passed: existing photos retained, both avatar choices, missing-photo fallback, photo restoration, invalid settings rejected, generated assets present, and unused photo URL excluded from public data.');
