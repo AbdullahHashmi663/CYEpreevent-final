@@ -1,0 +1,35 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import ts from "typescript";
+const url = source => "data:text/javascript;base64," + Buffer.from(source).toString("base64");
+const compile = file => ts.transpileModule(readFileSync(file, "utf8"), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
+const seoUrl = url(compile("src/lib/seo.ts"));
+const seo = await import(seoUrl);
+const programmeUrl = url(compile("src/lib/programme.ts"));
+const { sessionStructuredData } = await import(url(compile("src/lib/event-seo.ts").replace('"./seo"', JSON.stringify(seoUrl)).replace('"./programme"', JSON.stringify(programmeUrl))));
+const { fallbackContent } = await import(url(compile("src/lib/cms-seed.ts")));
+const data = fallbackContent();
+const entry = { ...data.conferences[0], date: "2026-11-10", time: "14:00 – 16:00", fee: 300 };
+for (const page of seo.PUBLIC_PAGES) {
+  const m = seo.pageMetadata(page.title, page.description, page.path);
+  assert.equal(m.alternates.canonical, seo.absoluteUrl(page.path));
+  assert.equal(m.openGraph.url, m.alternates.canonical);
+  assert.equal(m.twitter.card, "summary_large_image");
+  assert.equal(m.robots.index, true);
+  assert(!JSON.stringify(m).includes("localhost"));
+}
+assert.equal(new Set(seo.PUBLIC_PAGES.map(p => p.title)).size, seo.PUBLIC_PAGES.length);
+assert.equal(seo.pageMetadata("Registration", "Form", "/register?kind=conference", true).robots.index, false);
+assert.equal(sessionStructuredData(entry, data)["@graph"].length, 1, "Fallback content must not advertise event dates");
+const event = sessionStructuredData(entry, { ...data, databaseAvailable: true })["@graph"].find(x => x["@type"] === "Event");
+assert.equal(event.startDate, "2026-11-10T14:00:00+05:00");
+assert.equal(event.endDate, "2026-11-10T16:00:00+05:00");
+assert.equal(event.offers.price, 300);
+assert.equal(event.offers.priceCurrency, "PKR");
+assert(event.url.endsWith("/conferences/" + entry.id));
+const free = { ...entry, category: "Talk", title: "Purpose of Life", fee: 0 };
+assert.equal(sessionStructuredData(free, { ...data, databaseAvailable: true })["@graph"].find(x => x["@type"] === "Event").offers.price, 0);
+const unknown = sessionStructuredData({ ...entry, time: "To be announced" }, { ...data, databaseAvailable: true })["@graph"].find(x => x["@type"] === "Event");
+assert.equal(unknown.startDate, "2026-11-10");
+assert.equal(unknown.endDate, undefined);
+console.log("Passed: canonical origins, unique titles, social metadata, form noindex, fallback safety, exact Pakistan event times, paid/free offers and unknown times.");

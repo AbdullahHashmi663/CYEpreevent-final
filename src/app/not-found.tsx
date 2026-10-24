@@ -1,3 +1,4 @@
+export const metadata = { title: "Page Not Found", robots: { index: false, follow: true } };
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import SiteShell, { PageIntro } from "@/components/site/SiteShell";

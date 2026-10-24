@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { pageMetadata, PUBLIC_PAGES } from "@/lib/seo";
 import ExplorePages from "@/components/site/ExplorePages";
 import { getPublicContent } from "@/lib/server/content";
 import { getPartnerCatalogue } from "@/lib/server/partner";
@@ -6,7 +6,8 @@ import type { PartnerCatalogue } from "@/lib/partner-competitions";
 import { COMPETITION_RULEBOOKS } from "@/lib/competition-rulebooks";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Competitions", description: "Explore Tech Nexus, Venture X, Spectrum, and Literary at Capital Youth Expo pre-event: programming, hackathon, pitching, reels, graphic design, and speech." };
+const seo = PUBLIC_PAGES[2];
+export const metadata = pageMetadata(seo.title, seo.description, seo.path);
 
 export default async function Page() {
   const data = await getPublicContent();

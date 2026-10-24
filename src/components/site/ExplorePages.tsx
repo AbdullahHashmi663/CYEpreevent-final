@@ -33,7 +33,7 @@ function Conferences({ data }: { data: PublicContent }) {
       const speakers = data.speakers.filter(speaker => conference.speaker_ids.includes(speaker.id));
       return <article className={`conference-feature ${index % 2 ? "conference-feature-reverse" : ""}`} key={conference.id} id={conference.id}>
         <div className="conference-visual"><ContentImage src={conference.image_url || "/images/auditorium.webp"} alt={conference.title} /><span className="image-number">0{index + 1}</span><span className="image-tag">{conference.category || "Conference"}</span></div>
-        <div className="conference-copy"><span className="eyebrow">{conference.subtitle || "A conversation worth having"}</span><h3>{conference.title}</h3><p>{conference.description}</p><div className="event-detail-lines">
+        <div className="conference-copy"><span className="eyebrow">{conference.subtitle || "A conversation worth having"}</span><h3><Link href={`/conferences/${encodeURIComponent(conference.id)}`}>{conference.title}</Link></h3><p>{conference.description}</p><div className="event-detail-lines">
           <span><CalendarDays size={17} aria-hidden="true" />{conference.date || data.settings.date_label}</span>
           <span><Clock3 size={17} aria-hidden="true" />{conference.time || "Schedule to be announced"}</span>
           <span><MapPin size={17} aria-hidden="true" />{conference.location || data.settings.venue}</span>

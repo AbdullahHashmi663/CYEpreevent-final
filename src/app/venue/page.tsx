@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import { pageMetadata, PUBLIC_PAGES } from "@/lib/seo";
 import ExplorePages from "@/components/site/ExplorePages";
 import { getPublicContent } from "@/lib/server/content";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Venue & Directions", description: "Find Capital Youth Expo pre-event at Bahria University Islamabad. View the venue address, directions, and practical information before you arrive." };
+const seo = PUBLIC_PAGES[3];
+export const metadata = pageMetadata(seo.title, seo.description, seo.path);
 
 export default async function Page() {
   return <ExplorePages view="venue" data={await getPublicContent()} />;

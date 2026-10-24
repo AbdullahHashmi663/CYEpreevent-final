@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { PARTNER_COMPETITIONS, type PartnerCatalogue } from "@/lib/partner-competitions";
@@ -10,7 +11,7 @@ import "@/components/site/explore.css";
 export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: {params: Promise<{id:string}>}): Promise<Metadata> {
   const {id}=await params;
-  return {title: `${PARTNER_COMPETITIONS[id as keyof typeof PARTNER_COMPETITIONS] || "Competition"} Registration`};
+  return pageMetadata(`${PARTNER_COMPETITIONS[id as keyof typeof PARTNER_COMPETITIONS] || "Competition"} Registration`, "Register your competition entry and submit payment details for organizer review.", `/competition-registration/${encodeURIComponent(id)}`, true);
 }
 export default async function Page({params}:{params:Promise<{id:string}>}) {
   const {id}=await params;

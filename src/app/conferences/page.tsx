@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import { pageMetadata, PUBLIC_PAGES } from "@/lib/seo";
 import ExplorePages from "@/components/site/ExplorePages";
 import { getPublicContent } from "@/lib/server/content";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Workshops & Talks", description: "Discover the Career Pro workshop and Talk at Capital Youth Expo pre-event. Explore session details and confirmed speakers." };
+const seo = PUBLIC_PAGES[1];
+export const metadata = pageMetadata(seo.title, seo.description, seo.path);
 
 export default async function Page() {
   return <ExplorePages view="conferences" data={await getPublicContent()} />;

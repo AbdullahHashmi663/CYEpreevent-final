@@ -420,3 +420,5 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset
   .gallery-group[aria-hidden="true"] { display: none; }
   .gallery-group figure:nth-child(even) { transform: none; }
 }
+
+.hero-event-name { font-size:clamp(12px,1.4vw,17px); font-weight:800; letter-spacing:.12em; color:#fff; margin:20px 0 12px; }

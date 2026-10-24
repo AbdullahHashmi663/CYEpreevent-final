@@ -473,3 +473,11 @@
   .team-marquee-copy[aria-hidden="true"] { display: none; }
   .team-marquee-control, .team-marquee-toggle { display: none; }
 }
+
+/* Session detail pages share the existing programme layout. */
+.session-breadcrumbs { display:flex; flex-wrap:wrap; gap:10px; padding-top:36px; font-size:13px; line-height:1.6; }
+.session-breadcrumbs a { text-decoration:underline; text-underline-offset:3px; }
+.session-detail .page-intro { padding-top:40px; }
+.session-detail .people-grid { margin-top:32px; }
+.session-detail .programme-fee span { display:block; margin-top:8px; }
+.session-detail .conference-copy h2 { font-size:clamp(26px,3vw,38px); margin-bottom:20px; }
