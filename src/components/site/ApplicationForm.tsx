@@ -1,4 +1,5 @@
 "use client";
+import WhatsAppChannelLink from "./WhatsAppChannelLink";
 import { programmeGroups, requiresPayment } from "@/lib/programme";
 
 import { useRef, useState, type FormEvent } from "react";
@@ -126,7 +127,7 @@ export default function ApplicationForm({ data, mode, defaultKind = "contest", d
 
   return (
     <div className="application-panel">
-      <div className="application-heading"><span className="eyebrow">{mode === "contact" ? "A direct line" : "Your details"}</span><h2>{heading}</h2><p className="muted">{mode === "contact" ? "Questions, collaborations, or a good idea. We’re listening." : "A few details are all it takes. The organizing team reviews every application."}</p></div>
+      <div className="application-heading"><span className="eyebrow">{mode === "contact" ? "A direct line" : "Your details"}</span><h2>{heading}</h2><p className="muted">{mode === "contact" ? "Questions, collaborations, or a good idea. We’re listening." : "A few details are all it takes. The organizing team reviews every application."}</p>{mode === "contact" && <WhatsAppChannelLink />}</div>
       {!data.databaseAvailable && <div className="form-feedback form-feedback-warning" role="status">The application service is temporarily unavailable. Your details cannot be saved right now. {data.settings.contact_email && <a href={`mailto:${data.settings.contact_email}`}>Email the organizing team ↗</a>}</div>}
       {mode !== "contact" && <RegistrationNotice data={data} />}
       {mode === "registration" && registrationsAvailable(data) && entryEnded && <div className="form-feedback form-feedback-warning" role="status">The selected event date has passed, so applications for this experience are closed. Choose another published experience or contact the team.</div>}
@@ -138,6 +139,8 @@ export default function ApplicationForm({ data, mode, defaultKind = "contest", d
           <p>{result.message}</p>
           <div className="submission-reference"><span>Your reference</span><strong>{result.reference}</strong></div>
           <p className="muted">Save this reference when contacting the team. {mode !== "contact" && "Submission does not confirm admission; approval is handled by the organizers."}</p>
+          <p className="muted">Stay connected for event announcements and updates.</p>
+          <WhatsAppChannelLink />
           <button className="button button-outline" onClick={() => setResult(null)}>{mode === "contact" ? "Send another message" : "Submit another application"}<ArrowUpRight size={17} aria-hidden="true" /></button>
         </div>
       ) : (

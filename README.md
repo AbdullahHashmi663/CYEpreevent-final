@@ -14,6 +14,8 @@ Manage all homepage leads, organizing team cards and marquee portraits in **Admi
 
 Manage up to two WhatsApp numbers and optional contact names under **Admin → Site settings → Stay connected**. The Contact page opens `wa.me` messaging links instead of phone calls. Use international numbers; Pakistani mobile numbers beginning with 03 are normalized to +92. Removing all contacts hides these links. Until a contact list is saved, the previous contact phone is used as the first WhatsApp contact. Run `node scripts/test-whatsapp-contacts.mjs` for number validation, limits and fallback checks. The Venue page campus image supplied by the organizer is stored at `public/images/bahria-campus-building.png`.
 
+The WhatsApp channel is linked in the homepage hero, Contact form and successful submission screens for the workshop, Talk, six competitions and contact messages. Its shared URL is in `src/components/site/WhatsAppChannelLink.tsx`. The homepage hero Instagram link uses the existing admin Instagram setting. Run `node scripts/test-community-links.mjs` to render and check all confirmation variants without making real registrations.
+
 Run `node scripts/test-partner-registration.mjs` for isolated validation and submission-contract checks. These tests mock CYE and do not create registrations or send confirmation emails. Production submissions are never retried automatically; an uncertain response instructs the applicant to confirm with the organizers before resubmitting.
 
 An orange-and-blue event website and organizer portal built with Next.js 16.3.8, React 19, and Supabase PostgreSQL. The public website covers the home page, conferences and speakers, competitions, team, venue, contact, and registration. The organizer workspace is at `/admin`.

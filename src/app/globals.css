@@ -96,6 +96,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset
 .hero-quick-links { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 18px; animation: hero-enter .9s .5s both; }
 .hero-quick-links a { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; color: var(--blue); }
 .hero-quick-links a:hover { color: var(--orange); }
+.channel-link { margin: 12px 0; max-width: 100%; white-space: normal; }
 .hero-bottom { display: flex; justify-content: center; align-items: center; gap: 27px; margin-top: 47px; animation: hero-enter .9s .6s both; }
 .event-state { display: inline-flex; align-items: center; gap: 8px; background: #ffffffbc; border: 1px solid #e7d7d0; border-radius: 30px; padding: 8px 13px; font-size: 10px; font-weight: 600; color: #923b2a; }
 .event-state > span { width: 6px; height: 6px; background: var(--orange); border-radius: 50%; }

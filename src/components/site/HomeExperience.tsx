@@ -7,6 +7,7 @@ import { ArrowUpRight, ArrowDown, ArrowRight, Code2, Lightbulb, Mic, Palette, Ma
 import type { ContentRecord, PublicContent } from "@/lib/cms-types";
 import SiteShell, { ContentImage } from "./SiteShell";
 import SocietyMarquee from "./SocietyMarquee";
+import WhatsAppChannelLink from "./WhatsAppChannelLink";
 import { requiresPayment } from "@/lib/programme";
 
 function ProgrammeFee({ conference }: { conference: ContentRecord }) {
@@ -78,7 +79,7 @@ export default function HomeExperience({ data }: { data: PublicContent }) {
         <p className="hero-description">{settings.hero_description}</p>
         <div className="hero-event-details"><span><CalendarDays size={19}/>{settings.date_label}</span><i/><span><MapPin size={19}/>{settings.venue}</span></div>
         <div className="hero-actions"><Link className="button button-primary" href={open ? "/register" : "/competitions"}>{open ? "Register now" : "Discover the competitions"}<ArrowUpRight size={19}/></Link><Link className="button button-outline" href="/contact">Partner with the expo<ArrowUpRight size={19}/></Link></div>
-        <div className="hero-quick-links"><Link href="/conferences">The programme<ArrowUpRight size={14}/></Link><Link href="/team-about">Meet the team<ArrowUpRight size={14}/></Link><Link href="/venue">Plan your visit<ArrowUpRight size={14}/></Link></div>
+        <div className="hero-quick-links"><Link href="/conferences">The programme<ArrowUpRight size={14}/></Link><Link href="/team-about">Meet the team<ArrowUpRight size={14}/></Link><Link href="/venue">Plan your visit<ArrowUpRight size={14}/></Link><WhatsAppChannelLink className="hero-channel-link" />{settings.instagram_url && <a href={settings.instagram_url} target="_blank" rel="noopener noreferrer">Instagram<ArrowUpRight size={14} aria-hidden="true" /></a>}</div>
         <div className="hero-bottom"><span className={`event-state ${open ? "event-state-open" : ""}`}><span/>{open ? "Applications are open" : "Registration currently closed"}</span><a href="#about-expo" className="scroll-cue">Explore the experience<ArrowDown size={16}/></a></div>
       </div>
     </section>
