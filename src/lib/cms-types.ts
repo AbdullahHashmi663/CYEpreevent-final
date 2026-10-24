@@ -65,6 +65,7 @@ export interface ApplicationPayload {
   email: string;
   phone?: string;
   university?: string;
+  identification_number?: string;
   message?: string;
   department?: string;
   semester?: string;
