@@ -6,7 +6,7 @@ const compile=p=>ts.transpileModule(readFileSync(p,'utf8'),{compilerOptions:{mod
 const types=url(compile('src/lib/cms-types.ts'));
 const programme=url(compile('src/lib/programme.ts'));
 const http=url(`export function fail(status,message){throw Object.assign(Error(message),{status})}`);
-const validation=compile('src/lib/server/validation.ts').replace('import "server-only";','').replace('"@/lib/cms-types"',JSON.stringify(types)).replace('"./http"',JSON.stringify(http)).replace('"@/lib/programme"',JSON.stringify(programme));
+const validation=compile('src/lib/server/validation.ts').replace('import "server-only";','').replace('"@/lib/cms-types"',JSON.stringify(types)).replace('"./http"',JSON.stringify(http)).replace('"@/lib/whatsapp-contacts"',JSON.stringify(url(compile('src/lib/whatsapp-contacts.ts')))).replace('"@/lib/programme"',JSON.stringify(programme));
 const {validateContent}=await import(url(validation));
 const seed=compile('src/lib/cms-seed.ts');const {blankRecord}=await import(url(seed));
 const {teamAvatar,teamPortrait,TEAM_AVATARS}=await import(url(compile('src/lib/team-portraits.ts')));

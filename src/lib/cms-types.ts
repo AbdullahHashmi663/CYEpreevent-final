@@ -28,6 +28,7 @@ export interface ContentRecord {
   sort_order: number;
   deleted_at: string | null;
 }
+export interface WhatsAppContact { name: string; phone: string }
 export interface SiteSettings {
   event_name: string;
   event_date: string;
@@ -41,6 +42,7 @@ export interface SiteSettings {
   about_description: string;
   contact_email: string;
   contact_phone: string;
+  whatsapp_contacts?: WhatsAppContact[];
   registration_open: boolean;
   instagram_url: string;
   linkedin_url: string;

@@ -6,7 +6,7 @@ const compile=p=>ts.transpileModule(readFileSync(p,'utf8'),{compilerOptions:{mod
 const types=url(compile('src/lib/cms-types.ts'));
 const programme=url(compile('src/lib/programme.ts'));
 const http=url('export function fail(status,message){throw Object.assign(Error(message),{status})}export async function rateLimit(){}');
-const validation=url(compile('src/lib/server/validation.ts').replace('import "server-only";','').replace('"@/lib/cms-types"',JSON.stringify(types)).replace('"@/lib/programme"',JSON.stringify(programme)).replace('"./http"',JSON.stringify(http)));
+const validation=url(compile('src/lib/server/validation.ts').replace('import "server-only";','').replace('"@/lib/cms-types"',JSON.stringify(types)).replace('"@/lib/programme"',JSON.stringify(programme)).replace('"./http"',JSON.stringify(http)).replace('"@/lib/whatsapp-contacts"',JSON.stringify(url(compile('src/lib/whatsapp-contacts.ts')))));
 const {validateApplication}=await import(validation);
 const valid={kind:'conference',entry_id:'talk',name:'Test person',email:'test@example.com',phone:'03001234567',university:'Test university'};
 for(const identification_number of [undefined,'','   ',123,'a'.repeat(81),'bad\u0001number'])assert.throws(()=>validateApplication({...valid,identification_number}));

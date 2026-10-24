@@ -2,6 +2,7 @@ import "server-only";
 import { CONTENT_KINDS, type ApplicationKind, type ApplicationPayload, type ContentRecord, type SiteSettings } from "@/lib/cms-types";
 import { fail } from "./http";
 import { requiresPayment } from "@/lib/programme";
+import { whatsappNumber } from "@/lib/whatsapp-contacts";
 
 export function text(value: unknown, label: string, max = 1000, required = false): string {
   if (value === undefined || value === null) { if (required) fail(400, `${label} is required.`); return ""; }
@@ -73,6 +74,18 @@ export function validateContent(input: Record<string, unknown>, existing?: Conte
   };
 }
 export function validateSettings(input: Record<string, unknown>): SiteSettings {
+  let whatsapp_contacts: SiteSettings["whatsapp_contacts"];
+  if (input.whatsapp_contacts !== undefined) {
+    if (!Array.isArray(input.whatsapp_contacts) || input.whatsapp_contacts.length > 2) fail(400, "Add up to two WhatsApp contacts.");
+    whatsapp_contacts = input.whatsapp_contacts.map((value, index) => {
+      if (!value || typeof value !== "object" || Array.isArray(value)) fail(400, "Invalid WhatsApp contact.");
+      const phone = text(value.phone, `WhatsApp number ${index + 1}`, 50, true);
+      const normalized = whatsappNumber(phone);
+      if (!normalized) fail(400, `Enter a valid WhatsApp number ${index + 1} with country code, for example +923001234567.`);
+      return { name: text(value.name, "WhatsApp contact name", 80), phone: `+${normalized}` };
+    });
+    if (new Set(whatsapp_contacts.map(contact => contact.phone)).size !== whatsapp_contacts.length) fail(400, "Use different numbers for the two WhatsApp contacts.");
+  }
   return {
     event_name: text(input.event_name, "Event name", 100, true), event_date: date(input.event_date, "Event date", true),
     date_label: text(input.date_label, "Date label", 100, true), venue: text(input.venue, "Venue", 200, true),
@@ -80,6 +93,7 @@ export function validateSettings(input: Record<string, unknown>): SiteSettings {
     hero_accent: text(input.hero_accent, "Hero accent", 100), hero_description: text(input.hero_description, "Hero description", 1000),
     hero_image: url(input.hero_image, "Hero image", true), about_description: text(input.about_description, "About description", 10000),
     contact_email: email(input.contact_email), contact_phone: text(input.contact_phone, "Phone", 50),
+    ...(whatsapp_contacts !== undefined ? { whatsapp_contacts } : {}),
     registration_open: boolean(input.registration_open, "Registration status"), instagram_url: url(input.instagram_url, "Instagram"),
     linkedin_url: url(input.linkedin_url, "LinkedIn"), maps_url: url(input.maps_url, "Map"),
   };
