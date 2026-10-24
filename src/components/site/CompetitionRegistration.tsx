@@ -1,14 +1,14 @@
 "use client";
 import Link from "next/link";
 import { useRef, useState, type FormEvent } from "react";
-import { PARTNER_LEVELS, type PartnerCatalogue, type PartnerCompetition } from "@/lib/partner-competitions";
+import { PARTNER_LEVELS, SPEECH_LANGUAGES, type SpeechLanguage, type PartnerCatalogue, type PartnerCompetition } from "@/lib/partner-competitions";
 
 export default function CompetitionRegistration({ competition, catalogue }: { competition: PartnerCompetition; catalogue: PartnerCatalogue }) {
   const [count, setCount] = useState(competition.teamMin);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [uncertain, setUncertain] = useState(false);
-  const [result, setResult] = useState<{id: number; status: string; paymentStatus: string} | null>(null);
+  const [result, setResult] = useState<{id: number; status: string; paymentStatus: string; speechLanguage?: SpeechLanguage} | null>(null);
   const inFlight = useRef(false);
   const feedback = useRef<HTMLDivElement>(null);
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -20,7 +20,7 @@ export default function CompetitionRegistration({ competition, catalogue }: { co
     const file = fields.get("paymentSlip");
     if (!(file instanceof File) || !file.size || file.size > 4194304) { setError("Upload a payment slip image up to 4 MB."); return; }
     const text = (key: string) => String(fields.get(key) || "").trim();
-    const registration = { competition: competition.name, teamName: text("teamName"), level: text("level"), idNumber: text("idNumber"), consent: fields.get("consent") === "on", members: Array.from({length: count}, (_, i) => ({ name: text(`name-${i}`), email: text(`email-${i}`), phone: text(`phone-${i}`), institution: text(`institution-${i}`), gender: text(`gender-${i}`) })) };
+    const registration = { competition: competition.name, teamName: text("teamName"), level: text("level"), idNumber: text("idNumber"), consent: fields.get("consent") === "on", ...(competition.localId === "contest-4" ? { speechLanguage: text("speechLanguage") } : {}), members: Array.from({length: count}, (_, i) => ({ name: text(`name-${i}`), email: text(`email-${i}`), phone: text(`phone-${i}`), institution: text(`institution-${i}`), gender: text(`gender-${i}`) })) };
     const body = new FormData();
     body.set("entry_id", competition.localId); body.set("expected_fee", competition.fee); body.set("registration", JSON.stringify(registration)); body.set("paymentSlip", file);
     inFlight.current = true; setBusy(true); setError("");
@@ -45,7 +45,7 @@ export default function CompetitionRegistration({ competition, catalogue }: { co
       <h3>Other competitions</h3><nav aria-label="Competition registration forms" className="partner-form-links">{catalogue.competitions.map(c => <Link key={c.localId} href={`/competition-registration/${c.localId}`} aria-current={c.localId === competition.localId ? "page" : undefined}>{c.name}</Link>)}</nav>
     </aside>
     <div className="application-panel partner-application-panel">
-      {result ? <div ref={feedback} tabIndex={-1} role="status" className="submission-success"><span className="eyebrow">Entry received by CYE</span><h2>You’re registered for review.</h2><p>Your CYE registration reference is <strong>#{result.id}</strong>. Save this number.</p><p>Status: <strong>{result.status}</strong><br/>Payment: <strong>{result.paymentStatus}</strong></p><p>The team lead will receive CYE’s confirmation email. Payment and entry approval are handled by the CYE organizing team. Do not submit this entry again.</p><Link className="button button-outline" href="/competitions">Back to competitions</Link></div> : <form className="application-form" onSubmit={submit}>
+      {result ? <div ref={feedback} tabIndex={-1} role="status" className="submission-success"><span className="eyebrow">Entry received by CYE</span><h2>You’re registered for review.</h2><p>Your CYE registration reference is <strong>#{result.id}</strong>. Save this number.</p>{result.speechLanguage && <p><strong>Speech language: {result.speechLanguage}</strong></p>}<p>Status: <strong>{result.status}</strong><br/>Payment: <strong>{result.paymentStatus}</strong></p><p>The team lead will receive CYE’s confirmation email. Payment and entry approval are handled by the CYE organizing team. Do not submit this entry again.</p><Link className="button button-outline" href="/competitions">Back to competitions</Link></div> : <form className="application-form" onSubmit={submit}>
         <div className="application-heading"><span className="eyebrow">Your competition entry</span><h2>{competition.teamMax === 1 ? "Register yourself." : "Bring your team."}</h2><p>One fee covers one {competition.teamMax === 1 ? "individual" : "team"} entry. The first participant is the team lead.</p></div>
         {!catalogue.registrationOpen && <div className="form-feedback form-feedback-warning" role="status">CYE competition registration is currently closed.</div>}
         {error && <div ref={feedback} tabIndex={-1} className="form-feedback form-feedback-error" role="alert">{error}{uncertain && <p><Link href="/contact">Contact the organizers ↗</Link></p>}</div>}
@@ -54,6 +54,7 @@ export default function CompetitionRegistration({ competition, catalogue }: { co
           <div className="form-block"><span className="eyebrow">01 / Entry details</span><div className="form-grid">
             <label className="form-field"><span>Team size *</span><select value={count} onChange={e => setCount(Number(e.target.value))}>{Array.from({length:competition.teamMax-competition.teamMin+1},(_,i)=>competition.teamMin+i).map(n=><option key={n} value={n}>{n} {n===1?"participant":"participants"}</option>)}</select></label>
             {count > 1 && <label className="form-field"><span>Team name *</span><input name="teamName" required maxLength={160}/></label>}
+            {competition.localId === "contest-4" && <label className="form-field"><span>Speech language *</span><select name="speechLanguage" required defaultValue=""><option value="" disabled>Select Urdu or English</option>{SPEECH_LANGUAGES.map(language => <option key={language} value={language}>{language}</option>)}</select><small>Choose the language you will use for your speech.</small></label>}
             <label className="form-field"><span>Current level / grade *</span><select name="level" required defaultValue=""><option value="" disabled>Select your level</option>{PARTNER_LEVELS.map(level=><option key={level}>{level}</option>)}</select></label>
             <label className="form-field"><span>Team lead’s CNIC / Student ID / B-Form *</span><input name="idNumber" required maxLength={80} autoComplete="off"/><small>Sent securely to CYE. It is not included in registration lookup responses.</small></label>
           </div></div>

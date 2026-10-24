@@ -13,10 +13,14 @@ export interface PartnerCompetition {
 export interface PartnerCatalogue { registrationOpen: boolean; competitions: PartnerCompetition[] }
 export const PARTNER_LEVELS = ["Grade 9", "Grade 10", "Grade 11 (Intermediate Part 1)", "Grade 12 (Intermediate Part 2)", "Undergraduate", "Graduate / Postgraduate", "Other"] as const;
 export interface PartnerMember { name: string; email: string; phone: string; institution: string; gender: string }
-export interface PartnerRegistration { competition: string; teamName: string; level: string; idNumber: string; consent: boolean; members: PartnerMember[] }
+export const SPEECH_LANGUAGES = ["Urdu", "English"] as const;
+export type SpeechLanguage = typeof SPEECH_LANGUAGES[number];
+export interface PartnerRegistration { competition: string; teamName: string; level: string; idNumber: string; consent: boolean; members: PartnerMember[]; speechLanguage?: SpeechLanguage }
 export function validatePartnerRegistration(input: unknown, competition: PartnerCompetition): PartnerRegistration {
   if (!input || typeof input !== "object" || Array.isArray(input)) throw Error("Invalid registration details.");
   const data = input as Record<string, unknown>;
+  const speechLanguage = competition.localId === "contest-4" ? data.speechLanguage : undefined;
+  if (competition.localId === "contest-4" && !SPEECH_LANGUAGES.includes(speechLanguage as SpeechLanguage)) throw Error("Select Urdu or English for your speech.");
   const text = (value: unknown, label: string, max = 160) => {
     if (typeof value !== "string" || !value.trim() || value.trim().length > max) throw Error(`Enter a valid ${label}.`);
     return value.trim();
@@ -35,5 +39,5 @@ export function validatePartnerRegistration(input: unknown, competition: Partner
     return { name: text(m.name, "full name"), email, phone, institution: text(m.institution, "institution"), gender: m.gender };
   });
   if (new Set(members.map(m => m.email)).size !== members.length) throw Error("Use a different email address for each participant.");
-  return { competition: competition.name, teamName: members.length > 1 ? text(data.teamName, "team name") : "", level: data.level as string, idNumber: text(data.idNumber, "team lead’s CNIC, Student ID or B-Form number", 80), consent: true, members };
+  return { competition: competition.name, teamName: members.length > 1 ? text(data.teamName, "team name") : "", level: data.level as string, idNumber: text(data.idNumber, "team lead’s CNIC, Student ID or B-Form number", 80), consent: true, members, ...(speechLanguage ? { speechLanguage: speechLanguage as SpeechLanguage } : {}) };
 }

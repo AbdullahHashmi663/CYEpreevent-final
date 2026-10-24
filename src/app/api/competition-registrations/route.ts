@@ -1,5 +1,6 @@
 import { getPartnerCatalogue, partnerRequest } from "@/lib/server/partner";
 import { validatePartnerRegistration } from "@/lib/partner-competitions";
+import { recordSpeechLanguage, finishSpeechLanguage } from "@/lib/server/speech-languages";
 import { checkOrigin, fail, handle, rateLimit, readLimitedBody, response } from "@/lib/server/http";
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -34,8 +35,11 @@ export async function POST(request: Request) {
     if (!jpeg && !png && !webp && !heic) fail(415, "Upload a JPEG, PNG, WebP or HEIC image.");
     await rateLimit(request, "partner-registration-email", 1, 60, registration.members[0].email);
     await rateLimit(request, "partner-registration", 50, 60);
+    const speechEntryId = await recordSpeechLanguage(registration);
     const body = new FormData();
-    body.set("registration", JSON.stringify(registration));
+    // The external API has no language field; keep its documented payload intact.
+    const { speechLanguage, ...partnerRegistration } = registration;
+    body.set("registration", JSON.stringify(partnerRegistration));
     body.set("paymentSlip", new Blob([bytes], { type: jpeg ? "image/jpeg" : png ? "image/png" : webp ? "image/webp" : "image/heic" }), jpeg ? "receipt.jpg" : png ? "receipt.png" : webp ? "receipt.webp" : "receipt.heic");
     let upstream: Response;
     try { upstream = await partnerRequest("/registrations", { method: "POST", body }); }
@@ -44,9 +48,11 @@ export async function POST(request: Request) {
     try { result = await upstream.json(); } catch { return response({ error: "The CYE response could not be confirmed. Check your email and contact the organizers before submitting again.", uncertain: true }, 503); }
     if (upstream.status !== 201) {
       if (upstream.status >= 500) return response({ error: "CYE could not confirm your entry. Check your email and contact the organizers before retrying.", uncertain: true }, 503);
+      await finishSpeechLanguage(speechEntryId, null, true);
       return response({ error: upstream.status === 401 ? "Competition registration is temporarily unavailable. Contact the organizing team." : typeof result.error === "string" ? result.error.slice(0,600) : "CYE could not accept this entry." }, [400,403,413,415,422,429].includes(upstream.status) ? upstream.status : 503);
     }
     if (!Number.isInteger(result.id)) return response({ error: "Check your confirmation email and contact the organizers for your registration reference. Do not submit again.", uncertain: true }, 503);
-    return response({ id: result.id, status: result.status, paymentStatus: result.paymentStatus, paymentSlipUploaded: result.paymentSlipUploaded }, 201);
+    await finishSpeechLanguage(speechEntryId, result.id);
+    return response({ id: result.id, status: result.status, paymentStatus: result.paymentStatus, paymentSlipUploaded: result.paymentSlipUploaded, ...(speechLanguage ? { speechLanguage } : {}) }, 201);
   });
 }
