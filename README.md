@@ -1,5 +1,11 @@
 # Capital Youth Expo pre-event
 
+Competition registration uses the official CYE partner API. Set `CYE_PARTNER_API_KEY` as a server-only environment variable locally and in Vercel Production. The six supported competition mappings are in `src/lib/partner-competitions.ts`. Each has a dedicated `/competition-registration/[id]` form; fees, team limits, rule books and registration availability are read from the API. These entries are for the main CYE event on 18 November 2026, with the main CYE payment accounts. Verify those accounts against the official competition page if the organizers change them.
+
+Workshop and talk entries continue through the existing local registration system. Competition forms submit participant details and receipts directly to CYE through a server proxy; the API key is never sent to browsers. Main CYE approvals and payment status can be viewed by signed-in administrators at `/admin/competition-registrations`. They cannot be edited through the partner API. Previous local competition applications remain in the existing admin records.
+
+Run `node scripts/test-partner-registration.mjs` for isolated validation and submission-contract checks. These tests mock CYE and do not create registrations or send confirmation emails. Production submissions are never retried automatically; an uncertain response instructs the applicant to confirm with the organizers before resubmitting.
+
 An orange-and-blue event website and organizer portal built with Next.js 16.3.8, React 19, and Supabase PostgreSQL. The public website covers the home page, conferences and speakers, competitions, team, venue, contact, and registration. The organizer workspace is at `/admin`.
 
 The interface includes responsive layouts, animated section reveals, a photo gallery, animated statistics, and reduced-motion support. Its visual direction follows [Capital Youth Expo](https://www.capitalyouthexpo.com/).

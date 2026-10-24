@@ -30,7 +30,7 @@ interface FormProps {
 }
 
 export default function ApplicationForm({ data, mode, defaultKind = "contest", defaultEntry = "" }: FormProps) {
-  const [kind, setKind] = useState<ApplicationKind>(mode === "registration" ? defaultKind : mode);
+  const kind: ApplicationKind = mode === "registration" ? defaultKind : mode;
   const initialEntries = defaultKind === "conference" ? data.conferences : data.contests;
   const [entryId, setEntryId] = useState(initialEntries.some(entry => entry.id === defaultEntry) ? defaultEntry : "");
   const [memberCount, setMemberCount] = useState(defaultKind === "conference" ? 1 : Math.max(1, Math.min(20, initialEntries.find(entry => entry.id === defaultEntry)?.min_members || 1)));
@@ -147,7 +147,7 @@ export default function ApplicationForm({ data, mode, defaultKind = "contest", d
             {mode === "registration" && <div className="form-block form-entry-block">
               <span className="eyebrow">01 / Choose your experience</span>
               <div className="form-grid">
-                <label className="form-field"><span>Application type <span aria-hidden="true">*</span></span><select name="kind" value={kind} onChange={event => { setKind(event.target.value as ApplicationKind); setEntryId(""); setMemberCount(1); setError(""); }}><option value="contest">Competition</option><option value="conference">Workshop / Talk</option></select></label>
+                <div className="form-field"><span>Application type</span><strong>Workshop / Talk</strong><a href="/competitions">Competition registration has separate forms and payment details ↗</a></div>
                 <label className="form-field"><span>{kind === "contest" ? "Competition" : "Workshop / Talk"} <span aria-hidden="true">*</span></span><select name="entry_id" required value={entryId} onChange={event => { setEntryId(event.target.value); const entry = entries.find(item => item.id === event.target.value); setMemberCount(kind === "contest" ? Math.max(1, Math.min(20, entry?.min_members || 1)) : 1); setError(""); }}><option value="">Choose an experience</option>{programmeGroups(entries, kind === "contest" ? "contests" : "conferences").filter(group => group.entries.length).map(group => <optgroup label={group.name} key={group.name}>{group.entries.map(entry => <option key={entry.id} value={entry.id}>{entry.title}</option>)}</optgroup>)}</select></label>
               </div>
               {selected && <div className="selected-entry-info"><span>{selected.fee > 0 ? `PKR ${selected.fee.toLocaleString()}${competitionPayment ? " per registration" : ""}` : competitionPayment ? "Fee to be announced — registration unavailable" : "Free · registration required"}</span><span>{maxMembers === 1 ? "One participant per registration" : minMembers === maxMembers ? `${maxMembers} participants, including you` : `${minMembers}–${maxMembers} participants, including you`}</span>{selected.time && <span>{selected.time}</span>}</div>}

@@ -1,4 +1,32 @@
 .explore-page { overflow: clip; }
+.partner-registration-layout { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.5fr); gap: 60px; align-items: start; }
+.partner-registration-summary h2 { font-size: clamp(30px, 3vw, 46px); color: var(--blue); line-height: 1.15; margin: 18px 0; }
+.partner-registration-summary p { font-size: 14px; line-height: 1.8; color: #52617a; }
+.partner-registration-summary dl { border-block: 1px solid #d6e1f3; margin: 25px 0; padding: 10px 0; }
+.partner-registration-summary dl > div { padding: 12px 0; }
+.partner-registration-summary dt { color: #52617a; font-size: 12px; margin-bottom: 5px; }
+.partner-registration-summary dd { margin: 0; font-size: 16px; font-weight: 750; color: var(--blue); }
+.partner-registration-summary h3 { color: var(--blue); margin-top: 32px; }
+.partner-scope-note { padding: 18px; border-left: 3px solid var(--orange); background: #fff6f1; }
+.partner-form-links { display: grid; gap: 10px; margin-top: 16px; }
+.partner-form-links a { padding: 12px 16px; border: 1px solid #d6e1f3; border-radius: 8px; color: var(--blue); font-size: 13px; }
+.partner-form-links a[aria-current="page"] { background: var(--blue); color: #fff; }
+.partner-member { padding-block: 20px; border-bottom: 1px solid #d6e1f3; }
+.partner-member h3, .partner-payment h3 { color: var(--blue); font-size: 20px; margin: 0 0 20px; }
+.partner-application-panel .form-field small { font-size: 12px; line-height: 1.6; color: #52617a; }
+.partner-wallet { display: grid; gap: 7px; background: #edf3ff; padding: 20px; margin: 16px 0; border-radius: 10px; color: #233f6b; font-size: 13px; overflow-wrap: anywhere; }
+.partner-wallet strong { font-size: 17px; color: var(--blue); }
+.partner-payment > p { font-size: 14px; line-height: 1.8; }
+.partner-payment > a { display: inline-block; color: var(--blue); text-decoration: underline; font-size: 13px; margin: 10px 0 24px; }
+.partner-consent { display: flex; align-items: flex-start; gap: 12px; font-size: 13px; line-height: 1.8; margin: 24px 0; }
+.partner-consent input { flex: 0 0 18px; width: 18px; height: 18px; margin-top: 3px; }
+.partner-consent a { text-decoration: underline; }
+.partner-application-panel button { white-space: normal; }
+.partner-admin-registration { margin: 24px 0; padding: 24px; border: 1px solid #d6e1f3; border-radius: 12px; background: white; overflow-wrap: anywhere; }
+.partner-admin-registration h3 { color: var(--blue); }
+.partner-admin-registration p, .partner-admin-registration li { line-height: 1.8; font-size: 14px; }
+.partner-admin-pagination { display: flex; justify-content: space-between; gap: 24px; padding: 24px 0; }
+@media (max-width: 850px) { .partner-registration-layout { grid-template-columns: 1fr; gap: 32px; } }
 .explore-page .image-placeholder { width: 100%; height: 100%; }
 .explore-section { padding-top: 80px; padding-bottom: 80px; }
 .explore-section-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 48px; margin-bottom: 48px; }
