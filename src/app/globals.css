@@ -138,10 +138,11 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset
 .community-metrics { position: relative; overflow: hidden; background: linear-gradient(110deg,var(--blue),var(--blue-light)); color: #fff; padding: 62px 0 45px; text-align: center; }
 .community-metrics > .container { position: relative; z-index: 1; }
 .community-metrics .eyebrow { color: #ffb091; justify-content: center; }
-.metrics-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 45px; margin-top: 32px; }
+.metrics-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 45px; margin-top: 32px; }
 .metric { display: flex; align-items: center; flex-direction: column; }
 .metric > svg { color: #ffb091; margin-bottom: 12px; }
 .metric strong { font-size: 64px; line-height: 1.1; letter-spacing: -3px; font-weight: 900; }
+.metric-unit { display: block; margin-top: 6px; font-size: 16px; line-height: 1.3; letter-spacing: 0; color: #ffb091; }
 .metric > p { font-size: 13px; color: #dbe5f7; margin-top: 12px; }
 .metrics-caption { font-size: 12px; color: #d9e4f5; margin-top: 37px; }
 .orbit-art-metrics { width: 390px; bottom: -225px; right: -130px; opacity: .3; animation: orbit-float 16s ease-in-out infinite alternate; }
@@ -347,7 +348,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset
   .text-link { font-size: 11px; }
   .community-metrics { padding: 45px 0 35px; }
   .community-metrics .eyebrow { font-size: 7px; letter-spacing: 1.2px; }
-  .metrics-grid { gap: 15px; margin-top: 26px; }
+  .metrics-grid { grid-template-columns: repeat(2,1fr); gap: 28px 15px; margin-top: 26px; }
   .metric strong { font-size: 43px; letter-spacing: -2px; }
   .metric > svg { width: 20px; }
   .metric > p { font-size: 9px; line-height: 1.6; margin-top: 10px; max-width: 110px; }

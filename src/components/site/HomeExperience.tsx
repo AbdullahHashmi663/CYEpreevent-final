@@ -3,7 +3,7 @@ import { teamPortrait, teamAvatar } from "@/lib/team-portraits";
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { ArrowUpRight, ArrowDown, ArrowRight, Code2, Lightbulb, Mic, Palette, MapPin, CalendarDays, Sparkles, Users, Ticket, Clock3 } from "lucide-react";
+import { ArrowUpRight, ArrowDown, ArrowRight, Code2, Lightbulb, Mic, Palette, MapPin, CalendarDays, Sparkles, Users, Ticket, Clock3, Trophy } from "lucide-react";
 import type { ContentRecord, PublicContent } from "@/lib/cms-types";
 import SiteShell, { ContentImage } from "./SiteShell";
 import SocietyMarquee from "./SocietyMarquee";
@@ -47,7 +47,6 @@ const disciplines = [
 const gallery = [
   "WhatsApp Image 2026-10-21 at 12.48.29 PM.jpeg",
   "WhatsApp Image 2026-10-21 at 12.48.30 PM.jpeg",
-  "WhatsApp Image 2026-10-21 at 12.48.31 PM.jpeg",
   "WhatsApp Image 2026-10-21 at 12.48.32 PM.jpeg",
   "WhatsApp Image 2026-10-21 at 12.48.33 PM.jpeg",
   "WhatsApp Image 2026-10-21 at 12.48.34 PM.jpeg",
@@ -67,6 +66,7 @@ export default function HomeExperience({ data }: { data: PublicContent }) {
     { value: data.contests.length, label: "Competition experiences", icon: Ticket },
     { value: data.conferences.length, label: "Talks & workshops", icon: Mic },
     { value: data.team.length, label: "People making it happen", icon: Users },
+    { value: 3, unit: "Million PKR", label: "Prize Pool on Main CYE Event", icon: Trophy },
   ];
   return <SiteShell settings={settings}>
     <section className="expo-hero" aria-labelledby="expo-hero-title">
@@ -87,7 +87,7 @@ export default function HomeExperience({ data }: { data: PublicContent }) {
       <div className="centered-heading" data-reveal><p className="eyebrow">MORE THAN A DAY ON YOUR CALENDAR</p><h2>THIS IS CAPITAL<br/><span>YOUTH EXPO</span><br/>PRE-EVENT.</h2><p>A place where curiosity meets opportunity, and the next generation finds its voice.</p></div>
       <div className="about-grid" data-reveal><div className="about-image"><ContentImage src="/images/recap3.webp" alt="The Capital Youth Expo pre-event audience"/><div className="image-label"><Sparkles size={19}/><span>Big energy. Bigger possibilities.</span></div></div><div className="about-copy"><span className="eyebrow">FOR THE THINKERS. THE MAKERS. THE DOERS.</span><h3>One community.<br/>So many ways to <em>grow.</em></h3><p>{settings.about_description}</p><Link className="text-link" href="/team-about">Discover the people behind CYE<ArrowUpRight size={18}/></Link></div></div>
     </section>
-    <section className="community-metrics"><div className="orbit-art orbit-art-metrics" aria-hidden="true"><i/><i/><i/></div><div className="container"><p className="eyebrow">YOUR NEXT CHAPTER STARTS WITH CONNECTION</p><div className="metrics-grid">{metrics.map(metric => <div className="metric" key={metric.label}><metric.icon size={25} strokeWidth={1.5} aria-hidden="true"/><strong><CountUp value={metric.value}/></strong><p>{metric.label}</p></div>)}</div><p className="metrics-caption">Different strengths. Shared ambition. Come and find your place.</p></div></section>
+    <section className="community-metrics"><div className="orbit-art orbit-art-metrics" aria-hidden="true"><i/><i/><i/></div><div className="container"><p className="eyebrow">YOUR NEXT CHAPTER STARTS WITH CONNECTION</p><div className="metrics-grid">{metrics.map(metric => <div className="metric" key={metric.label}><metric.icon size={25} strokeWidth={1.5} aria-hidden="true"/><strong><CountUp value={metric.value}/>{metric.unit && <span className="metric-unit">{metric.unit}</span>}</strong><p>{metric.label}</p></div>)}</div><p className="metrics-caption">Different strengths. Shared ambition. Come and find your place.</p></div></section>
     <section className="disciplines-section container" id="disciplines"><div className="centered-heading" data-reveal><p className="eyebrow">FIND YOUR KIND OF ENERGY</p><h2>A WORLD OF<br/><span>POSSIBILITIES.</span></h2><p>Build something. Challenge yourself. Start a conversation. There’s more than one way to leave your mark.</p></div><div className="disciplines-grid">{disciplines.map((discipline, index) => <Link className={`discipline-card ${discipline.className}`} href={discipline.href} key={discipline.name} data-reveal><div className="discipline-card-top"><span className="discipline-icon"><discipline.icon size={30} strokeWidth={1.5}/></span><span className="discipline-index">0{index + 1}</span></div><p className="eyebrow">{discipline.label}</p><h3>{discipline.name}</h3><p>{discipline.description}</p><span className="discipline-link">Explore this experience<ArrowUpRight size={19}/></span></Link>)}</div></section>
     {data.conferences.length > 0 && <section className="home-programme"><div className="container"><div className="section-heading" data-reveal><div><p className="eyebrow">ON THE PROGRAMME</p><h2>IDEAS THAT<br/><span>MOVE US FORWARD.</span></h2></div><Link className="button button-outline" href="/conferences">Explore the programme<ArrowUpRight size={18}/></Link></div><div className="home-programme-grid">{data.conferences.map((conference,index) => {
       const speakers = conference.speaker_ids.flatMap(id => data.speakers.filter(speaker => speaker.id === id));
