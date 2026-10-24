@@ -39,7 +39,7 @@ export default function CompetitionRegistration({ competition, catalogue }: { co
       <span className="eyebrow">CYE competition registration</span><h2>{competition.name}</h2>
       <p>{competition.description}</p>
       <dl><div><dt>Registration fee</dt><dd>{competition.fee} {competition.teamMax > 1 ? "per team" : "per person"}</dd></div><div><dt>Participants</dt><dd>{competition.teamMin === competition.teamMax ? competition.teamMin : `${competition.teamMin}–${competition.teamMax}`} per registration</dd></div><div><dt>Main CYE event</dt><dd>18 November 2026<br/>Pak-China Friendship Center, Islamabad</dd></div></dl>
-      {competition.rulebookUrl && <a className="text-link" href={competition.rulebookUrl} target="_blank" rel="noopener noreferrer">Read the official rule book ↗</a>}
+      {competition.rulebookUrl && <a className="text-link" href={competition.rulebookUrl} target="_blank" rel="noopener noreferrer">Read the competition rulebook (PDF) ↗</a>}
       <p className="partner-scope-note">This entry is submitted to the main CYE organizing team for payment review and approval. Workshop and talk registrations use their own forms and payment details.</p>
       <Link href="/register?kind=conference" className="text-link">Workshop & talk registration ↗</Link>
       <h3>Other competitions</h3><nav aria-label="Competition registration forms" className="partner-form-links">{catalogue.competitions.map(c => <Link key={c.localId} href={`/competition-registration/${c.localId}`} aria-current={c.localId === competition.localId ? "page" : undefined}>{c.name}</Link>)}</nav>

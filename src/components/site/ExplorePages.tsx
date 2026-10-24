@@ -8,6 +8,7 @@ import { COMPETITION_SECTIONS, programmeGroups, programmeSection, requiresPaymen
 import SiteShell, { ContentImage, PageIntro } from "./SiteShell";
 import ApplicationForm, { RegistrationNotice, registrationsAvailable } from "./ApplicationForm";
 import TeamMarquee from "./TeamMarquee";
+import { COMPETITION_RULEBOOKS } from "@/lib/competition-rulebooks";
 import "./explore.css";
 
 export type ExploreView = "conferences" | "competitions" | "team" | "venue" | "contact" | "register";
@@ -78,6 +79,7 @@ function Competitions({ data }: { data: PublicContent }) {
           <div className="contest-meta"><span><Users size={15} aria-hidden="true" />{max === 1 ? "Individual" : min === max ? `${max} per team` : `${min}–${max} per team`}</span><span><Clock3 size={15} aria-hidden="true" />{contest.time || "Time TBA"}</span><span>{contest.fee > 0 ? `PKR ${contest.fee.toLocaleString()} per registration` : "Fee to be announced"}</span></div>
           <button className="contest-rules-toggle" type="button" aria-expanded={isExpanded} aria-controls={`rules-${contest.id}`} onClick={() => setExpanded(current => isExpanded ? current.filter(id => id !== contest.id) : [...current, contest.id])}>The rules & details{isExpanded ? <Minus size={18} aria-hidden="true" /> : <Plus size={18} aria-hidden="true" />}</button>
           <div id={`rules-${contest.id}`} hidden={!isExpanded} className="contest-rules">{contest.rules ? <ul>{contest.rules.split(/\n+/).filter(Boolean).map((rule, ruleIndex) => <li key={ruleIndex}>{rule}</li>)}</ul> : <p>The organizing team will publish detailed rules here. <Link href="/contact">Contact us</Link> for guidance.</p>}{contest.location && <p className="muted">Location: {contest.location}</p>}{contest.date && <p className="muted">Date: {contest.date}</p>}</div>
+          {COMPETITION_RULEBOOKS[contest.id] && <a className="text-link" href={COMPETITION_RULEBOOKS[contest.id].url} target="_blank" rel="noopener noreferrer">Read the competition rulebook (PDF) ↗</a>}
           <RegistrationLink data={data} entry={contest} kind="contest" />
         </article>;
       })}</div>{!group.entries.length && <p className="programme-coming-soon">This section’s competition details will be published soon.</p>}</section>)}

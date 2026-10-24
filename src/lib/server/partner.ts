@@ -1,4 +1,5 @@
 import "server-only";
+import { COMPETITION_RULEBOOKS } from "@/lib/competition-rulebooks";
 import { PARTNER_COMPETITIONS, type PartnerCatalogue, type PartnerCompetition } from "@/lib/partner-competitions";
 import { fail } from "./http";
 const BASE = "https://www.capitalyouthexpo.com/api/partner/v1";
@@ -15,7 +16,7 @@ export async function getPartnerCatalogue(): Promise<PartnerCatalogue> {
   const competitions = Object.entries(PARTNER_COMPETITIONS).flatMap(([localId, name]) => {
     const c = data.competitions.find((item: PartnerCompetition) => item.name === name);
     if (!c || !Number.isInteger(c.teamMin) || !Number.isInteger(c.teamMax) || c.teamMin < 1 || c.teamMax < c.teamMin || c.teamMax > 20 || typeof c.fee !== "string") return [];
-    return [{ ...c, localId, rulebookUrl: typeof c.rulebookUrl === "string" && /^https:\/\/(www\.)?capitalyouthexpo\.com\/rulebooks\//.test(c.rulebookUrl) ? c.rulebookUrl : null }];
+    return [{ ...c, localId, rulebookUrl: COMPETITION_RULEBOOKS[localId]?.url ?? null }];
   });
   return { registrationOpen: data.registrationOpen, competitions };
 }
