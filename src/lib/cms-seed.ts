@@ -9,7 +9,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   hero_title: "THE FUTURE",
   hero_accent: "IS OURS.",
   hero_description: "Big ideas. Real connections. A generation ready to build what comes next. Meet your people at Capital Youth Expo pre-event.",
-  hero_image: "/images/recap1.webp",
+  hero_image: "/images/bahria-auditorium.png",
   about_description: "Capital Youth Expo pre-event brings together Pakistan’s next generation of thinkers, makers, and changemakers. Organized by Al Nakhla, the Student Support Centre at Bahria University Islamabad, and Youth Insight Pakistan, our Bahria University pre-event connects ambitious young people through technology, creativity, competition, and conversation.",
   contact_email: "cye.buic@gmail.com",
   contact_phone: "",
