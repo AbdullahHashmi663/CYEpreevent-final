@@ -1,11 +1,13 @@
 import { pageMetadata, PUBLIC_PAGES } from "@/lib/seo";
-import ExplorePages from "@/components/site/ExplorePages";
+import ExplorePageShell from "@/components/site/ExplorePages";
+import PageView from "@/components/site/views/Team";
 import { getPublicContent } from "@/lib/server/content";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 const seo = PUBLIC_PAGES[4];
 export const metadata = pageMetadata(seo.title, seo.description, seo.path);
 
 export default async function Page() {
-  return <ExplorePages view="team" data={await getPublicContent()} />;
+  const data = await getPublicContent();
+  return <ExplorePageShell settings={data.settings} view="team"><PageView data={data} /></ExplorePageShell>;
 }

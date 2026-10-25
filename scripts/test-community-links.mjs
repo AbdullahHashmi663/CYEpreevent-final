@@ -15,7 +15,8 @@ const hooksUrl=url(`export * from ${JSON.stringify(dep('react'))};export const s
 const linkUrl=url(`import React from ${JSON.stringify(dep('react'))};export default function Link({href,children,...props}){return React.createElement('a',{href,...props},children)}`);
 const programme=compile('src/lib/programme.ts');
 const partner=compile('src/lib/partner-competitions.ts');
-const appUrl=compile('src/components/site/ApplicationForm.tsx',{'./WhatsAppChannelLink':channelUrl,'@/lib/programme':programme,react:hooksUrl});
+const noticeUrl=compile('src/components/site/RegistrationNotice.tsx');
+const appUrl=compile('src/components/site/ApplicationForm.tsx',{'./RegistrationNotice':noticeUrl,'./WhatsAppChannelLink':channelUrl,'@/lib/programme':programme,react:hooksUrl});
 const competitionUrl=compile('src/components/site/CompetitionRegistration.tsx',{'./WhatsAppChannelLink':channelUrl,'@/lib/partner-competitions':partner,'next/link':linkUrl,react:hooksUrl});
 const {default:ApplicationForm}=await import(appUrl),{default:CompetitionRegistration}=await import(competitionUrl);
 const {state}=await import(hooksUrl);

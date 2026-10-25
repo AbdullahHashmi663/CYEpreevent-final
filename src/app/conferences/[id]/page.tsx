@@ -8,7 +8,11 @@ import { pageMetadata } from "@/lib/seo";
 import { sessionStructuredData } from "@/lib/event-seo";
 import { requiresPayment } from "@/lib/programme";
 import "@/components/site/explore.css";
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+export async function generateStaticParams() {
+  const data = await getPublicContent();
+  return data.conferences.map(entry => ({ id: entry.id }));
+}
 type Props = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Props) {
   const { id } = await params;

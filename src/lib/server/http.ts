@@ -1,5 +1,4 @@
 import "server-only";
-import { consumeRateLimit, rateLimitKey } from "./rate-limit";
 
 export class ApiError extends Error {
   constructor(public status: number, message: string, public headers?: HeadersInit) { super(message); }
@@ -55,7 +54,10 @@ export async function rateLimit(request: Request, scope: string, limit: number, 
   // Configure a trusted hosting proxy before enabling TRUST_PROXY for client IP limits.
   const ip = process.env.TRUST_PROXY === "true" ? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown" : "site";
   let result;
-  try { result = await consumeRateLimit(rateLimitKey(scope, ip, identity), limit, seconds); }
+  try {
+    const { consumeRateLimit, rateLimitKey } = await import("./rate-limit");
+    result = await consumeRateLimit(rateLimitKey(scope, ip, identity), limit, seconds);
+  }
   catch { throw new ApiError(503, "Request protection is temporarily unavailable. Please try again shortly.", { "Retry-After": "5" }); }
   if (!result.allowed) throw new ApiError(429, "Too many requests. Please try again later.", { "Retry-After": String(result.retryAfter) });
 }

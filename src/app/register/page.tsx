@@ -1,5 +1,6 @@
 import { pageMetadata } from "@/lib/seo";
-import ExplorePages from "@/components/site/ExplorePages";
+import ExplorePageShell from "@/components/site/ExplorePages";
+import PageView from "@/components/site/views/Register";
 import { getPublicContent } from "@/lib/server/content";
 import { redirect } from "next/navigation";
 import { PARTNER_COMPETITIONS } from "@/lib/partner-competitions";
@@ -12,6 +13,6 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
   const kind = query.kind === "conference" ? "conference" : "contest";
   const entry = typeof query.entry === "string" ? query.entry : "";
   if (kind === "contest") redirect(Object.hasOwn(PARTNER_COMPETITIONS, entry) ? `/competition-registration/${entry}` : "/competitions");
-  return <ExplorePages view="register" data={data} defaultKind={kind} defaultEntry={entry} />;
+  return <ExplorePageShell settings={data.settings} view="register"><PageView data={data} defaultKind={kind} defaultEntry={entry} /></ExplorePageShell>;
 }
 

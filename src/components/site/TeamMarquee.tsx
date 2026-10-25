@@ -5,7 +5,9 @@ import { ArrowRight, ArrowLeft } from "lucide-react";
 import type { ContentRecord } from "@/lib/cms-types";
 import { ContentImage } from "./SiteShell";
 
-export default function TeamMarquee({ members }: { members: ContentRecord[] }) {
+export type TeamGalleryMember = Pick<ContentRecord, "id" | "title" | "subtitle" | "category" | "image_url" | "use_avatar" | "avatar_style">;
+
+export default function TeamMarquee({ members }: { members: TeamGalleryMember[] }) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ x: number; scrollLeft: number } | null>(null);
   const interactionRef = useRef({ active: false, resumeAt: 0 });
@@ -39,6 +41,7 @@ export default function TeamMarquee({ members }: { members: ContentRecord[] }) {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let frame = 0;
     let previous = 0;
+    let visible = false;
     let position = viewport.scrollLeft;
     let lastWritten = viewport.scrollLeft;
     const animate = (now: number) => {
@@ -54,10 +57,18 @@ export default function TeamMarquee({ members }: { members: ContentRecord[] }) {
         viewport.scrollLeft = position;
         lastWritten = viewport.scrollLeft;
       }
-      frame = window.requestAnimationFrame(animate);
+      if (visible && !document.hidden && !reducedMotion.matches) frame = window.requestAnimationFrame(animate);
     };
-    frame = window.requestAnimationFrame(animate);
-    return () => { window.cancelAnimationFrame(frame); resize.disconnect(); };
+    const sync = () => {
+      window.cancelAnimationFrame(frame);
+      previous = 0;
+      if (visible && !document.hidden && !reducedMotion.matches) frame = window.requestAnimationFrame(animate);
+    };
+    const visibility = new IntersectionObserver(entries => { visible = entries.some(entry => entry.isIntersecting); sync(); }, { rootMargin: "120px" });
+    visibility.observe(viewport);
+    document.addEventListener("visibilitychange", sync);
+    reducedMotion.addEventListener("change", sync);
+    return () => { window.cancelAnimationFrame(frame); resize.disconnect(); visibility.disconnect(); document.removeEventListener("visibilitychange", sync); reducedMotion.removeEventListener("change", sync); };
   }, [members.length]);
 
   function startDrag(event: PointerEvent<HTMLDivElement>) {
@@ -91,7 +102,7 @@ export default function TeamMarquee({ members }: { members: ContentRecord[] }) {
     }}>
       <div className="team-marquee-track">{Array.from({length: copies}, (_, copy) => <div className="team-marquee-copy" key={copy} aria-hidden={copy > 0 || undefined}>
         {members.map(person => <article className="team-marquee-card" key={person.id}>
-          <div className="team-marquee-portrait"><ContentImage src={teamPortrait(person)} fallbackSrc={teamAvatar(person)} alt={copy > 0 ? "" : person.title} /><span aria-hidden="true"><ArrowRight size={22} /></span></div>
+          <div className="team-marquee-portrait"><ContentImage sizes="(max-width: 600px) 250px, 280px" src={teamPortrait(person)} fallbackSrc={teamAvatar(person)} alt={copy > 0 ? "" : person.title} /><span aria-hidden="true"><ArrowRight size={22} /></span></div>
           <div className="team-marquee-details"><h3>{person.title}</h3><p className="team-marquee-position">{person.subtitle || "Team member"}</p><p className="team-marquee-department"><span>Department</span>{person.category || "To be announced"}</p></div>
         </article>)}
       </div>)}</div>

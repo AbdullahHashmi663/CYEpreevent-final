@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { COMPETITION_RULEBOOKS } from "@/lib/competition-rulebooks";
 import { PARTNER_COMPETITIONS, type PartnerCatalogue, type PartnerCompetition } from "@/lib/partner-competitions";
 import { fail } from "./http";
@@ -20,3 +21,6 @@ export async function getPartnerCatalogue(): Promise<PartnerCatalogue> {
   });
   return { registrationOpen: data.registrationOpen, competitions };
 }
+
+// Browse pages can reuse the public catalogue; submission always calls the fresh function above.
+export const getBrowsePartnerCatalogue = unstable_cache(getPartnerCatalogue, ["cye-partner-browse-v1"], { revalidate: 30 });

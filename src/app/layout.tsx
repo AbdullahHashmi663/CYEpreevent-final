@@ -4,8 +4,7 @@ import { getPublicContent } from "@/lib/server/content";
 import "./globals.css";
 import { SITE_URL, SITE_NAME, absoluteUrl } from "@/lib/seo";
 import StructuredData from "@/components/site/StructuredData";
-const sans = localFont({ src: "../fonts/Manrope-Variable.ttf", variable: "--font-sans", weight: "200 900", display: "swap" });
-const display = localFont({ src: [{ path: "../fonts/NeueMachina-Regular.woff", weight: "400" }, { path: "../fonts/NeueMachina-Ultrabold.woff", weight: "800" }], variable: "--font-display", display: "swap" });
+const sans = localFont({ src: "../fonts/Manrope-Variable.woff2", variable: "--font-sans", weight: "200 900", display: "swap" });
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   ...(process.env.GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } } : {}),
@@ -21,5 +20,5 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       { "@type": "WebSite", "@id": SITE_URL + "/#website", name: SITE_NAME, url: SITE_URL, inLanguage: "en", publisher: { "@id": SITE_URL + "/#organization" } },
     ],
   };
-  return <html lang="en" className={`${sans.variable} ${display.variable}`}><body><StructuredData data={graph} />{children}</body></html>;
+  return <html lang="en" className={sans.variable}><body><StructuredData data={graph} />{children}</body></html>;
 }

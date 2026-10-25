@@ -4,7 +4,7 @@ import HomeExperience from "@/components/site/HomeExperience";
 
 const seo = PUBLIC_PAGES[0];
 export const metadata = pageMetadata(seo.title, seo.description, seo.path);
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function Home() {
   return <HomeExperience data={await getPublicContent()} />;

@@ -1,6 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  images: {
+    localPatterns: [{ pathname: "/images/**" }, { pathname: "/brand/**" }, { pathname: "/api/media/**" }],
+    formats: ["image/webp"],
+    qualities: [75],
+    deviceSizes: [384, 640, 768, 1024, 1280, 1600, 1920],
+    imageSizes: [48, 96, 160, 256, 320],
+  },
   turbopack: { root: process.cwd() },
   outputFileTracingIncludes: { "/*": ["./supabase/certs/*.crt"] },
   async headers() {

@@ -29,21 +29,30 @@ export function useSiteMotion(rootRef: RefObject<HTMLDivElement | null>, pathnam
         observer?.observe(element);
       });
     };
+    let maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    let scrolled: boolean | undefined;
     const updateScroll = () => {
       frame = 0;
-      root.classList.toggle("has-scrolled", window.scrollY > 24);
-      const total = document.documentElement.scrollHeight - window.innerHeight;
-      root.style.setProperty("--scroll-progress", String(total > 0 ? window.scrollY / total : 0));
+      const y = window.scrollY;
+      const nextScrolled = y > 24;
+      if (scrolled !== nextScrolled) { root.classList.toggle("has-scrolled", nextScrolled); scrolled = nextScrolled; }
+      root.style.setProperty("--scroll-progress", String(maxScroll > 0 ? y / maxScroll : 0));
     };
     const onScroll = () => { if (!frame) frame = window.requestAnimationFrame(updateScroll); };
+    const measure = () => { maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight); onScroll(); };
+    const resize = new ResizeObserver(measure);
+    resize.observe(root);
     setup();
     updateScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", measure, { passive: true });
     reducedMotion.addEventListener("change", setup);
     return () => {
       observer?.disconnect();
+      resize.disconnect();
       if (frame) window.cancelAnimationFrame(frame);
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", measure);
       reducedMotion.removeEventListener("change", setup);
       root.removeAttribute("data-motion-ready");
     };
