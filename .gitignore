@@ -49,3 +49,6 @@ ADMIN-ACCESS.local.txt
 
 .vercel
 .env*
+
+# Local Search Console screenshots, excluded from source and deployment.
+/docs/seo-evidence/

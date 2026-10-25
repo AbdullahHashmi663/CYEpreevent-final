@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   ...(process.env.GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } } : {}),
   title: { default: SITE_NAME, template: "%s | CYE Pre-Event BUIC" },
-  icons: { icon: "/brand/cye-emblem.png?v=orange-blue", shortcut: "/brand/cye-emblem.png?v=orange-blue", apple: "/brand/cye-emblem.png?v=orange-blue" },
+  icons: { icon: [{ url: "/brand/cye-favicon.png", type: "image/png", sizes: "192x192" }], shortcut: "/favicon.ico", apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }] },
 };
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { settings } = await getPublicContent();

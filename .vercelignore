@@ -7,3 +7,6 @@ ADMIN-ACCESS.local.txt
 node_modules
 .next
 test-results
+
+# Local Search Console screenshots, excluded from source and deployment.
+/docs/seo-evidence/

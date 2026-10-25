@@ -4,11 +4,13 @@ The canonical production origin is https://cyepreeventbuic.com. Public editorial
 
 Every public page has its own title, description, canonical, Open Graph and Twitter card. The 1200×630 share image is /brand/cye-social.png. Organization and WebSite JSON-LD appear sitewide. Each session has its own /conferences/[id] page with visible details, breadcrumb schema and Event schema derived from published admin content. Event markup is omitted during database fallback. Unknown session times are not invented. Registration fees come from the current session record.
 
-## Owner action: Search Console
+## Search Console status — 25 October 2026
 
-Verify cyepreeventbuic.com as a Domain property in Google Search Console using Google's exact DNS TXT value at Namecheap. Preserve existing DNS records. Submit https://cyepreeventbuic.com/sitemap.xml, then inspect the homepage and both session URLs and request indexing. For a URL-prefix property, the optional GOOGLE_SITE_VERIFICATION environment variable adds the HTML verification tag on the next deployment. Never put a service account key in this variable.
+The canonical URL-prefix property https://cyepreeventbuic.com/ is verified using the Google HTML tag. GOOGLE_SITE_VERIFICATION is configured in Vercel Production; retain it to keep ownership verified. The sitemap reports Success and 8 discovered public pages. The homepage and Career Pro detail page were confirmed indexed. An indexing request for the Purpose of Life talk was accepted and is awaiting Google processing. No analytics tracking was installed without an account or measurement ID.
 
-Search Console access and a verification value were not supplied; verification or submission has not been claimed. No analytics tracking was installed without an account or measurement ID.
+## Google search favicon
+
+The explicit favicon is a square 192×192 PNG at the stable URL /brand/cye-favicon.png. The standard /favicon.ico is also retained. Apple devices use /apple-icon.png (180×180). Avoid pointing favicon metadata at the non-square full logo or changing its URL frequently. Google may take several days to several weeks to refresh the search-result favicon after recrawling; display is not guaranteed. Reference: https://developers.google.com/search/docs/appearance/favicon-in-search
 
 ## Ongoing maintenance
 
