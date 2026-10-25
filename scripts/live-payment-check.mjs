@@ -1,3 +1,4 @@
+import { clearRateLimitBuckets, closeRateLimitFixtures } from "./rate-limit-fixtures.mjs";
 /** Authorized production QA. Creates tagged fixtures, waits for browser QA,
  * checks live APIs, then restores settings and removes only its own records.
  * Never prints credentials or receipts. State is saved under ignored test-results/.
@@ -155,7 +156,7 @@ finally{
   if(adminCreated){await client.query("delete from public.cye_admin_sessions where admin_id=$1",[adminId]);await client.query("delete from public.cye_admin_users where id=$1",[adminId]);}
   await client.query("delete from public.cye_audit where admin_email=$1",[email]);
   const buckets=[...trackedEmails.map(e=>createHash("sha256").update(`applications-email:site:${e}`).digest("hex")),createHash("sha256").update(`login-identity:site:${email}`).digest("hex")];
-  await client.query("delete from public.cye_rate_limits where bucket=any($1::text[])",[buckets]);
+  await clearRateLimitBuckets(buckets);
   await client.query("commit");
   ensure(checksum((await client.query("select data,updated_at from public.cye_site_settings where id=true")).rows[0])===checksum(originalSettings),"Original live settings restored exactly");
   ensure(checksum((await client.query("select * from public.cye_admin_users order by id")).rows)===checksum(originalAdmins),"Real admin accounts and passwords unchanged");
@@ -164,5 +165,5 @@ finally{
   try{unlinkSync("test-results/live-payment-state.json");}catch{}
   console.log("CLEANUP VERIFIED");
  }catch{try{await client.query("rollback");}catch{}console.error("QA cleanup requires attention; preserve real organizer data.");process.exitCode=1;}
- await client.end();
+ await closeRateLimitFixtures(); await client.end();
 }

@@ -1,3 +1,4 @@
+import { clearRateLimitBuckets, closeRateLimitFixtures } from "./rate-limit-fixtures.mjs";
 /**
  * Repeatable live integration verification: node scripts/integration-check.mjs
  * Requires the app running locally (default http://localhost:3000), DATABASE_URL,
@@ -125,7 +126,7 @@ try {
   await status("/api/admin/password", {method:"PATCH",body:{current_password:password,new_password:newPassword,challenge_id:randomUUID()}},400,"Superseded verification request rejected");
   for(let attempt=0;attempt<5;attempt++) await status("/api/admin/password",{method:"PATCH",body:{current_password:password,new_password:newPassword,code:"000000"}},400,`Incorrect email code rejected ${attempt+1}`);
   ensure((await client.query("select attempts from public.cye_password_codes where admin_id=$1",[adminId])).rows[0].attempts===5,"Wrong code attempts persist across requests");
-  await client.query("update public.cye_rate_limits set count=0 where bucket=$1",[createHash("sha256").update(`password-change:${process.env.TRUST_PROXY === "true" ? "unknown" : "site"}:${adminId}`).digest("hex")]);
+  await clearRateLimitBuckets([createHash("sha256").update(`password-change:${process.env.TRUST_PROXY === "true" ? "unknown" : "site"}:${adminId}`).digest("hex")]);
   await status("/api/admin/password",{method:"PATCH",body:{current_password:password,new_password:newPassword}},400,"Correct code blocked after five wrong attempts");
   await client.query("update public.cye_password_codes set attempts=0 where admin_id=$1",[adminId]);
   await status("/api/admin/password", { method: "PATCH", body: { current_password: "wrong-qa-password", new_password: newPassword } }, 401, "Password change verifies current password");
@@ -280,7 +281,7 @@ try {
       await client.query("delete from public.cye_admin_sessions where admin_id=$1",[adminId]);
       await client.query("delete from public.cye_audit where admin_email=$1",[adminEmail]);
       await client.query("delete from public.cye_admin_users where id=$1 and email=$2",[adminId,adminEmail]);
-      await client.query("delete from public.cye_rate_limits where bucket=any($1::text[])",[[...trackedBuckets]]);
+      await clearRateLimitBuckets([...trackedBuckets]);
       await client.query("commit");
       const bootstrapAfter = (await client.query("select id,email,password_hash,must_change_password,active from public.cye_admin_users order by id")).rows;
       if (checksum(bootstrapAfter)!==checksum(bootstrapSnapshot)) throw new Error("Real administrator accounts changed unexpectedly.");
@@ -296,6 +297,6 @@ try {
     }
   }
   if (!fixturesCreated) { cleanupSucceeded = true; console.log("No QA fixtures were created; no database cleanup was needed."); }
-  if (client) { try { await client.end(); } catch {} }
+  if (client) { try { await closeRateLimitFixtures(); await client.end(); } catch {} }
   if (!cleanupSucceeded) process.exitCode = 1;
 }
