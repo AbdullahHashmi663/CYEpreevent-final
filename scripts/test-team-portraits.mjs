@@ -21,6 +21,11 @@ for(const avatar_style of ['scarf','beard']){
  const restored=validateContent({...avatar,use_avatar:false});assert.equal(teamPortrait(restored),original.image_url);
  assert.equal(readFileSync('public'+TEAM_AVATARS[avatar_style]).subarray(1,4).toString(),'PNG');
 }
+assert.equal(validateContent(original).show_as_segment_lead,false);
+assert.equal(validateContent({...original,show_as_segment_lead:true}).show_as_segment_lead,true);
+assert.equal(validateContent({title:'Updated'}, {...original,show_as_segment_lead:true}).show_as_segment_lead,true);
+assert.equal(validateContent({show_as_segment_lead:false}, {...original,show_as_segment_lead:true}).show_as_segment_lead,false);
+assert.throws(()=>validateContent({...original,show_as_segment_lead:'true'}));
 assert.throws(()=>validateContent({...original,avatar_style:'unknown'}));
 assert.throws(()=>validateContent({...original,use_avatar:'true'}));
 const db=url(`export function database(){return {query:async(sql)=>sql.includes('cye_site_settings')?{rows:[{data:{event_name:'Test'}}]}:{rows:[{id:'portrait-test',kind:'team',data:${JSON.stringify({...original,use_avatar:true,avatar_style:'scarf'})},deleted_at:null}]}}}`);

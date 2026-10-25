@@ -7,6 +7,7 @@ export interface ContentRecord {
   subtitle: string;
   description: string;
   image_url: string;
+  show_as_segment_lead?: boolean;
   use_avatar?: boolean;
   avatar_style?: "scarf" | "beard";
   category: string;

@@ -20,7 +20,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
 };
 
 export function blankRecord(kind: ContentKind): ContentRecord {
-  return { id: "", kind, title: "", subtitle: "", description: "", image_url: "", category: kind === "contests" ? "Tech Nexus" : kind === "conferences" ? "Talk" : "", date: "2026-10-01", time: "", location: "Bahria University, Islamabad", fee: 0, min_members: 1, max_members: 1, capacity: 0, rules: "", speaker_ids: [], featured: false, published: true, sort_order: 0, deleted_at: null };
+  return { id: "", kind, title: "", subtitle: "", description: "", image_url: "", category: kind === "contests" ? "Tech Nexus" : kind === "conferences" ? "Talk" : "", date: "2026-10-01", time: "", location: "Bahria University, Islamabad", fee: 0, min_members: 1, max_members: 1, capacity: 0, rules: "", speaker_ids: [], ...(kind === "team" ? { show_as_segment_lead: false } : {}), featured: false, published: true, sort_order: 0, deleted_at: null };
 }
 function entry(kind: ContentKind, id: string, data: Partial<ContentRecord>): ContentRecord {
   return { ...blankRecord(kind), id, ...data };

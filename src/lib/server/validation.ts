@@ -58,6 +58,7 @@ export function validateContent(input: Record<string, unknown>, existing?: Conte
     id, kind, title: text(data.title, "Title", 160, true), subtitle: text(data.subtitle, "Subtitle", 220),
     description: text(data.description, "Description", 10000), image_url: url(data.image_url, "Image", true),
     ...(kind === "team" ? {
+      show_as_segment_lead: data.show_as_segment_lead === undefined ? false : boolean(data.show_as_segment_lead, "Show in segment lead cards"),
       use_avatar: data.use_avatar === undefined ? false : boolean(data.use_avatar, "Use avatar"),
       avatar_style: data.avatar_style === undefined ? "beard" as const : data.avatar_style === "scarf" || data.avatar_style === "beard" ? data.avatar_style : fail(400, "Choose the scarf or beard avatar."),
     } : {}),
