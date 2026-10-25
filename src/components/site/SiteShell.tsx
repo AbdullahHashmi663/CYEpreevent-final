@@ -7,13 +7,17 @@ import { useSiteMotion } from "./useSiteMotion";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import type { SiteSettings } from "@/lib/cms-types";
 const navigation = [["Home", "/"], ["Workshops & Talks", "/conferences"], ["Competitions", "/competitions"], ["Our team", "/team-about"], ["Venue", "/venue"], ["Contact", "/contact"]];
-export function ContentImage({ src, alt, className = "", priority = false, fallbackSrc, srcSet, sizes }: { src: string; alt: string; className?: string; priority?: boolean; fallbackSrc?: string; srcSet?: string; sizes?: string }) {
+export function ContentImage({ src, alt, className = "", priority = false, fallbackSrc, srcSet, sizes = "(max-width: 600px) 100vw, (max-width: 1100px) 50vw, 33vw" }: { src: string; alt: string; className?: string; priority?: boolean; fallbackSrc?: string; srcSet?: string; sizes?: string }) {
   const [failedSources, setFailedSources] = useState<string[]>([]);
   const displayedSource = (!src || failedSources.includes(src)) && fallbackSrc ? fallbackSrc : src;
   if (!displayedSource || failedSources.includes(displayedSource)) return <div className={`image-placeholder ${className}`} role="img" aria-label={alt}><span>{alt.split(" ").map(p=>p[0]).slice(0,2).join("")}</span></div>;
-  // CMS media can be database-backed or an approved HTTPS source.
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img src={displayedSource} srcSet={displayedSource === src && !failedSources.includes(src) ? srcSet : undefined} sizes={sizes} alt={alt} className={className} loading={priority?"eager":"lazy"} fetchPriority={priority?"high":"auto"} onError={()=>setFailedSources(current => [...current, displayedSource])} />;
+  const local = /^(\/images\/|\/api\/media\/|\/brand\/)/.test(displayedSource);
+  if (srcSet || !local || /\.svg(?:\?|$)/.test(displayedSource)) {
+    // Preserve explicit high-resolution sources and external CMS URLs without proxying arbitrary hosts.
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={displayedSource} srcSet={displayedSource === src ? srcSet : undefined} sizes={sizes} width={1200} height={900} decoding="async" alt={alt} className={className} loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} onError={()=>setFailedSources(current => [...current, displayedSource])} />;
+  }
+  return <Image src={displayedSource} alt={alt} width={1200} height={900} sizes={sizes} quality={75} decoding="async" className={className} loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} onError={()=>setFailedSources(current => [...current, displayedSource])} />;
 }
 export function PageIntro({ eyebrow, title, accent, description }: { eyebrow: string; title: string; accent?: string; description?: string }) {
   return <header className="page-intro container"><p className="eyebrow"><span className="tiny-cross">✳</span>{eyebrow}</p><h1>{title}{accent && <><br/><span>{accent}</span></>}</h1>{description && <p className="page-intro-description">{description}</p>}</header>;
@@ -31,7 +35,7 @@ export default function SiteShell({ settings, children }: { settings: SiteSettin
   useEffect(()=>{ if (!menuOpen) return; const escape = (e:KeyboardEvent)=>{if(e.key==="Escape")setMenuOpen(false);}; window.addEventListener("keydown",escape); return()=>window.removeEventListener("keydown",escape); },[menuOpen]);
   return <div className="site-shell" ref={rootRef}><a className="skip-link" href="#main-content">Skip to content</a>
     <header className="site-header container"><Link href="/" className="brand" aria-label={`${settings.event_name} home`}>
-      <Image src="/brand/cye-emblem.png" alt="" width={47} height={47} style={{ height: "auto" }}/><span>{settings.event_name === "Capital Youth Expo pre-event"?<><b className="brand-title">CAPITAL YOUTH EXPO</b><small className="brand-prefix">PRE-EVENT AT BUIC</small></>:settings.event_name}</span></Link>
+      <Image src="/brand/cye-emblem.png" alt="" width={47} height={47} sizes="47px" style={{ height: "auto" }}/><span>{settings.event_name === "Capital Youth Expo pre-event"?<><b className="brand-title">CAPITAL YOUTH EXPO</b><small className="brand-prefix">PRE-EVENT AT BUIC</small></>:settings.event_name}</span></Link>
       <nav id="site-navigation" aria-label="Main navigation" className={menuOpen ? "site-navigation is-open" : "site-navigation"}>{navigation.map(([label,href])=><Link key={href} className={pathname===href?"active":""} href={href} onClick={()=>setMenuOpen(false)}>{label}</Link>)}</nav>
       <Link href={registrationOpen?"/register":"/conferences"} className="header-cta">{registrationOpen?"Get involved":"Explore the expo"}<ArrowUpRight size={17}/></Link><button className="menu-button" aria-label={menuOpen?"Close navigation":"Open navigation"} aria-expanded={menuOpen} aria-controls="site-navigation" onClick={()=>setMenuOpen(!menuOpen)}>{menuOpen?<X/>:<Menu/>}</button></header>
     <main id="main-content">{children}</main>

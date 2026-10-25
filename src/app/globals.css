@@ -84,7 +84,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset
 .hero-eyebrow { display: flex; align-items: center; justify-content: center; gap: 14px; font-size: 11px; letter-spacing: 3px; font-weight: 850; color: var(--blue); animation: hero-enter .8s .05s both; }
 .hero-eyebrow b { color: var(--orange); }
 .hero-eyebrow > span { width: 36px; height: 1px; background: #1b469449; }
-.expo-hero h1 { font-size: clamp(48px,6.2vw,88px); font-weight: 950; letter-spacing: -4.2px; line-height: 1.04; margin: 24px auto 24px; max-width: 1020px; overflow-wrap: anywhere; animation: hero-enter .9s .15s both; }
+.expo-hero h1 { font-size: clamp(48px,6.2vw,88px); font-weight: 950; letter-spacing: -4.2px; line-height: 1.04; margin: 24px auto 24px; max-width: 1020px; overflow-wrap: anywhere;  }
 .expo-hero h1 span { display: inline-block; color: var(--orange); }
 .hero-description { max-width: 620px; margin: 0 auto; color: #53627a; font-size: 16px; line-height: 1.8; animation: hero-enter .9s .25s both; }
 .hero-event-details { display: flex; align-items: center; justify-content: center; gap: 21px; flex-wrap: wrap; margin-top: 26px; animation: hero-enter .9s .3s both; }
