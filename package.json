@@ -19,6 +19,7 @@
     "pg": "^8.23.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "redis": "^6.3.0",
     "server-only": "^0.0.1"
   },
   "devDependencies": {

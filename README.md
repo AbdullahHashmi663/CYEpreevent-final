@@ -108,3 +108,7 @@ The source uses server-only database access, parameterized queries, scrypt passw
 Browser checks covered signed-in navigation, content editors, search, visibility and application filters, account settings, mobile navigation, and sign-out. Multi-page application pagination has not yet been verified.
 
 Known findings from the latest browser checks: dashboard loading temporarily returned a service error twice before recovering on retry; content search and visibility filters carry between content sections and may show an empty list until cleared. These findings remain open.
+
+## Redis request limits
+
+Request limits use shared Redis counters. Configure server-only `REDIS_URL` before deploying. See [Redis rate limiting](docs/redis-rate-limiting.md) for namespaces, timeout behavior, isolated tests and rollout.

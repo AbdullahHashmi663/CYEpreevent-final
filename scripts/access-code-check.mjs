@@ -1,3 +1,4 @@
+import { clearRateLimitBuckets, seedRateLimitBucket, closeRateLimitFixtures } from "./rate-limit-fixtures.mjs";
 /** Test only disposable QA accounts. Two real email requests verify provider
  * acceptance; known verification codes are then seeded for isolated API checks.
  * Real admins, passwords, sessions, settings and registrations are never modified.
@@ -31,7 +32,7 @@ async function seed(purpose,extra={}){
  if(extra.expired)await db.query("update public.cye_access_codes set expires_at=now()-interval '1 minute' where admin_id=$1 and purpose=$2",[id,purpose]);
  return {email,purpose,challenge_id:challenge,code};
 }
-async function clearVerifyLimit(){await db.query("delete from public.cye_rate_limits where bucket=$1",[createHash("sha256").update(`access-verify-identity:site:${email}`).digest("hex")]);}
+async function clearVerifyLimit(){await clearRateLimitBuckets([createHash("sha256").update(`access-verify-identity:site:${email}`).digest("hex")]);}
 try{
  await db.connect();snapshot=(await db.query("select * from public.cye_admin_users order by id")).rows;
  await db.query("insert into public.cye_admin_users(id,email,password_hash,must_change_password) values($1,$2,$3,false)",[id,email,hash(password)]);created=true;
@@ -75,7 +76,7 @@ try{
  await expect("/api/admin/data",undefined,200,"New password session opens dashboard",{method:"GET"});
  const audits=(await db.query("select action from public.cye_audit where admin_email=$1",[email])).rows.map(row=>row.action);
  ensure(audits.includes("admin.email_sign_in")&&audits.includes("admin.password_reset"),"Email sign-in and reset are audited");
- await db.query("insert into public.cye_rate_limits(bucket,count,resets_at) values($1,3,now()+interval '15 minutes') on conflict(bucket) do update set count=3,resets_at=excluded.resets_at",[createHash("sha256").update(`access-code-identity:site:${email}`).digest("hex")]);
+ await seedRateLimitBucket(createHash("sha256").update(`access-code-identity:site:${email}`).digest("hex"),3,900);
  await expect("/api/admin/access/code",{email,purpose:"reset"},429,"Code request rate limit enforced without sending extra email");
  console.log(`${checks} admin access checks passed.`);
 }catch(error){console.error(error.code?"Access test failed: database/service error.":`Access test failed: ${error.message}`);process.exitCode=1;}
@@ -84,8 +85,9 @@ finally{
   await db.query("begin");
   if(created){await db.query("delete from public.cye_admin_sessions where admin_id=$1",[id]);await db.query("delete from public.cye_admin_users where id=$1",[id]);await db.query("delete from public.cye_audit where admin_email=$1",[email]);}
   const buckets=[];for(const address of [email,`${tag}-unknown@example.test`])for(const scope of ["access-code-identity","access-verify-identity","login-identity"])buckets.push(createHash("sha256").update(`${scope}:site:${address}`).digest("hex"));
-  await db.query("delete from public.cye_rate_limits where bucket=any($1::text[])",[buckets]);await db.query("commit");
+  await clearRateLimitBuckets(buckets);await db.query("commit");
   ensure(digest((await db.query("select * from public.cye_admin_users order by id")).rows)===digest(snapshot),"All real admin accounts and passwords unchanged; QA fixtures removed");
  }catch{try{await db.query("rollback");}catch{}console.error("Access QA cleanup needs review.");process.exitCode=1;}
+ await closeRateLimitFixtures();
  await db.end();
 }

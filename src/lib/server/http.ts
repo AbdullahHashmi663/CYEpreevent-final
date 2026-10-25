@@ -1,9 +1,8 @@
 import "server-only";
-import { createHash } from "node:crypto";
-import { database } from "./db";
+import { consumeRateLimit, rateLimitKey } from "./rate-limit";
 
 export class ApiError extends Error {
-  constructor(public status: number, message: string) { super(message); }
+  constructor(public status: number, message: string, public headers?: HeadersInit) { super(message); }
 }
 export function fail(status: number, message: string): never { throw new ApiError(status, message); }
 export function checkOrigin(request: Request) {
@@ -35,12 +34,14 @@ export async function jsonBody(request: Request): Promise<Record<string, unknown
   if (!value || typeof value !== "object" || Array.isArray(value)) fail(400, "Invalid submitted data.");
   return value as Record<string, unknown>;
 }
-export function response(data: unknown, status = 200) {
-  return Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
+export function response(data: unknown, status = 200, extraHeaders?: HeadersInit) {
+  const headers = new Headers(extraHeaders);
+  headers.set("Cache-Control", "no-store");
+  return Response.json(data, { status, headers });
 }
 export async function handle(work: () => Promise<Response>): Promise<Response> {
   try { return await work(); } catch (error) {
-    if (error instanceof ApiError) return response({ error: error.message }, error.status);
+    if (error instanceof ApiError) return response({ error: error.message }, error.status, error.headers);
     const code = (error as { code?: string })?.code;
     if (code === "23505") return response({ error: "This record already exists. Please check your earlier submission." }, 409);
     // Log only a bounded error code; driver messages can contain private connection details.
@@ -53,12 +54,8 @@ export async function handle(work: () => Promise<Response>): Promise<Response> {
 export async function rateLimit(request: Request, scope: string, limit: number, seconds = 900, identity = "") {
   // Configure a trusted hosting proxy before enabling TRUST_PROXY for client IP limits.
   const ip = process.env.TRUST_PROXY === "true" ? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown" : "site";
-  const bucket = createHash("sha256").update(`${scope}:${ip}:${identity}`).digest("hex");
-  const result = await database().query<{ count: number }>(
-    `insert into public.cye_rate_limits(bucket,count,resets_at) values($1,1,now()+make_interval(secs=>$2))
-     on conflict(bucket) do update set count=case when cye_rate_limits.resets_at<=now() then 1 else cye_rate_limits.count+1 end,
-     resets_at=case when cye_rate_limits.resets_at<=now() then now()+make_interval(secs=>$2) else cye_rate_limits.resets_at end returning count`,
-    [bucket, seconds],
-  );
-  if (result.rows[0].count > limit) fail(429, "Too many requests. Please try again later.");
+  let result;
+  try { result = await consumeRateLimit(rateLimitKey(scope, ip, identity), limit, seconds); }
+  catch { throw new ApiError(503, "Request protection is temporarily unavailable. Please try again shortly.", { "Retry-After": "5" }); }
+  if (!result.allowed) throw new ApiError(429, "Too many requests. Please try again later.", { "Retry-After": String(result.retryAfter) });
 }
