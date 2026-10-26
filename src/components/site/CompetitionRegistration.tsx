@@ -1,20 +1,32 @@
 "use client";
 import WhatsAppChannelLink from "./WhatsAppChannelLink";
 import Link from "next/link";
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { PARTNER_LEVELS, SPEECH_LANGUAGES, type SpeechLanguage, type PartnerCatalogue, type PartnerCompetition } from "@/lib/partner-competitions";
+import { registrationRetrySeconds } from "@/lib/registration-retry";
 
 export default function CompetitionRegistration({ competition, catalogue }: { competition: PartnerCompetition; catalogue: PartnerCatalogue }) {
   const [count, setCount] = useState(competition.teamMin);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [uncertain, setUncertain] = useState(false);
+  const [retryUntil, setRetryUntil] = useState(0);
+  const [retrySeconds, setRetrySeconds] = useState(0);
   const [result, setResult] = useState<{id: number; status: string; paymentStatus: string; speechLanguage?: SpeechLanguage} | null>(null);
   const inFlight = useRef(false);
   const feedback = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!retryUntil) return;
+    const timer = setInterval(() => {
+      const remaining = Math.max(0, Math.ceil((retryUntil - Date.now()) / 1000));
+      setRetrySeconds(remaining);
+      if (!remaining) clearInterval(timer);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [retryUntil]);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (inFlight.current || result || uncertain || !catalogue.registrationOpen) return;
+    if (inFlight.current || result || uncertain || retryUntil > Date.now() || !catalogue.registrationOpen) return;
     const form = event.currentTarget;
     if (!form.reportValidity()) return;
     const fields = new FormData(form);
@@ -28,7 +40,15 @@ export default function CompetitionRegistration({ competition, catalogue }: { co
     try {
       const response = await fetch("/api/competition-registrations", { method: "POST", body });
       const data = await response.json();
-      if (!response.ok) { setUncertain(Boolean(data.uncertain)); throw Error(data.error || "Registration could not be completed."); }
+      if (!response.ok) {
+        setUncertain(Boolean(data.uncertain));
+        if (!data.uncertain && (response.status === 429 || response.headers.has("retry-after"))) {
+          const seconds = registrationRetrySeconds(response.headers.get("retry-after"));
+          setRetryUntil(Date.now() + seconds * 1000);
+          setRetrySeconds(seconds);
+        }
+        throw Error(data.error || "Registration could not be completed.");
+      }
       setResult(data);
     } catch (e) {
       if (e instanceof TypeError || e instanceof SyntaxError) { setUncertain(true); setError("The response could not be confirmed. Check the team lead’s email and contact the organizers before submitting again to avoid a duplicate entry."); }
@@ -49,7 +69,7 @@ export default function CompetitionRegistration({ competition, catalogue }: { co
       {result ? <div ref={feedback} tabIndex={-1} role="status" className="submission-success"><span className="eyebrow">Entry received by CYE</span><h2>You’re registered for review.</h2><p>Your CYE registration reference is <strong>#{result.id}</strong>. Save this number.</p>{result.speechLanguage && <p><strong>Speech language: {result.speechLanguage}</strong></p>}<p>Status: <strong>{result.status}</strong><br/>Payment: <strong>{result.paymentStatus}</strong></p><p>The team lead will receive CYE’s confirmation email. Payment and entry approval are handled by the CYE organizing team. Do not submit this entry again.</p><p>Follow our channel for event announcements and updates.</p><WhatsAppChannelLink /><Link className="button button-outline" href="/competitions">Back to competitions</Link></div> : <form className="application-form" onSubmit={submit}>
         <div className="application-heading"><span className="eyebrow">Your competition entry</span><h2>{competition.teamMax === 1 ? "Register yourself." : "Bring your team."}</h2><p>One fee covers one {competition.teamMax === 1 ? "individual" : "team"} entry. The first participant is the team lead.</p></div>
         {!catalogue.registrationOpen && <div className="form-feedback form-feedback-warning" role="status">CYE competition registration is currently closed.</div>}
-        {error && <div ref={feedback} tabIndex={-1} className="form-feedback form-feedback-error" role="alert">{error}{uncertain && <p><Link href="/contact">Contact the organizers ↗</Link></p>}</div>}
+        {error && <div ref={feedback} tabIndex={-1} className="form-feedback form-feedback-error" role="alert">{error}{retryUntil > 0 && !uncertain && <p>The same team lead can submit once per minute across all competitions. Correct the indicated details and wait for the retry button below. Your entries are still here.</p>}{uncertain && <p><Link href="/contact">Contact the organizers ↗</Link></p>}</div>}
         <fieldset disabled={busy || uncertain || !catalogue.registrationOpen}>
           <legend className="visually-hidden">{competition.name} registration</legend>
           <div className="form-block"><span className="eyebrow">01 / Entry details</span><div className="form-grid">
@@ -72,7 +92,8 @@ export default function CompetitionRegistration({ competition, catalogue }: { co
             <label className="form-field"><span>Payment slip *</span><input type="file" name="paymentSlip" required accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"/><small>JPEG, PNG, WebP or HEIC · maximum 4 MB. Sent securely to CYE for review.</small></label>
           </div>
           <label className="partner-consent"><input type="checkbox" name="consent" required/><span>I confirm all participant details are accurate, have permission to submit their details, and accept the {competition.rulebookUrl ? <a href={competition.rulebookUrl} target="_blank" rel="noopener noreferrer">competition rules</a> : "competition rules"}. I understand that participant details, the team lead’s ID and payment slip will be sent to the CYE organizing team for registration and payment review.</span></label>
-          <button className="button button-primary" type="submit" disabled={busy || uncertain || !catalogue.registrationOpen}>{busy?"Submitting to CYE…":"Submit competition registration"}</button>
+          <p className="muted">CYE accepts one submission per team lead per minute across all competitions. After submitting, wait for the result before trying another entry.</p>
+          <button className="button button-primary" type="submit" disabled={busy || uncertain || retrySeconds > 0 || !catalogue.registrationOpen}>{busy ? "Submitting to CYE…" : retrySeconds > 0 ? `Try again in ${retrySeconds}s` : "Submit competition registration"}</button>
         </fieldset>
       </form>}
     </div>

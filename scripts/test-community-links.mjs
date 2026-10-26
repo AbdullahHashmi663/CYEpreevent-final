@@ -17,7 +17,7 @@ const programme=compile('src/lib/programme.ts');
 const partner=compile('src/lib/partner-competitions.ts');
 const noticeUrl=compile('src/components/site/RegistrationNotice.tsx');
 const appUrl=compile('src/components/site/ApplicationForm.tsx',{'./RegistrationNotice':noticeUrl,'./WhatsAppChannelLink':channelUrl,'@/lib/programme':programme,react:hooksUrl});
-const competitionUrl=compile('src/components/site/CompetitionRegistration.tsx',{'./WhatsAppChannelLink':channelUrl,'@/lib/partner-competitions':partner,'next/link':linkUrl,react:hooksUrl});
+const competitionUrl=compile('src/components/site/CompetitionRegistration.tsx',{'./WhatsAppChannelLink':channelUrl,'@/lib/partner-competitions':partner,'@/lib/registration-retry':compile('src/lib/registration-retry.ts'),'next/link':linkUrl,react:hooksUrl});
 const {default:ApplicationForm}=await import(appUrl),{default:CompetitionRegistration}=await import(competitionUrl);
 const {state}=await import(hooksUrl);
 const seed=compile('src/lib/cms-seed.ts');const {fallbackContent}=await import(seed);const data=fallbackContent();data.databaseAvailable=true;
