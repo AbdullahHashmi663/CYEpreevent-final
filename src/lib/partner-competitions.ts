@@ -39,5 +39,5 @@ export function validatePartnerRegistration(input: unknown, competition: Partner
     return { name: text(m.name, "full name"), email, phone, institution: text(m.institution, "institution"), gender: m.gender };
   });
   if (new Set(members.map(m => m.email)).size !== members.length) throw Error("Use a different email address for each participant.");
-  return { competition: competition.name, teamName: members.length > 1 ? text(data.teamName, "team name") : "", level: data.level as string, idNumber: text(data.idNumber, "team lead’s CNIC, Student ID or B-Form number", 80), consent: true, members, ...(speechLanguage ? { speechLanguage: speechLanguage as SpeechLanguage } : {}) };
+  return { competition: competition.name, teamName: members.length > 1 ? text(data.teamName, "team name") : "", level: data.level as string, idNumber: text(data.idNumber, "team lead’s CNIC, Student ID or B-Form number", 40), consent: true, members, ...(speechLanguage ? { speechLanguage: speechLanguage as SpeechLanguage } : {}) };
 }
