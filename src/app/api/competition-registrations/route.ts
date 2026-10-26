@@ -1,5 +1,5 @@
 import { getPartnerCatalogue, partnerRequest } from "@/lib/server/partner";
-import { validatePartnerRegistration } from "@/lib/partner-competitions";
+import { PARTNER_COMPETITIONS, validatePartnerRegistration } from "@/lib/partner-competitions";
 import { recordSpeechLanguage, finishSpeechLanguage } from "@/lib/server/speech-languages";
 import { checkOrigin, fail, handle, rateLimit, readLimitedBody, response } from "@/lib/server/http";
 export const runtime = "nodejs";
@@ -9,10 +9,13 @@ export async function POST(request: Request) {
     checkOrigin(request);
     const type = request.headers.get("content-type") || "";
     if (!type.startsWith("multipart/form-data;")) fail(415, "Submit the registration with a payment slip.");
+    // Protect upload parsing and the authoritative upstream catalogue, not just the final write.
+    await rateLimit(request, "partner-registration", 50, 60);
     const raw = await readLimitedBody(request, 4194304 + 131072);
     let form: FormData;
     try { form = await new Response(new Uint8Array(raw), { headers: { "Content-Type": type } }).formData(); } catch { fail(400, "Invalid form upload."); }
     const id = form.get("entry_id");
+    if (typeof id !== "string" || !Object.hasOwn(PARTNER_COMPETITIONS, id)) fail(400, "Choose one of the six available competitions.");
     const catalogue = await getPartnerCatalogue();
     if (!catalogue.registrationOpen) fail(403, "CYE competition registration is currently closed.");
     const competition = catalogue.competitions.find(c => c.localId === id);
@@ -34,7 +37,6 @@ export async function POST(request: Request) {
     const heic = bytes.subarray(4,8).toString() === "ftyp" && /heic|heix|hevc|hevx|mif1/.test(bytes.subarray(8,40).toString("ascii"));
     if (!jpeg && !png && !webp && !heic) fail(415, "Upload a JPEG, PNG, WebP or HEIC image.");
     await rateLimit(request, "partner-registration-email", 1, 60, registration.members[0].email);
-    await rateLimit(request, "partner-registration", 50, 60);
     const speechEntryId = await recordSpeechLanguage(registration);
     const body = new FormData();
     // The external API has no language field; keep its documented payload intact.

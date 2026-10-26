@@ -20,14 +20,14 @@ export function applicationRow(row: Record<string, unknown>): ApplicationRecord 
 }
 // Keep the existing request-time routing model; cache only published data, never private admin data.
 const publishedContent = unstable_cache(async (): Promise<PublicContent> => {
-    const results = await Promise.all([
-      database().query<{ data: SiteSettings }>("select data from public.cye_site_settings where id=true"),
-      database().query("select id,kind,data,deleted_at from public.cye_content where deleted_at is null and data->>'published'='true' order by (data->>'sort_order')::integer,created_at"),
-    ]);
-    if (!results[0].rows[0]) throw new Error("Database setup is incomplete.");
-    const records = results[1].rows.map(contentRow).map(record => record.kind === "team" && record.use_avatar ? { ...record, image_url: "" } : record);
+    const result = await database().query<{ settings: SiteSettings; content: Parameters<typeof contentRow>[0][] }>(`
+      select s.data settings, (select coalesce(jsonb_agg(to_jsonb(c) order by (data->>'sort_order')::integer,created_at),'[]'::jsonb)
+      from (select id,kind,data,deleted_at,created_at from public.cye_content where deleted_at is null and data->>'published'='true') c) content
+      from public.cye_site_settings s where s.id=true`);
+    if (!result.rows[0]) throw new Error("Database setup is incomplete.");
+    const records = result.rows[0].content.map(contentRow).map(record => record.kind === "team" && record.use_avatar ? { ...record, image_url: "" } : record);
     const grouped = Object.fromEntries(CONTENT_KINDS.map(kind => [kind, records.filter(record => record.kind === kind)]));
-    return { ...grouped, settings: results[0].rows[0].data, databaseAvailable: true } as PublicContent;
+    return { ...grouped, settings: result.rows[0].settings, databaseAvailable: true } as PublicContent;
 }, ["cye-public-content-v2"], { revalidate: 60, tags: [PUBLIC_CONTENT_TAG] });
 
 export const getPublicContent = cache(async (): Promise<PublicContent> => {

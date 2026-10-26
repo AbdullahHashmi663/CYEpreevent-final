@@ -13,8 +13,10 @@ export async function POST(request: Request) {
     const address = text(input.email, "Username or email", 100, true).toLowerCase();
     if (!/^[a-z0-9][a-z0-9._@-]{2,99}$/.test(address)) fail(400, "Please enter a valid username or email address.");
     const password = text(input.password, "Password", 256, true);
-    await rateLimit(request, "login-identity", 8, 900, address);
-    await rateLimit(request, "login", process.env.TRUST_PROXY === "true" ? 30 : 100, 900);
+    await Promise.all([
+      rateLimit(request, "login-identity", 8, 900, address),
+      rateLimit(request, "login", process.env.TRUST_PROXY === "true" ? 30 : 100, 900),
+    ]);
     const result = await database().query<AdminUser & { password_hash: string }>("select id,email,must_change_password,password_hash from public.cye_admin_users where email=$1 and active=true", [address]);
     const account = result.rows[0];
     // Equalize password work for unknown accounts to discourage email enumeration.

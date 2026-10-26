@@ -88,4 +88,6 @@ export interface ApplicationRecord extends ApplicationPayload {
 }
 export interface AdminUser { id: string; email: string; must_change_password: boolean }
 export interface AuditRecord { id: string; action: string; target_id: string; admin_email: string; created_at: string }
-export interface AdminData { settings: SiteSettings; content: ContentRecord[]; applications: ApplicationRecord[]; audit: AuditRecord[]; user: AdminUser }
+export interface AdminApplicationPage { applications: ApplicationRecord[]; total: number; page: number; pageSize: number }
+export interface ApplicationSummary { total: number; pending: number; approved: number; archived: number }
+export interface AdminData { settings: SiteSettings; content: ContentRecord[]; applications: ApplicationRecord[]; applicationSummary: ApplicationSummary; audit: AuditRecord[]; user: AdminUser }

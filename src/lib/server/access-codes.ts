@@ -16,8 +16,10 @@ function accessInput(input: Record<string, unknown>) {
 
 export async function requestAccessCode(request: Request, input: Record<string, unknown>) {
   const { address, purpose } = accessInput(input);
-  await rateLimit(request, "access-code-identity", 3, 900, address);
-  await rateLimit(request, "access-code-global", process.env.TRUST_PROXY === "true" ? 10 : 30, 900);
+  await Promise.all([
+    rateLimit(request, "access-code-identity", 3, 900, address),
+    rateLimit(request, "access-code-global", process.env.TRUST_PROXY === "true" ? 10 : 30, 900),
+  ]);
   passwordEmailConfiguration();
   const id = randomUUID();
   const code = randomInt(0, 1000000).toString().padStart(6, "0");
@@ -36,8 +38,10 @@ export async function requestAccessCode(request: Request, input: Record<string, 
 
 export async function verifyAccessCode(request: Request, input: Record<string, unknown>) {
   const { address, purpose } = accessInput(input);
-  await rateLimit(request, "access-verify-identity", 12, 900, address);
-  await rateLimit(request, "access-verify-global", process.env.TRUST_PROXY === "true" ? 30 : 100, 900);
+  await Promise.all([
+    rateLimit(request, "access-verify-identity", 12, 900, address),
+    rateLimit(request, "access-verify-global", process.env.TRUST_PROXY === "true" ? 30 : 100, 900),
+  ]);
   const code = text(input.code, "Email code", 6, true);
   const challengeId = text(input.challenge_id, "Verification request", 36, true);
   if (!/^\d{6}$/.test(code) || !/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(challengeId)) fail(400, "Request a new code and enter its six digits.");

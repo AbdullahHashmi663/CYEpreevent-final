@@ -258,8 +258,10 @@ try {
   const csv = await status("/api/admin/export",{},200,"Authenticated CSV export generated");
   ensure(csv.headers.get("content-type").includes("text/csv") && csv.data.includes('"\'=1+1"'),"CSV neutralizes spreadsheet formula injection");
   const adminData = await status("/api/admin/data",{},200,"Admin data refresh succeeds");
-  ensure(adminData.data.applications.some(row=>row.id===replacementId && row.status==="approved" && row.deleted_at===null),"Admin refresh shows persisted approval and restore");
-  ensure(adminData.data.applications.some(row=>row.id===teamId&&row.payment_receipt_url===receiptUrl&&row.payment_amount===100),"Admin review exposes private receipt link and captured fee");
+  const applicationPage = await status("/api/admin/applications",{},200,"Admin paginated application list succeeds");
+  ensure(applicationPage.data.applications.some(row=>row.id===replacementId && row.status==="approved" && row.deleted_at===null),"Admin refresh shows persisted approval and restore");
+  ensure(applicationPage.data.applications.some(row=>row.id===teamId&&row.payment_receipt_url===receiptUrl&&row.payment_amount===100),"Admin review exposes private receipt link and captured fee");
+  ensure(adminData.data.applications.length<=5 && adminData.data.applicationSummary.total>=applicationPage.data.applications.length,"Workspace uses a bounded queue and independent totals");
   ensure(adminData.data.audit.some(row=>row.admin_email===adminEmail && row.action==="applications.exported"),"Admin audit records writes and exports");
   await status("/api/admin/auth",{method:"DELETE"},200,"Admin sign-out succeeds");
   await status("/api/admin/data",{},401,"Signed-out admin loses access");
