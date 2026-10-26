@@ -28,7 +28,7 @@ assert.equal(validateContent({show_as_segment_lead:false}, {...original,show_as_
 assert.throws(()=>validateContent({...original,show_as_segment_lead:'true'}));
 assert.throws(()=>validateContent({...original,avatar_style:'unknown'}));
 assert.throws(()=>validateContent({...original,use_avatar:'true'}));
-const db=url(`export function database(){return {query:async(sql)=>sql.includes('cye_site_settings')?{rows:[{data:{event_name:'Test'}}]}:{rows:[{id:'portrait-test',kind:'team',data:${JSON.stringify({...original,use_avatar:true,avatar_style:'scarf'})},deleted_at:null}]}}}`);
+const db=url(`export function database(){return {query:async()=>({rows:[{settings:{event_name:'Test'},content:[{id:'portrait-test',kind:'team',data:${JSON.stringify({...original,use_avatar:true,avatar_style:'scarf'})},deleted_at:null}]}]})}}`);
 let content=compile('src/lib/server/content.ts').replace('import "server-only";','').replace('"react"',JSON.stringify(url('export const cache=fn=>fn'))).replace('"next/cache"',JSON.stringify(url('export const unstable_cache=fn=>fn'))) .replace('"@/lib/cms-types"',JSON.stringify(types)).replace('"@/lib/cms-seed"',JSON.stringify(url(seed))).replace('"./db"',JSON.stringify(db));
 const {getPublicContent}=await import(url(content));const data=await getPublicContent();assert.equal(data.databaseAvailable,true);assert.equal(data.team[0].image_url,'');assert.equal(teamPortrait(data.team[0]),TEAM_AVATARS.scarf);
 console.log('Passed: existing photos retained, both avatar choices, missing-photo fallback, photo restoration, invalid settings rejected, generated assets present, and unused photo URL excluded from public data.');

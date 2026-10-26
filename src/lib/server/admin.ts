@@ -1,6 +1,6 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
-import type { AdminData, AdminUser, ContentRecord, SiteSettings } from "@/lib/cms-types";
+import type { AdminData, AdminUser, ApplicationSummary, ContentRecord } from "@/lib/cms-types";
 import type { PoolClient } from "pg";
 import { database } from "./db";
 import { audit } from "./auth";
@@ -10,19 +10,30 @@ import { text, validateContent, validateSettings } from "./validation";
 
 export async function transaction<T>(work: (client: PoolClient) => Promise<T>): Promise<T> {
   const client = await database().connect();
+  let broken = false;
   try { await client.query("begin"); const result = await work(client); await client.query("commit"); return result; }
-  catch (error) { await client.query("rollback"); throw error; }
-  finally { client.release(); }
+  catch (error) { try { await client.query("rollback"); } catch { broken = true; } throw error; }
+  finally { client.release(broken); }
 }
 export async function getAdminData(user: AdminUser): Promise<AdminData> {
-  const [settings, content, applications, auditRecords] = await Promise.all([
-    database().query<{ data: SiteSettings }>("select data from public.cye_site_settings where id=true"),
-    database().query("select id,kind,data,deleted_at from public.cye_content order by kind,(data->>'sort_order')::integer,created_at"),
-    database().query("select a.*,c.data->>'title' entry_title from public.cye_applications a left join public.cye_content c on c.id=a.entry_id order by a.created_at desc limit 10000"),
-    database().query("select id,action,target_id,admin_email,created_at from public.cye_audit order by created_at desc limit 50"),
-  ]);
-  if (!settings.rows[0]) fail(503, "Database setup is incomplete.");
-  return { settings: settings.rows[0].data, content: content.rows.map(contentRow), applications: applications.rows.map(applicationRow), audit: auditRecords.rows.map(row => ({ ...row, created_at: new Date(row.created_at).toISOString() })), user };
+  // One round trip instead of four queries contending for the three-connection pool.
+  const result = await database().query(`select s.data settings,
+    (select coalesce(jsonb_agg(to_jsonb(c) order by kind,(data->>'sort_order')::integer,created_at),'[]'::jsonb)
+      from (select id,kind,data,deleted_at,created_at from public.cye_content) c) content,
+    (select jsonb_build_object('total',count(*) filter(where deleted_at is null),
+      'pending',count(*) filter(where deleted_at is null and status='pending'),
+      'approved',count(*) filter(where deleted_at is null and status='approved'),
+      'archived',count(*) filter(where deleted_at is not null)) from public.cye_applications) summary,
+    (select coalesce(jsonb_agg(to_jsonb(a) order by a.created_at desc,a.id desc),'[]'::jsonb) from
+      (select a.*,c.data->>'title' entry_title from public.cye_applications a left join public.cye_content c on c.id=a.entry_id
+       where a.deleted_at is null and a.status='pending' order by a.created_at desc,a.id desc limit 5) a) applications,
+    (select coalesce(jsonb_agg(to_jsonb(a) order by created_at desc),'[]'::jsonb) from
+      (select id,action,target_id,admin_email,created_at from public.cye_audit order by created_at desc limit 50) a) audit
+    from public.cye_site_settings s where s.id=true`);
+  const row = result.rows[0];
+  if (!row) fail(503, "Database setup is incomplete.");
+  return { settings: row.settings, content: row.content.map(contentRow), applications: row.applications.map(applicationRow),
+    applicationSummary: row.summary as ApplicationSummary, audit: row.audit, user };
 }
 async function validateSpeakers(client: PoolClient, record: ContentRecord) {
   if (!record.speaker_ids.length) return;

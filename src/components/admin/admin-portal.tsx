@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
+import ApplicationBrowser from "./ApplicationBrowser";
 import { ArrowDownToLine, ArrowLeft, ArrowUpRight, Archive, Check, ChevronRight, CircleAlert, Clock3, ExternalLink, FileText, ImagePlus, LayoutDashboard, LoaderCircle, LogOut, Menu, Mic2, Pencil, Plus, RefreshCw, RotateCcw, Search, Settings2, ShieldCheck, Sparkles, Trophy, Users, X } from "lucide-react";
 import { whatsappContacts } from "@/lib/whatsapp-contacts";
 import { teamPortrait } from "@/lib/team-portraits";
@@ -175,6 +176,7 @@ export default function AdminPortal() {
   const [data, setData] = useState<AdminData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [revision, setRevision] = useState(0);
   const [view, setView] = useState<View>("overview");
   const [notice, setNotice] = useState<Notice>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -243,6 +245,7 @@ export default function AdminPortal() {
     try {
       const next = await api<AdminData>("/api/admin/data");
       setData(next);
+      setRevision(n => n + 1);
       setUser(next.user);
       return next;
     } catch (error) {
@@ -424,8 +427,7 @@ export default function AdminPortal() {
     setMenuOpen(false);
     setNotice(null);
   }
-  const activeApplications = data?.applications.filter(item => !item.deleted_at) || [];
-  const pending = activeApplications.filter(item => item.status === "pending").length;
+  const pending = data?.applicationSummary.pending || 0;
   if (loading) return <div className="admin-root admin-loading"><LoaderCircle className="admin-spin" size={30} /><p>Opening your admin studio…</p></div>;
   if (!user) return <Login onSignIn={signedIn} notice={notice} />;
   if (user.must_change_password) return <div className="admin-root admin-password-gate"><div className="admin-password-card"><Brand /><p className="admin-eyebrow">ONE QUICK STEP</p><h1>Make it yours.</h1><p>Set a new password before opening your admin studio.</p><PasswordForm required onSuccess={async () => {
@@ -465,7 +467,7 @@ export default function AdminPortal() {
             error: true
           }))}>Try again <RefreshCw size={16} /></button></Empty> : <>
         {view === "overview" && <Overview data={data} navigate={navigate} onReview={setReview} />}
-        {view === "applications" && <Applications applications={activeApplications} onReview={setReview} />}
+        {view === "applications" && <ApplicationBrowser revision={revision} onReview={setReview} />}
         {view === "contests" && <div className="admin-notice"><span>New competition entries, fees, team sizes and payment review are managed by the main CYE team. Local competition records control the published six-event lineup; existing applications remain available here.</span><Link href="/admin/competition-registrations">View CYE competition entries ↗</Link></div>}
         {CONTENT_KINDS.includes(view as ContentKind) && <ContentList kind={view as ContentKind} records={data.content} onEdit={setEditor} onArchive={record => {
             setArchiveError("");
@@ -494,7 +496,7 @@ export default function AdminPortal() {
               error: true
             }));
           }} />}
-        {view === "trash" && <Trash data={data} onRestore={restore} />}
+        {view === "trash" && <><Trash data={data} onRestore={restore} /><ApplicationBrowser archived revision={revision} onRestore={id => restore("application", id)} /></>}
         {view === "activity" && <Activity data={data} />}
         {view === "account" && <><PageHeader eyebrow="ACCOUNT & SECURITY" title="Your account." description="Keep your admin access secure." /><div className="admin-panel admin-account-panel"><p className="admin-eyebrow">SIGNED IN AS</p><h3>{user.email}</h3><PasswordForm onSuccess={async () => {
                 setNotice({
@@ -629,17 +631,17 @@ function Overview({
   const pending = applications.filter(item => item.status === "pending");
   const stats = [{
     label: "Total applications",
-    count: applications.length,
+    count: data.applicationSummary.total,
     note: "Your growing community",
     icon: Users
   }, {
     label: "Awaiting review",
-    count: pending.length,
+    count: data.applicationSummary.pending,
     note: "Ready for your decision",
     icon: Clock3
   }, {
     label: "Approved entries",
-    count: applications.filter(item => item.status === "approved").length,
+    count: data.applicationSummary.approved,
     note: "All set for the event",
     icon: Check
   }, {
@@ -797,31 +799,6 @@ function ContentEditor({
   }
   return <Modal title={`${record.id ? "Edit" : "Add"} ${singular[record.kind]}`} subtitle="Give it the details it deserves." busy={busy || uploading} onClose={onClose}><form onSubmit={submit}><div className="admin-dialog-body admin-form-grid"><label className="admin-field admin-full">{person ? "Full name" : "Title"}<input required maxLength={160} value={draft.title} onChange={e => field("title", e.target.value)} /></label><label className="admin-field admin-full">{record.kind === "team" ? "Position" : person ? "Role / organization" : "Subtitle"}<input maxLength={220} value={draft.subtitle} onChange={e => field("subtitle", e.target.value)} /></label><label className="admin-field admin-full">{person ? "Biography" : "Description"}<textarea rows={4} maxLength={10000} value={draft.description} onChange={e => field("description", e.target.value)} /></label><div className="admin-full">{record.kind === "team" && <><p>Photo changes update this member’s homepage lead card, organizing team card and team marquee. Featured members appear in the homepage lead cards, in display order (up to three). Select “Show in segment lead cards” below only for segment leads on the Our team page.</p><label className="admin-field">Display picture<select value={draft.use_avatar ? "avatar" : "photo"} onChange={e => field("use_avatar", e.target.value === "avatar")}><option value="photo">Uploaded photo</option><option value="avatar">Use avatar instead of photo</option></select></label><label className="admin-field">Avatar style<select value={draft.avatar_style || "beard"} onChange={e => field("avatar_style", e.target.value)}><option value="scarf">Woman wearing a scarf</option><option value="beard">Man with a medium beard</option></select><span>Used when no photo is added, when a photo cannot load, or when you choose an avatar. Select the style for this member.</span></label><div className="admin-team-portrait-preview"><AdminImage src={teamPortrait(draft)} alt="Member portrait preview" /></div></>}{!(record.kind === "team" && draft.use_avatar) && <ImageField label={person ? "Portrait" : record.kind === "sponsors" ? "Logo" : "Cover image"} value={draft.image_url} onChange={value => field("image_url", value)} onBusy={setUploading} />}{record.kind === "team" && draft.image_url && <button type="button" className="admin-button admin-button-secondary" onClick={() => { field("image_url", ""); field("use_avatar", true); }}>Remove photo and use avatar</button>}</div><label className="admin-field">{record.kind === "team" ? "Department" : person ? "Department / category" : "Category"}{event ? <select required value={draft.category} onChange={e => field("category", e.target.value)}><option value="">Choose a section</option>{!(record.kind === "contests" ? COMPETITION_SECTIONS : CONFERENCE_SECTIONS).some(section => section.name === draft.category) && draft.category && <option value={draft.category}>{draft.category} (previous category)</option>}{(record.kind === "contests" ? COMPETITION_SECTIONS : CONFERENCE_SECTIONS).map(section => <option key={section.name} value={section.name}>{section.name}{record.kind === "conferences" && section.name === "Career Pro" ? " — Workshop" : ""}</option>)}</select> : <input maxLength={100} value={draft.category} onChange={e => field("category", e.target.value)} />}{record.kind === "team" && <span>Shown under the member’s name and position in the team marquee.</span>}</label><label className="admin-field">Display order<input type="number" min={0} max={100000} step={1} required value={draft.sort_order} onChange={e => field("sort_order", Number(e.target.value))} /><span>Lower numbers appear first.</span></label>{event && <><label className="admin-field">Date<input type="date" value={draft.date} onChange={e => field("date", e.target.value)} required /></label><label className="admin-field">Time / duration<input value={draft.time} maxLength={100} placeholder="10:00 – 16:00" onChange={e => field("time", e.target.value)} /></label><label className="admin-field admin-full">Venue<input value={draft.location} maxLength={240} onChange={e => field("location", e.target.value)} /></label><label className="admin-field">Entry fee (PKR)<input type="number" min={paidEvent ? 0.01 : 0} disabled={!paidEvent} max={1000000} step="0.01" required value={draft.fee} onChange={e => field("fee", Number(e.target.value))} /><span>{record.kind === "contests" ? "Total fee per individual/team registration. Required for every competition." : paidEvent ? "Workshop fee per person. Receipt required. One participant per registration." : "Free Talk. Registration required. One participant per registration."}</span></label><label className="admin-field">Capacity<input type="number" min={0} max={100000} step={1} required value={draft.capacity} onChange={e => field("capacity", Number(e.target.value))} /><span>0 means no capacity limit.</span></label></>}{paidEvent && <><label className="admin-field">Payment method<input maxLength={100} value={draft.payment_method || ""} onChange={e => field("payment_method", e.target.value)} placeholder="Easypaisa, JazzCash, bank or another wallet" /></label><label className="admin-field">Account holder name<input maxLength={160} value={draft.payment_account_name || ""} onChange={e => field("payment_account_name", e.target.value)} /></label><label className="admin-field admin-full">Account / wallet number<input maxLength={100} value={draft.payment_account_number || ""} onChange={e => field("payment_account_number", e.target.value)} /></label><label className="admin-field admin-full">Payment instructions<textarea rows={4} maxLength={3000} value={draft.payment_instructions || ""} onChange={e => field("payment_instructions", e.target.value)} placeholder="Bank or wallet name, account title and number, payment reference instructions…" /><span>Shown to participants before they upload a receipt.</span></label></>}{record.kind === "contests" && <><label className="admin-field">Minimum team size<input type="number" min={1} max={20} step={1} required value={draft.min_members} onChange={e => field("min_members", Number(e.target.value))} /><span>Include the team leader in this count.</span></label><label className="admin-field">Maximum team size<input type="number" min={1} max={20} step={1} required value={draft.max_members} onChange={e => field("max_members", Number(e.target.value))} /><span>1 for an individual contest.</span></label><label className="admin-field admin-full">Rules & requirements<textarea rows={5} value={draft.rules} maxLength={15000} onChange={e => field("rules", e.target.value)} /><span>Write each rule on a new line.</span></label></>}{record.kind === "conferences" && <ConferenceSpeakerPicker speakers={speakers} selected={draft.speaker_ids} assigned={record.speaker_ids} onChange={ids => field("speaker_ids", ids)} />}<div className="admin-full admin-checks">{record.kind === "team" && <label><input type="checkbox" checked={draft.show_as_segment_lead === true} onChange={e => field("show_as_segment_lead", e.target.checked)} /><span>Show in segment lead cards<small>Display this member in “The minds making it happen” on the Our team page. Select only segment leads. All published members still appear in the team marquee.</small></span></label>}<label><input type="checkbox" checked={draft.published} onChange={e => field("published", e.target.checked)} /><span>Published<small>Visible on the public website.</small></span></label><label><input type="checkbox" checked={draft.featured} onChange={e => field("featured", e.target.checked)} /><span>Featured<small>Highlight in the main lineup.</small></span></label></div><div className="admin-full"><ErrorText error={error} /></div></div><div className="admin-dialog-footer"><button type="button" className="admin-button admin-button-secondary" disabled={busy || uploading} onClick={onClose}>Cancel</button><button className="admin-button" disabled={busy || uploading}>{busy ? <LoaderCircle size={18} className="admin-spin" /> : <Check size={18} />} {busy ? "Saving…" : "Save changes"}</button></div></form></Modal>;
 }
-function Applications({
-  applications,
-  onReview
-}: {
-  applications: ApplicationRecord[];
-  onReview: (item: ApplicationRecord) => void;
-}) {
-  const [query, setQuery] = useState("");
-  const [status, setStatus] = useState("all");
-  const [kind, setKind] = useState("all");
-  const [page, setPage] = useState(1);
-  const filtered = applications.filter(item => `${item.name} ${item.email} ${item.reference} ${item.entry_title} ${item.university || ""}`.toLowerCase().includes(query.toLowerCase()) && (status === "all" || item.status === status) && (kind === "all" || item.kind === kind)).sort((a, b) => b.created_at.localeCompare(a.created_at));
-  const pages = Math.max(1, Math.ceil(filtered.length / 20));
-  const currentPage = Math.min(page, pages);
-  return <><PageHeader eyebrow="YOUR COMMUNITY" title="Every entry matters." description="Review participants and messages in one place."><a className="admin-button admin-button-secondary" href="/api/admin/export" download><ArrowDownToLine size={18} /> Export all CSV</a></PageHeader><div className="admin-toolbar"><SearchField value={query} onChange={value => {
-        setQuery(value);
-        setPage(1);
-      }} placeholder="Search name, email, reference…" /><label className="admin-filter">Status<select value={status} onChange={e => {
-          setStatus(e.target.value);
-          setPage(1);
-        }}><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select></label><label className="admin-filter">Type<select value={kind} onChange={e => {
-          setKind(e.target.value);
-          setPage(1);
-        }}><option value="all">All applications</option><option value="contest">Contest</option><option value="conference">Conference</option><option value="contact">Contact</option></select></label></div><div className="admin-panel admin-table-panel">{filtered.length === 0 ? <Empty title={applications.length ? "No matching applications" : "Your community starts here"} description={applications.length ? "Try changing your search or filters." : "Applications and messages will appear here as they arrive."} /> : <><div className="admin-table-wrap"><table className="admin-table"><caption className="admin-sr-only">Application review list</caption><thead><tr><th>Applicant</th><th>Application</th><th>Reference</th><th>Status</th><th>Received</th><th><span className="admin-sr-only">Actions</span></th></tr></thead><tbody>{filtered.slice((currentPage - 1) * 20, currentPage * 20).map(item => <tr key={item.id}><td><strong>{item.name}</strong><span>{item.email}</span></td><td><strong>{item.entry_title || (item.kind === "contact" ? "Contact message" : "Earlier application")}</strong><span>{item.kind}{item.team_members?.length ? ` · ${item.team_members.length + 1} participants` : ""}</span></td><td><span className="admin-reference">{item.reference}</span></td><td><Badge value={item.status} /></td><td>{formatDate(item.created_at)}</td><td><button className="admin-button admin-button-small admin-button-secondary" onClick={() => onReview(item)}>Review <ArrowUpRight size={15} /></button></td></tr>)}</tbody></table></div><div className="admin-table-footer"><span>{filtered.length} applications · Page {currentPage} of {pages}</span><div><button className="admin-text-button" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>Previous</button><button className="admin-text-button" disabled={currentPage >= pages} onClick={() => setPage(currentPage + 1)}>Next</button></div></div></>}</div></>;
-}
 function ApplicationReview({
   record,
   onUpdate,
@@ -932,19 +909,9 @@ function Trash({
 }) {
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState("");
-  const items = [...data.content.filter(item => item.deleted_at).map(item => ({
-    id: item.id,
-    title: item.title,
-    detail: labels[item.kind],
-    deleted_at: item.deleted_at!,
-    type: "content" as const
-  })), ...data.applications.filter(item => item.deleted_at).map(item => ({
-    id: item.id,
-    title: item.name,
-    detail: `${item.entry_title || item.kind} · ${item.reference}`,
-    deleted_at: item.deleted_at!,
-    type: "application" as const
-  }))].filter(item => `${item.title} ${item.detail}`.toLowerCase().includes(query.toLowerCase())).sort((a, b) => b.deleted_at.localeCompare(a.deleted_at));
+  const items = data.content.filter(item => item.deleted_at).map(item => ({
+    id: item.id, title: item.title, detail: labels[item.kind], deleted_at: item.deleted_at!, type: "content" as const
+  })).filter(item => (item.title + " " + item.detail).toLowerCase().includes(query.toLowerCase())).sort((a, b) => b.deleted_at.localeCompare(a.deleted_at));
   async function restore(item: typeof items[number]) {
     setBusy(item.id);
     try {
@@ -953,7 +920,7 @@ function Trash({
       setBusy("");
     }
   }
-  return <><PageHeader eyebrow="NOTHING LOST" title="Room for second chances." description="Archived items stay here until you restore them. No permanent deletions." /><div className="admin-toolbar"><SearchField value={query} onChange={setQuery} placeholder="Search archived items" /><span className="admin-result-count">{items.length} archived items</span></div><div className="admin-panel admin-table-panel">{items.length === 0 ? <Empty title="Your trash is empty" description="Archived content and applications will be kept here for recovery." /> : <div className="admin-table-wrap"><table className="admin-table"><caption className="admin-sr-only">Archived records</caption><thead><tr><th>Item</th><th>Type / details</th><th>Archived</th><th><span className="admin-sr-only">Restore</span></th></tr></thead><tbody>{items.map(item => <tr key={`${item.type}-${item.id}`}><td><strong>{item.title}</strong></td><td>{item.detail}</td><td>{formatDate(item.deleted_at)}</td><td><button className="admin-button admin-button-small admin-button-secondary" disabled={!!busy} onClick={() => restore(item)}>{busy === item.id ? <LoaderCircle className="admin-spin" size={16} /> : <RotateCcw size={16} />} Restore</button></td></tr>)}</tbody></table></div>}</div></>;
+  return <><PageHeader eyebrow="NOTHING LOST" title="Room for second chances." description="Archived items stay here until you restore them. No permanent deletions." /><div className="admin-toolbar"><SearchField value={query} onChange={setQuery} placeholder="Search archived content" /><span className="admin-result-count">{items.length} archived content items</span></div><div className="admin-panel admin-table-panel">{items.length === 0 ? <Empty title="No archived content" description="Archived website content will be kept here for recovery. Archived applications appear below." /> : <div className="admin-table-wrap"><table className="admin-table"><caption className="admin-sr-only">Archived records</caption><thead><tr><th>Item</th><th>Type / details</th><th>Archived</th><th><span className="admin-sr-only">Restore</span></th></tr></thead><tbody>{items.map(item => <tr key={`${item.type}-${item.id}`}><td><strong>{item.title}</strong></td><td>{item.detail}</td><td>{formatDate(item.deleted_at)}</td><td><button className="admin-button admin-button-small admin-button-secondary" disabled={!!busy} onClick={() => restore(item)}>{busy === item.id ? <LoaderCircle className="admin-spin" size={16} /> : <RotateCcw size={16} />} Restore</button></td></tr>)}</tbody></table></div>}</div></>;
 }
 function Activity({
   data

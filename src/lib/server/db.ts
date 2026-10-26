@@ -16,6 +16,7 @@ export function database(): Pool {
       database: decodeURIComponent(url.pathname.slice(1)),
       ssl: { rejectUnauthorized: true, ...(ca ? { ca } : {}) },
       max: 3, connectionTimeoutMillis: 8000, idleTimeoutMillis: 15000,
+      maxLifetimeSeconds: 300, keepAlive: true, allowExitOnIdle: true,
       statement_timeout: 10000, query_timeout: 12000,
       application_name: "cye-web",
     });

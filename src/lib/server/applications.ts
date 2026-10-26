@@ -7,13 +7,16 @@ import { transaction } from "./admin";
 import { fail, rateLimit } from "./http";
 import { validateApplication } from "./validation";
 
-function localDate() { return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Karachi", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date()); }
+const karachiDate = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Karachi", year: "numeric", month: "2-digit", day: "2-digit" });
+function localDate() { return karachiDate.format(new Date()); }
 export async function submitApplication(request: Request, input: Record<string, unknown>, receipt?: PaymentReceipt) {
   if (input.kind === "contest") fail(409, "Competition registrations now use separate forms. Open the Competitions page and choose your competition.");
   const payload: ReturnType<typeof validateApplication> & Pick<ApplicationRecord, "payment_amount" | "payment_receipt_url"> = validateApplication(input);
   if (receipt && payload.kind !== "contest" && payload.kind !== "conference") fail(400, "Payment receipts are only accepted for paid event registrations.");
-  await rateLimit(request, "applications-email", 5, 900, payload.email);
-  await rateLimit(request, "applications", process.env.TRUST_PROXY === "true" ? 20 : 250, 900);
+  await Promise.all([
+    rateLimit(request, "applications-email", 5, 900, payload.email),
+    rateLimit(request, "applications", process.env.TRUST_PROXY === "true" ? 20 : 250, 900),
+  ]);
   return transaction(async client => {
     const settingsResult = await client.query<{ data: SiteSettings }>("select data from public.cye_site_settings where id=true for share");
     if (!settingsResult.rows[0]) fail(503, "Database setup is incomplete.");
