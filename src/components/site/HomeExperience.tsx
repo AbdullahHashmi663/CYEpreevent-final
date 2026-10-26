@@ -38,11 +38,12 @@ export default function HomeExperience({ data }: { data: PublicContent }) {
   const { settings } = data;
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Karachi" }).format(new Date());
   const open = settings.registration_open && settings.event_date >= today;
-  const team = (data.team.some(member => member.featured) ? data.team.filter(member => member.featured) : data.team).slice(0, 3);
+  const publishedTeam = data.team.filter(member => member.published && !member.deleted_at);
+  const team = (publishedTeam.some(member => member.featured) ? publishedTeam.filter(member => member.featured) : publishedTeam).slice(0, 3);
   const metrics = [
     { value: data.contests.length, label: "Competition experiences", icon: Ticket },
     { value: data.conferences.length, label: "Talks & workshops", icon: Mic },
-    { value: data.team.length, label: "People making it happen", icon: Users },
+    { value: publishedTeam.length, label: "People making it happen", icon: Users },
     { value: 3, unit: "Million PKR", label: "Prize Pool on Main CYE Event", icon: Trophy },
   ];
   return <SiteShell settings={settings}>
