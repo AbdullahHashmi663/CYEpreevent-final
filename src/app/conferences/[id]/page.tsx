@@ -44,7 +44,7 @@ export default async function SessionPage({ params }: Props) {
           <p><Link href="/venue">Venue & directions</Link> · <Link href="/contact">Ask the team</Link></p>
         </div>
       </section>
-      {speakers.length > 0 && <section className="container explore-section"><h2>Meet the speakers</h2><p className="muted">Expected speakers are:</p><div className="people-grid">{speakers.map(speaker => <article className="person-card" key={speaker.id}><div className="person-image"><ContentImage src={speaker.image_url} alt={speaker.title} /></div><h3>{speaker.title}</h3><p className="person-role">{speaker.subtitle}</p>{speaker.description && <p className="person-bio">{speaker.description}</p>}</article>)}</div></section>}
+      {speakers.length > 0 && <section className="container explore-section"><h2>Meet the speakers</h2><div className="people-grid">{speakers.map(speaker => <article className="person-card" key={speaker.id}><div className="person-image"><ContentImage src={speaker.image_url} alt={speaker.title} /></div><h3>{speaker.title}</h3>{(speaker.id === "kanwal-cheema" || speaker.title.trim().toLowerCase() === "kanwal cheema") && <p className="eyebrow">Expected guest</p>}<p className="person-role">{speaker.subtitle}</p>{speaker.description && <p className="person-bio">{speaker.description}</p>}</article>)}</div></section>}
     </div>
   </SiteShell>;
 }
