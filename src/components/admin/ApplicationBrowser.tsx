@@ -27,7 +27,7 @@ export default function ApplicationBrowser({ revision, archived = false, onRevie
       setError("");
       try {
         const params = new URLSearchParams({ q: query, status, kind, page: String(page), archived: String(archived) });
-        const response = await fetch(`/api/admin/applications?${params}`, { cache: "no-store", credentials: "same-origin", signal: controller.signal });
+        const response = await fetch(`/api/admin/applications?${params}`, { cache: "no-store", credentials: "same-origin", signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30000)]) });
         const data = await response.json();
         if (!response.ok) throw Error(data.error || "Applications could not be loaded.");
         if (controller.signal.aborted) return;
@@ -35,7 +35,7 @@ export default function ApplicationBrowser({ revision, archived = false, onRevie
         if (page > lastPage) { setPage(lastPage); return; }
         setResult(data);
       } catch (caught) {
-        if (!controller.signal.aborted) setError(caught instanceof Error ? caught.message : "Applications could not be loaded.");
+        if (!controller.signal.aborted) setError(caught instanceof Error && caught.name === "TimeoutError" ? "Applications took too long to load. Try again." : caught instanceof Error ? caught.message : "Applications could not be loaded.");
       } finally { if (!controller.signal.aborted) setSettledKey(requestKey); }
     }, query ? 250 : 0);
     return () => { clearTimeout(timer); controller.abort(); };
