@@ -13,6 +13,8 @@ assert.equal(Object.keys(PARTNER_COMPETITIONS).length,6);
 const competition={localId:"contest-2",id:4,name:"Hackathon",fee:"PKR 2,000",teamMin:3,teamMax:5};
 const member=i=>({name:`Test ${i}`,email:`test${i}@example.com`,phone:"03001234567",institution:"Bahria University Islamabad",gender:i%2?"Male":"Female"});
 const valid={competition:"tampered name",teamName:"Test Team",level:"Undergraduate",idNumber:"TEST-ID",consent:true,members:[member(1),member(2),member(3)]};
+assert.equal(validatePartnerRegistration({...valid,idNumber:'x'.repeat(40)},competition).idNumber.length,40);
+assert.throws(()=>validatePartnerRegistration({...valid,idNumber:'x'.repeat(41)},competition));
 assert.equal(validatePartnerRegistration(valid,competition).competition,"Hackathon");
 for(const update of [{members:[member(1)]},{members:Array.from({length:6},(_,i)=>member(i))},{teamName:""},{consent:false},{level:"invalid"},{idNumber:""},{members:[member(1),member(1),member(3)]},{members:[{...member(1),gender:""},member(2),member(3)]},{members:[{...member(1),email:"bad"},member(2),member(3)]}])assert.throws(()=>validatePartnerRegistration({...valid,...update},competition));
 const solo=validatePartnerRegistration({...valid,teamName:"",members:[member(1)]},{...competition,teamMin:1,teamMax:1});assert.equal(solo.teamName,"");
