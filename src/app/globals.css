@@ -421,4 +421,15 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset
   .gallery-group figure:nth-child(even) { transform: none; }
 }
 
-.hero-event-name { font-size:clamp(12px,1.4vw,17px); font-weight:800; letter-spacing:.12em; color:#fff; margin:20px 0 12px; }
+.hero-event-name { display:inline-block; max-width:100%; font-size:clamp(12px,1.4vw,17px); font-weight:800; letter-spacing:.12em; color:var(--blue); margin:20px 0 12px; }
+@supports ((background-clip:text) or (-webkit-background-clip:text)) {
+  .hero-event-name {
+    background-image:radial-gradient(ellipse at 12% 25%,#c73f1c 0%,transparent 58%),radial-gradient(ellipse at 88% 75%,#c73f1c 0%,transparent 48%),linear-gradient(110deg,#1b4694,#12356f);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+}
+@media (forced-colors:active) {
+  .hero-event-name { background:none; color:CanvasText; }
+}
