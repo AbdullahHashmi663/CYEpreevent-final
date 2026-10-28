@@ -109,7 +109,7 @@ export function validateApplication(input: Record<string, unknown>): Application
   const payload: ApplicationPayload = {
     kind, name: text(input.name, "Full name", 120, true), email: email(input.email),
     phone: text(input.phone, "Phone", 50, kind !== "contact"), university: text(input.university, "University", 200, kind !== "contact"),
-    ...(kind === "conference" ? { identification_number: text(input.identification_number, "CNIC / B-Form / Enrollment number", 80, true) } : {}),
+    ...(kind === "conference" ? { identification_number: text(input.identification_number, "CNIC / B-Form number", 80, true) } : {}),
     message: text(input.message, "Message", 5000, kind === "contact"),
     team_members: members.map((member: unknown) => {
       if (!member || typeof member !== "object" || Array.isArray(member)) fail(400, "Invalid team member.");

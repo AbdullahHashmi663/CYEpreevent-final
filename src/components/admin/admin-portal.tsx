@@ -841,7 +841,7 @@ function ApplicationReview({
     label: "University",
     value: record.university
   }, {
-    label: "CNIC / B-Form / Enrollment number",
+    label: "CNIC / B-Form number",
     value: record.identification_number
   }, {
     label: "Department",

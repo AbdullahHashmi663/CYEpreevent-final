@@ -7,7 +7,7 @@ function cell(value: unknown) {
   if (/^\s*[=+\-@\t\r]/.test(text)) text = "'" + text;
   return `"${text.replace(/"/g, '""')}"`;
 }
-const columns = ["Reference","Type","Event","Status","Name","Email","Phone","University","Message","Department","Semester","Additional team members","Rejection reason","Submitted at","Archived at","Fee at registration (PKR)","Payment receipt (admin sign-in required)","CNIC / B-Form / Enrollment number"];
+const columns = ["Reference","Type","Event","Status","Name","Email","Phone","University","Message","Department","Semester","Additional team members","Rejection reason","Submitted at","Archived at","Fee at registration (PKR)","Payment receipt (admin sign-in required)","CNIC / B-Form number"];
 function line(row: ApplicationExportRow) {
   return [row.reference,row.kind,row.entry_title,row.status,row.payload.name,row.payload.email,row.payload.phone,row.payload.university,row.payload.message,row.payload.department,row.payload.semester,JSON.stringify(row.payload.team_members || []),row.rejection_reason,new Date(row.created_at).toISOString(),row.deleted_at ? new Date(row.deleted_at).toISOString() : "",row.payload.payment_amount ?? "",row.payload.payment_receipt_url || "",row.payload.identification_number || ""].map(cell).join(",") + "\r\n";
 }
