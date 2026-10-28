@@ -398,7 +398,7 @@
 
 /* Programme sections follow the organizer's four-part competition lineup. */
 .programme-jump-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 52px; }
-.programme-jump-links.competition-sections { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.programme-jump-links.competition-sections { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .programme-jump-links a { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; padding: 28px; border: 1px solid #d5e2f4; border-radius: 16px; background: #f2f6fe; color: var(--blue); transition: transform .2s, border-color .2s; }
 .programme-jump-links a:nth-child(even) { background: #fff4ef; border-color: #f6d6c7; }
 .programme-jump-links a:hover { transform: translateY(-4px); border-color: var(--orange); }
@@ -415,8 +415,9 @@
 .programme-section .contest-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .programme-coming-soon { border: 1px dashed #cbd9ec; border-radius: 12px; padding: 28px; color: #656b6c; }
 .programme-section .conference-feature + .conference-feature { margin-top: 64px; }
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .programme-jump-links.competition-sections { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .competition-sections .workshops-talks-card { grid-column: 1 / -1; }
 }
 @media (max-width: 600px) {
   .programme-jump-links a { padding: 20px; }
