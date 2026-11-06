@@ -433,3 +433,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible { outline-offset
 @media (forced-colors:active) {
   .hero-event-name { background:none; color:CanvasText; }
 }
+
+.event-qualification-wrap { margin-block: 28px; }
+.event-qualification-notice { padding: clamp(20px, 3vw, 32px); border: 1px solid #d9e3f3; border-left: 4px solid var(--orange); border-radius: 12px; background: #f5f8ff; }
+.event-qualification-notice p { margin: 0; color: var(--blue); font-size: clamp(14px, 1.2vw, 17px); line-height: 1.85; }

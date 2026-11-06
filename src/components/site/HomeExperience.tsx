@@ -1,3 +1,4 @@
+import EventQualificationNotice from "./EventQualificationNotice";
 import { teamPortrait, teamAvatar } from "@/lib/team-portraits";
 
 import Link from "next/link";
@@ -61,6 +62,7 @@ export default function HomeExperience({ data }: { data: PublicContent }) {
         <div className="hero-bottom"><span className={`event-state ${open ? "event-state-open" : ""}`}><span/>{open ? "Applications are open" : "Registration currently closed"}</span><a href="#about-expo" className="scroll-cue">Explore the experience<ArrowDown size={16}/></a></div>
       </div>
     </section>
+    <div className="container event-qualification-wrap"><EventQualificationNotice /></div>
     <SocietyMarquee partners={data.sponsors}/>
     <section className="expo-about container" id="about-expo">
       <div className="centered-heading" data-reveal><p className="eyebrow">MORE THAN A DAY ON YOUR CALENDAR</p><h2>THIS IS CAPITAL<br/><span>YOUTH EXPO</span><br/>PRE-EVENT.</h2><p>A place where curiosity meets opportunity, and the next generation finds its voice.</p></div>

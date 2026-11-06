@@ -1,3 +1,4 @@
+import EventQualificationNotice from "@/components/site/EventQualificationNotice";
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
@@ -20,5 +21,5 @@ export default async function Page({params}:{params:Promise<{id:string}>}) {
   let catalogue: PartnerCatalogue | undefined;
   try {catalogue=await getBrowsePartnerCatalogue();} catch { /* Render a useful retry state without exposing upstream details. */ }
   const competition=catalogue?.competitions.find(c=>c.localId===id);
-  return <SiteShell settings={settings}><div className="explore-page"><PageIntro eyebrow="Competition registration" title="YOUR CHALLENGE." accent="YOUR TEAM." description="A dedicated entry form and payment details for your chosen competition."/><section className="container explore-section">{competition && catalogue ? <CompetitionRegistration competition={competition} catalogue={catalogue}/> : <div className="explore-notice" role="status"><p>Registration details for this competition are temporarily unavailable. Please refresh this page or <Link href="/contact">contact the team</Link>. <Link href="/competitions">Back to competitions ↗</Link></p></div>}</section></div></SiteShell>;
+  return <SiteShell settings={settings}><div className="explore-page"><PageIntro eyebrow="Competition registration" title="YOUR CHALLENGE." accent="YOUR TEAM." description="A dedicated entry form and payment details for your chosen competition."/><div className="container event-qualification-wrap"><EventQualificationNotice /></div><section className="container explore-section">{competition && catalogue ? <CompetitionRegistration competition={competition} catalogue={catalogue}/> : <div className="explore-notice" role="status"><p>Registration details for this competition are temporarily unavailable. Please refresh this page or <Link href="/contact">contact the team</Link>. <Link href="/competitions">Back to competitions ↗</Link></p></div>}</section></div></SiteShell>;
 }
