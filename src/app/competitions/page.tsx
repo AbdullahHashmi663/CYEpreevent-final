@@ -16,7 +16,7 @@ export default async function Page() {
   try { catalogue = await getBrowsePartnerCatalogue(); } catch { /* Dedicated forms show a retry state when the partner is unavailable. */ }
   const contests = data.contests.map(contest => {
     const partner = catalogue?.competitions.find(c => c.localId === contest.id);
-    return { ...contest, fee: partner ? Number(partner.fee.replace(/[^\d.]/g,"")) : 0, min_members: partner?.teamMin || contest.min_members, max_members: partner?.teamMax || contest.max_members, time: COMPETITION_RULEBOOKS[contest.id]?.duration || contest.time, rules: COMPETITION_RULEBOOKS[contest.id]?.summary || contest.rules, date: "2026-11-18", location: "Pak-China Friendship Center, Islamabad" };
+    return { ...contest, fee: partner ? Number(partner.fee.replace(/[^\d.]/g,"")) : 0, min_members: partner?.teamMin || contest.min_members, max_members: partner?.teamMax || contest.max_members, time: COMPETITION_RULEBOOKS[contest.id]?.duration || contest.time, rules: COMPETITION_RULEBOOKS[contest.id]?.summary || contest.rules, date: "2026-12-02", location: "Pak-China Friendship Center, Islamabad" };
   });
   return <ExplorePageShell settings={data.settings} view="competitions"><PageView data={{...data, contests, team: [], speakers: [], sponsors: [], conferences: []}} /></ExplorePageShell>;
 }
