@@ -1,5 +1,5 @@
 import { getPartnerCatalogue, partnerRequest } from "@/lib/server/partner";
-import { PARTNER_COMPETITIONS, validatePartnerRegistration } from "@/lib/partner-competitions";
+import { PARTNER_COMPETITIONS, isCompetitionRegistrationClosed, validatePartnerRegistration } from "@/lib/partner-competitions";
 import { registrationRetrySeconds } from "@/lib/registration-retry";
 import { recordSpeechLanguage, finishSpeechLanguage } from "@/lib/server/speech-languages";
 import { checkOrigin, fail, handle, rateLimit, readLimitedBody, response } from "@/lib/server/http";
@@ -17,6 +17,7 @@ export async function POST(request: Request) {
     try { form = await new Response(new Uint8Array(raw), { headers: { "Content-Type": type } }).formData(); } catch { fail(400, "Invalid form upload."); }
     const id = form.get("entry_id");
     if (typeof id !== "string" || !Object.hasOwn(PARTNER_COMPETITIONS, id)) fail(400, "Choose one of the six available competitions.");
+    if (isCompetitionRegistrationClosed(id)) fail(403, "Registration for this competition is closed.");
     const catalogue = await getPartnerCatalogue();
     if (!catalogue.registrationOpen) fail(403, "CYE competition registration is currently closed.");
     const competition = catalogue.competitions.find(c => c.localId === id);

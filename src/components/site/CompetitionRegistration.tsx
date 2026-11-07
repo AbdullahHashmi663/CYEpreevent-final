@@ -2,7 +2,7 @@
 import WhatsAppChannelLink from "./WhatsAppChannelLink";
 import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { PARTNER_LEVELS, SPEECH_LANGUAGES, type SpeechLanguage, type PartnerCatalogue, type PartnerCompetition } from "@/lib/partner-competitions";
+import { PARTNER_LEVELS, SPEECH_LANGUAGES, isCompetitionRegistrationClosed, type SpeechLanguage, type PartnerCatalogue, type PartnerCompetition } from "@/lib/partner-competitions";
 import { registrationRetrySeconds } from "@/lib/registration-retry";
 
 export default function CompetitionRegistration({ competition, catalogue }: { competition: PartnerCompetition; catalogue: PartnerCatalogue }) {
@@ -63,7 +63,7 @@ export default function CompetitionRegistration({ competition, catalogue }: { co
       {competition.rulebookUrl && <a className="text-link" href={competition.rulebookUrl} target="_blank" rel="noopener noreferrer">Read the competition rulebook (PDF) ↗</a>}
       <p className="partner-scope-note">This entry is submitted to the main CYE organizing team for payment review and approval. Workshop and talk registrations use their own forms and payment details.</p>
       <Link href="/register?kind=conference" className="text-link">Workshop & talk registration ↗</Link>
-      <h3>Other competitions</h3><nav aria-label="Competition registration forms" className="partner-form-links">{catalogue.competitions.map(c => <Link key={c.localId} href={`/competition-registration/${c.localId}`} aria-current={c.localId === competition.localId ? "page" : undefined}>{c.name}</Link>)}</nav>
+      <h3>Other competitions</h3><nav aria-label="Competition registration forms" className="partner-form-links">{catalogue.competitions.map(c => <Link key={c.localId} href={`/competition-registration/${c.localId}`} aria-current={c.localId === competition.localId ? "page" : undefined}>{c.name}{isCompetitionRegistrationClosed(c.localId) && " (Registration closed)"}</Link>)}</nav>
     </aside>
     <div className="application-panel partner-application-panel">
       {result ? <div ref={feedback} tabIndex={-1} role="status" className="submission-success"><span className="eyebrow">Entry received by CYE</span><h2>You’re registered for review.</h2><p>Your CYE registration reference is <strong>#{result.id}</strong>. Save this number.</p>{result.speechLanguage && <p><strong>Speech language: {result.speechLanguage}</strong></p>}<p>Status: <strong>{result.status}</strong><br/>Payment: <strong>{result.paymentStatus}</strong></p><p>The team lead will receive CYE’s confirmation email. Payment and entry approval are handled by the CYE organizing team. Do not submit this entry again.</p><p>Follow our channel for event announcements and updates.</p><WhatsAppChannelLink /><Link className="button button-outline" href="/competitions">Back to competitions</Link></div> : <form className="application-form" onSubmit={submit}>

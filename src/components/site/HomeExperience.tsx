@@ -19,7 +19,7 @@ function ProgrammeFee({ conference }: { conference: ContentRecord }) {
 const disciplines = [
   { name: "Tech Nexus", label: "CODE. BUILD. SOLVE.", description: "Speed Programming and Hackathon. Bring your problem-solving skills and build something that matters.", icon: Code2, className: "discipline-blue", href: "/competitions#tech-nexus" },
   { name: "Venture X", label: "PITCH YOUR IDEA", description: "A stage for your next big idea. Share your vision and show the potential of your venture.", icon: Lightbulb, className: "discipline-orange", href: "/competitions#venture-x" },
-  { name: "Spectrum", label: "CREATE YOUR OWN PERSPECTIVE", description: "Reel Competition and Graphic Design. Turn your creativity into something people remember.", icon: Palette, className: "discipline-blue", href: "/competitions#spectrum" },
+  { name: "Spectrum", label: "CREATE YOUR OWN PERSPECTIVE", description: "Registration is closed for Reel Competition and Graphic Design.", icon: Palette, className: "discipline-blue", href: "/competitions#spectrum" },
   { name: "Literary", label: "MAKE YOUR VOICE HEARD", description: "Step up to the microphone for Speech. Bring a fresh perspective and make every word count.", icon: Mic, className: "discipline-orange", href: "/competitions#literary" },
 ];
 const gallery = [

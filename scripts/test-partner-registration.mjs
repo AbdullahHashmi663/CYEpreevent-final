@@ -38,6 +38,13 @@ assert.equal((await POST(request({includeSlip:false}))).status,422);
 assert.equal((await POST(request({slip:Buffer.from("fake receipt")}))).status,415);
 assert.equal((await POST(request({slip:Buffer.alloc(4194305)}))).status,413);
 assert.equal((await POST(request({registration:{...valid,consent:false}}))).status,422);
+const catalogueCallsBeforeClosures = state.catalogueCalls;
+for (const id of ["reel-competition", "graphic-design"]) {
+  const closedResponse = await POST(request({ id }));
+  assert.equal(closedResponse.status, 403);
+  assert.equal((await closedResponse.json()).error, "Registration for this competition is closed.");
+}
+assert.equal(state.catalogueCalls, catalogueCallsBeforeClosures);
 state.closed=true;assert.equal((await POST(request())).status,403);state.closed=false;
 assert.equal(state.calls,0);
 const success=await POST(request());assert.equal(success.status,201);assert.equal((await success.json()).id,123);assert.equal(state.calls,1);

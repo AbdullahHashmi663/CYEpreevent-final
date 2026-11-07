@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { isCompetitionRegistrationClosed } from "@/lib/partner-competitions";
 import type { ContentRecord, PublicContent } from "@/lib/cms-types";
 
 export function SectionHeading({ number, eyebrow, title, description }: { number: string; eyebrow: string; title: string; description?: string }) {
@@ -7,6 +8,9 @@ export function SectionHeading({ number, eyebrow, title, description }: { number
 }
 
 export function RegistrationLink({ data, entry, kind }: { data: PublicContent; entry: ContentRecord; kind: "contest" | "conference" }) {
+  if (kind === "contest" && isCompetitionRegistrationClosed(entry.id)) {
+    return <p><strong>Registration closed</strong></p>;
+  }
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Karachi" }).format(new Date());
   const open = (data.settings.registration_open && (!data.settings.event_date || data.settings.event_date >= today)) && data.databaseAvailable && (!entry.date || entry.date >= today);
   return <Link href={kind === "contest" ? `/competition-registration/${encodeURIComponent(entry.id)}` : `/register?kind=${kind}&entry=${encodeURIComponent(entry.id)}`} className={`button ${open ? "button-primary" : "button-outline"}`}>{open ? "Apply to join" : "Registration details"}<ArrowUpRight size={18} aria-hidden="true" /></Link>;

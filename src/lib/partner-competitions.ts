@@ -6,6 +6,12 @@ export const PARTNER_COMPETITIONS = {
   "graphic-design": "Graphic Design",
   "contest-4": "Speech (English / Urdu)",
 } as const;
+const closedCompetitionIds = new Set(["reel-competition", "graphic-design"]);
+
+export function isCompetitionRegistrationClosed(id: string): boolean {
+  return closedCompetitionIds.has(id);
+}
+
 export interface PartnerCompetition {
   localId: string; id: number; name: string; category: string; audience: string;
   fee: string; teamMin: number; teamMax: number; description: string; rulebookUrl: string | null;
