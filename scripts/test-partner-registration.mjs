@@ -24,7 +24,11 @@ const speechStorageUrl=moduleUrl(`export const storage={saved:[],finished:[],fai
 const {storage}=await import(speechStorageUrl);
 const stubUrl=moduleUrl(`export const state={calls:0,catalogueCalls:0,closed:false,failNetwork:false,rejectStatus:0,retryAfter:null,languages:[],fee:'PKR 2,000'}; export async function getPartnerCatalogue(){state.catalogueCalls++;return {registrationOpen:!state.closed,competitions:[${JSON.stringify(competition).replace('"PKR 2,000"','state.fee')},${JSON.stringify(speechCompetition).replace('"PKR 2,000"','state.fee')}]}} export async function partnerRequest(path,options){state.calls++;const body=options.body;const data=JSON.parse(body.get('registration'));if(!['Hackathon','Speech (English / Urdu)'].includes(data.competition)||data.members.length!==(data.competition==='Hackathon'?3:1)||'speechLanguage' in data||!body.get('paymentSlip'))throw Error('Bad upstream contract');if(state.failNetwork)throw Error('Timeout');if(data.competition==='Speech (English / Urdu)'){if(!['Urdu','English'].includes(data.language))throw Error('language: Choose English or Urdu for the speech');state.languages.push(data.language);}else if('language' in data)throw Error('Non-Speech payload changed');if(state.rejectStatus)return Response.json({error:'members.0.phone: Enter a valid phone number'},{status:state.rejectStatus,headers:state.retryAfter?{'Retry-After':state.retryAfter}:{}});return Response.json({id:123,status:'new',paymentStatus:'Not checked',paymentSlipUploaded:true},{status:201})}`);
 let route=compile("src/app/api/competition-registrations/route.ts").replaceAll('"@/lib/registration-retry"',JSON.stringify(retryUrl)).replaceAll('"@/lib/server/partner"',JSON.stringify(stubUrl)).replaceAll('"@/lib/partner-competitions"',JSON.stringify(validationUrl)).replaceAll('"@/lib/server/http"',JSON.stringify(httpUrl)).replaceAll('"@/lib/server/speech-languages"',JSON.stringify(speechStorageUrl));
-const {POST}=await import(moduleUrl(route));const {state}=await import(stubUrl);
+const { POST: submitClosedCompetition } = await import(moduleUrl(route));
+// Exercise the partner submission contract with the event closure lifted in this mock only.
+const openValidationUrl = moduleUrl(`export * from ${JSON.stringify(validationUrl)}; export function isCompetitionRegistrationClosed() { return false; }`);
+const { POST } = await import(moduleUrl(route.replace(JSON.stringify(validationUrl), JSON.stringify(openValidationUrl))));
+const { state } = await import(stubUrl);
 const png=Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a9N8AAAAASUVORK5CYII=","base64");
 function request({origin="https://test.example",fee="PKR 2,000",id="contest-2",registration=valid,slip=png,includeSlip=true}={}){const form=new FormData();form.set("entry_id",id);form.set("expected_fee",fee);form.set("registration",JSON.stringify(registration));if(includeSlip)form.set("paymentSlip",new Blob([slip],{type:"image/png"}),"receipt.png");return new Request("https://test.example/api/competition-registrations",{method:"POST",headers:{Origin:origin},body:form});}
 assert.equal((await POST(request({origin:"https://other.example"}))).status,403);
@@ -39,8 +43,8 @@ assert.equal((await POST(request({slip:Buffer.from("fake receipt")}))).status,41
 assert.equal((await POST(request({slip:Buffer.alloc(4194305)}))).status,413);
 assert.equal((await POST(request({registration:{...valid,consent:false}}))).status,422);
 const catalogueCallsBeforeClosures = state.catalogueCalls;
-for (const id of ["reel-competition", "graphic-design"]) {
-  const closedResponse = await POST(request({ id }));
+for (const id of Object.keys(PARTNER_COMPETITIONS)) {
+  const closedResponse = await submitClosedCompetition(request({ id }));
   assert.equal(closedResponse.status, 403);
   assert.equal((await closedResponse.json()).error, "Registration for this competition is closed.");
 }

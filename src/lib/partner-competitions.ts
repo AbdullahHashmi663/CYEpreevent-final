@@ -6,10 +6,9 @@ export const PARTNER_COMPETITIONS = {
   "graphic-design": "Graphic Design",
   "contest-4": "Speech (English / Urdu)",
 } as const;
-const closedCompetitionIds = new Set(["reel-competition", "graphic-design"]);
 
 export function isCompetitionRegistrationClosed(id: string): boolean {
-  return closedCompetitionIds.has(id);
+  return Object.hasOwn(PARTNER_COMPETITIONS, id);
 }
 
 export interface PartnerCompetition {

@@ -26,6 +26,7 @@ export default function Competitions({ data }: { data: PublicContent }) {
   return <>
     <PageIntro eyebrow="02 / Four sections. Your next challenge." title="SHOW UP." accent="STAND OUT." description="Tech Nexus. Venture X. Spectrum. Literary. Find your people, choose your challenge, and bring your best." />
     <section className="container explore-section">
+      <div className="explore-notice"><p><strong>Competition registration is closed.</strong> <Link href="/register?kind=conference">Register for the talk or workshop ↗</Link></p></div>
       <nav className="programme-jump-links competition-sections" aria-label="Competition sections and sessions">
         {COMPETITION_SECTIONS.map(section => <a href={`#${section.slug}`} key={section.name} onClick={() => { setCategory("All disciplines"); setQuery(""); }}><span className="programme-section-icon"><ContestIcon category={section.name} /></span><strong>{section.name}</strong><span>{section.events}</span><ArrowDown size={18} aria-hidden="true" /></a>)}
         <Link href="/conferences" className="workshops-talks-card"><span className="programme-section-icon"><Mic2 size={27} strokeWidth={1.6} aria-hidden="true" /></span><strong>Workshops &amp; Talks</strong><span>Career Pro · Purpose of Life</span><ArrowUpRight size={18} aria-hidden="true" /></Link>
