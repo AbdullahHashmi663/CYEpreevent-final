@@ -1,11 +1,12 @@
-import { pageMetadata, PUBLIC_PAGES } from "@/lib/seo";
-import { getPublicContent } from "@/lib/server/content";
-import HomeExperience from "@/components/site/HomeExperience";
+import type { Metadata } from "next";
+import ThankYouExperience from "@/components/site/ThankYouExperience";
 
-const seo = PUBLIC_PAGES[0];
-export const metadata = pageMetadata(seo.title, seo.description, seo.path);
-export const revalidate = 60;
+export const metadata: Metadata = {
+  title: "Thank You | Capital Youth Expo Pre-Event at BUIC",
+  description: "Thank you for being part of the Capital Youth Expo Pre-Event at Bahria University Islamabad.",
+  robots: { index: false, follow: false },
+};
 
-export default async function Home() {
-  return <HomeExperience data={await getPublicContent()} />;
+export default function Home() {
+  return <ThankYouExperience />;
 }
